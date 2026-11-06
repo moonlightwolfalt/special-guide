@@ -42,7 +42,7 @@ public class CollisionMath extends Thread {
     public final int id;
 
     public CollisionMath(Room room, Main main, CollisionHandler collisionHandler, int id) {
-        Affinity.setAffinity(3);
+        io.mopesbox.Utils.CpuPin.pin(3);
         this.room = room;
         this.main = main;
         this.id = id;

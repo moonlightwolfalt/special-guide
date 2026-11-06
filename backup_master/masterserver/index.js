@@ -4,13 +4,7 @@ var app = express();
 var https = require('https');
 var http = require('http');
 var bodyParser = require('body-parser');
-var certificate = fs.readFileSync('REMOVED_DUE_TO_SENSITIVE_DATA');
-var privatekey = fs.readFileSync('REMOVED_DUE_TO_SENSITIVE_DATA');
-
-
-var credentials = {key: privatekey, cert: certificate};
-
-var mainKey = "REMOVED_DUE_TO_SENSITIVE_DATA";
+var mainKey = process.env.MASTER_KEY || "REMOVED_DUE_TO_SENSITIVE_DATA";
 
 //app.use()
 
@@ -30,7 +24,7 @@ function addServer(ip, key) {
     console.log("Added server - " + ip);
 }
 
-addServer("gameserver.mope2020.fun", "REMOVED_DUE_TO_SENSITIVE_DATA");
+addServer(process.env.GAME_SERVER_NAME || "gameserver.mope2020.fun", process.env.GAME_SERVER_KEY || "REMOVED_DUE_TO_SENSITIVE_DATA");
 
 function parseServer(get) {
     var key = get.pvk;
@@ -103,10 +97,13 @@ app.post('/', jsonParser, function(request, response) {
     response.end(html);
 })
 
-const port = 2096;
-var httpsServer = https.createServer(credentials, app)
-httpsServer.listen(port);
-console.log(`Listening at ${port}`);
+// HTTPS is optional: set SSL_KEY and SSL_CERT to file paths to enable it.
+if (process.env.SSL_KEY && process.env.SSL_CERT) {
+    const port = 2096;
+    const credentials = {key: fs.readFileSync(process.env.SSL_KEY), cert: fs.readFileSync(process.env.SSL_CERT)};
+    https.createServer(credentials, app).listen(port);
+    console.log(`Listening at ${port}`);
+}
 
 var localserv = http.createServer(app);
 localserv.listen(14001);

@@ -2500,38 +2500,14 @@ document.getElementById('settingsButton').onclick = function () {
     _0x513831();
 };
 
-function getDiscordCode() {//49397
-    $.ajax({
-        'url': 'https://accountserver.mope2020.fun/discord?userId=' + login_userId + '&passwordToken=' + login_passwordToken,
-        'success': function (aeae) {
-            let a;
-            try { a = JSON.parse(aeae); } catch { }
-            if (a && a.success == true) {
-                var discordcodeblock = document.getElementById('discordCode');
-                discordcodeblock.innerText = a.code;
-            } else if (a && a.success == false && a.type == 1) {
-                var discordcodeblock = document.getElementById('dcCodeBlock');
-                discordcodeblock.innerHTML = "<p>Linked to:</p> <div id=\"discordCode\" class=\"discordCode\">" + a.code + "</div>";
-            }
-        },
-        'error': function (_0x4fea74, _0x44b992, _0x57ccd3) {
-            return { success: false };
-        }
-    });
-}
-
 function buttonLogOut() {
     var logoutbutton = document.getElementById('logoutbut');
-    var discordblock = document.getElementById('dcCodeBlock');
     if (isUserLoggedIn) {
         logoutbutton && (logoutbutton.onclick = function () {
             _0x3a61e5();
         }) && (logoutbutton.style.display = "");
-        discordblock && (discordblock.style.display = "");
-        getDiscordCode();
     } else {
         logoutbutton && (logoutbutton.onclick = function () { }) && (logoutbutton.style.display = "none");
-        discordblock && (discordblock.style.display = "none");
     }
 }
 
@@ -24936,21 +24912,6 @@ var _0x576e5b = function (_0x183d8e, _0x45c797, _0x5392bc) {
 
 buttonLogOut();
 
-
-// const fragment = new URLSearchParams(window.location.hash.slice(1));
-// const [accessToken, tokenType] = [fragment.get('access_token'), fragment.get('token_type')];
-
-// if (accessToken) {
-//     _0x27737e(`${tokenType} ${accessToken}`, 'discord');
-// }
-if (location.href.indexOf("code") !== -1) { // Detect if you logged in or not
-    const code = location.href.substring(location.href.indexOf("code") + 5, location.href.length); // Get the code OAUTH gives you
-
-
-    _0x27737e(code, 'discord')
-
-
-}
 
 var ss_accountserver = false;
 var ss_masterserver = false;

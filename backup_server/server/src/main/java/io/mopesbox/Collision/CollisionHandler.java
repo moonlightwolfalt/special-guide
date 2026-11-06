@@ -42,7 +42,7 @@ public class CollisionHandler extends Thread {
         this.room = room;
         this.main = main;
         this.qt = new QuadTree<GameObject>(5, room.getBounds());
-        Affinity.setAffinity(2);
+        io.mopesbox.Utils.CpuPin.pin(2);
         // for (int i = 0; i < numThreads; i++) {
         //     CollisionMath thread = new CollisionMath(room, main, this, i);
         //     collisionMaths.add(thread);

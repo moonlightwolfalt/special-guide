@@ -20,7 +20,7 @@ public class CollisionSeparator extends Thread {
     public final AtomicBoolean neededMathFlag = new AtomicBoolean(false);
 
     public CollisionSeparator(Room room, Main main, CollisionHandler collisionHandler, int id) {
-        Affinity.setAffinity(3);
+        io.mopesbox.Utils.CpuPin.pin(3);
 
         this.room = room;
         this.main = main;

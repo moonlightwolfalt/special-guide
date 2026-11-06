@@ -9,7 +9,7 @@ public class UpdateThread extends Thread {
 
     public UpdateThread(Room room) {
         this.room = room;
-        Affinity.setAffinity(4);
+        io.mopesbox.Utils.CpuPin.pin(4);
     }
 
     @Override

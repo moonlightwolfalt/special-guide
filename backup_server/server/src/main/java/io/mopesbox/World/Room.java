@@ -409,7 +409,7 @@ public class Room extends Thread {
 
     public void generate() {
 
-                Affinity.setAffinity(4);
+                io.mopesbox.Utils.CpuPin.pin(4);
 
         try {
             System.out.print("Started generating room.\n");

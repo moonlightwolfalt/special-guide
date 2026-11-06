@@ -37,7 +37,7 @@ public class FoodGenerator extends Thread {
 
     public FoodGenerator(Room room) {
         this.room = room;
-        Affinity.setAffinity(1);
+        io.mopesbox.Utils.CpuPin.pin(1);
     }
 
     Arctic arctic;

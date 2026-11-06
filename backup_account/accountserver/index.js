@@ -4,19 +4,13 @@ var app = express();
 var https = require('https');
 var http = require('http');
 var bodyParser = require('body-parser');
-var certificate = fs.readFileSync('REMOVED_DUE_TO_SENSITIVE_DATA');
-var privatekey = fs.readFileSync('REMOVED_DUE_TO_SENSITIVE_DATA');
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
-const { Client, GatewayIntentBits, Collection, time, EmbedBuilder } = require('discord.js');
-const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMembers ] });
-const { REST } = require('@discordjs/rest');
-const { Routes } = require('discord.js');
-const { restartServer } = require('./start.js');
 var _ = require('lodash');
-const googleKey = "REMOVED_DUE_TO_SENSITIVE_DATA";
+// Shared key the game server sends with privileged requests.
+const SERVER_KEY = process.env.SERVER_KEY || 'REMOVED_DUE_TO_SENSITIVE_DATA';
+const googleKey = process.env.RECAPTCHA_SECRET || "";
 var season = 0;
 
-var credentials = {key: privatekey, cert: certificate};
 
 var coinsperoutlevel = 2000;
 
@@ -24,10 +18,10 @@ var coinsperoutlevel = 2000;
 
 var mysql = require('mysql2');
 var connectionms = mysql.createPool({
-  host     : '127.0.0.1',
-  user     : 'REMOVED_DUE_TO_SENSITIVE_DATA',
-  password : 'REMOVED_DUE_TO_SENSITIVE_DATA',
-  database : 'REMOVED_DUE_TO_SENSITIVE_DATA',
+  host     : process.env.DB_HOST || '127.0.0.1',
+  user     : process.env.DB_USER || 'root',
+  password : process.env.DB_PASSWORD || '',
+  database : process.env.DB_NAME || 'mope',
   multipleStatements: false
 });
 
@@ -49,7 +43,7 @@ let seasondata = null;
 let seasonlevels = -1;
 
 function parseSeasons() {
-    let data = fs.readFileSync('seasons.json');
+    let data = fs.readFileSync(__dirname + '/seasons.json');
     data = JSON.parse(data);
     data = data[season];
     seasondata = data;
@@ -63,7 +57,6 @@ async function registerUser(token, social, code) {
         success: false
     };
     let email, email_ver, name, picture, given_name, family_name, locale = null;
-    let dsID, dsTag, mfaEnabled = null;
     let query1, query1add = null;
     if(social == "google") {
         let response = await fetch('https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=' + token, {
@@ -85,57 +78,6 @@ async function registerUser(token, social, code) {
         locale = data.locale;
         query1 = `SELECT * FROM users WHERE email=?`;
         query1add = [email];
-    } else if(social == 'discord' && token) {
-        const tokenResponseData = await fetch('https://discord.com/api/oauth2/token', {
-				method: 'POST',
-				body: new URLSearchParams({
-					client_id: "REMOVED_DUE_TO_SENSITIVE_DATA",
-					client_secret: "REMOVED_DUE_TO_SENSITIVE_DATA",
-					code: token,
-					grant_type: 'authorization_code',
-					redirect_uri: `https://mope2020.fun`,
-					scope: 'identify',
-				}).toString(),
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded',
-				},
-			});
-
-
-			const oauthData = await tokenResponseData.json();
-
-            // console.log(oauthData)
-
-
-            
-            
-        let response = await fetch('https://discord.com/api/users/@me', {
-            method: 'GET',
-            body: null,
-            headers: {
-                'Content-Type': 'application/json',
-                authorization: `${oauthData.token_type} ${oauthData.access_token}`,
-
-            }
-        });
-        let data = await response.json();
-        // console.log(data);
-        if(!data) {
-            return out;
-        }
-        if(!data.id || !data.avatar || !data.username) return out;
-        dsID = data.id;
-        dsTag = data.username + '#' + data.discriminator;
-        // mfaEnabled = data.mfa_enabled == 1 ? "true" : "false";
-        email = "none";
-        email_ver = "false";
-        name = dsTag;
-        picture = "https://cdn.discordapp.com/avatars/"+data.id+"/"+data.avatar;
-        given_name = data.username;
-        family_name = data.discriminator;
-        locale = data.locale;
-        query1 = `SELECT * FROM users WHERE discordID=?`;
-        query1add = [dsID];
     }
     if(query1 == null)
         return out;
@@ -143,12 +85,7 @@ async function registerUser(token, social, code) {
     .then( async ([rows,fields]) => {
         if(rows.length == 0) {
             let massiv = [email,social,email_ver,name,picture,locale,token,+new Date()+21600000];
-            if(social == "discord") {
-                massiv.push(dsID);
-                massiv.push(dsTag);
-                // massiv.push(mfaEnabled);
-            }
-            await connectionms.promise().query('INSERT INTO `users`(`email`, `social`, `email_isVerified`, `name`, `profilePicUrl`, `locale`, `password_token`, `expirydate`'+ (social == "discord" ? ", `discordID`, `discordTag`" : "") +') VALUES (?,?,?,?,?,?,?,?'+ (social == "discord" ? ",?,?" : "") +')', massiv)
+            await connectionms.promise().query('INSERT INTO `users`(`email`, `social`, `email_isVerified`, `name`, `profilePicUrl`, `locale`, `password_token`, `expirydate`) VALUES (?,?,?,?,?,?,?,?)', massiv)
             .then(async ([rows,fields]) => {
                 await connectionms.promise().query(query1, query1add)
                 .then( ([rows,fields]) => {
@@ -186,9 +123,6 @@ async function registerUser(token, social, code) {
             if(social == "google") {
                 query2 = `UPDATE \`users\` SET \`password_token\`=?, \`expirydate\`=? WHERE \`email\`=?`;
                 query2add.push(email);
-            } else if(social == "discord") {
-                query2 = `UPDATE \`users\` SET \`password_token\`=?, \`expirydate\`=? WHERE \`discordID\`=?`;
-                query2add.push(dsID);
             }
             if(query2 == null)
                 return out;
@@ -250,56 +184,6 @@ async function verifyUser(id, token) {
             } else {
                 out = {
                     success: false
-                }
-                return out;
-            }
-        }
-    })
-    .catch( (err) => {
-        console.log("err");
-        console.log(err);
-        out = {
-            success: false
-        }
-        return out;
-    });
-    return out;
-}
-
-async function discordCode(id, token) {
-    var out = {
-        success: false
-    };
-    await connectionms.promise().query(`SELECT * FROM users WHERE id=? AND password_token=?`, [id, token])
-    .then( async ([rows,fields]) => {
-        if(rows.length == 0 || (rows[0] && rows[0].banned == 1)) {
-            out = {
-                success: false
-            }
-            return out;
-        } else {
-            if(rows[0].discordTag == null) {
-                let code = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
-                await connectionms.promise().query(`UPDATE \`users\` SET \`discordCode\`=? WHERE id=? AND password_token=?`, [code, id, token])
-                .then((rows) => {
-                    out = {
-                        success: true,
-                        code: code
-                    }
-                    return out;
-                })
-                .catch( (err) => {
-                    console.log(err);
-                    out = {
-                        success: false
-                    }
-                    return out;
-                });
-            } else {
-                out = {
-                    success: false,
-                    type: 1,
-                    code: rows[0].discordTag
                 }
                 return out;
             }
@@ -420,132 +304,6 @@ async function getBattlePass(id, token) {
             out = {
                 success: true,
                 data: finaldata
-            }
-            return out;
-        }
-    })
-    .catch( (err) => {
-        console.log("err");
-        console.log(err);
-        out = {
-            success: false
-        }
-        return out;
-    });
-    return out;
-}
-
-async function setDiscord(id, discord) {
-    var out = {
-        success: false
-    };
-    await connectionms.promise().query(`SELECT * FROM users WHERE id=?`, [id])
-    .then( async ([rows,fields]) => {
-        if(rows.length == 0 || (rows[0] && rows[0].banned == 1)) {
-            out = {
-                success: false
-            }
-            return out;
-        } else {
-            if(rows[0].discordTag == null) {
-                await connectionms.promise().query(`UPDATE \`users\` SET \`discordTag\`=?,\`discordID\`=?,\`discordCode\`=NULL WHERE id=?`, [discord.username + '#' + discord.discriminator, discord.id, id])
-                .then((rows) => {
-                    out = {
-                        success: true
-                    }
-                    return out;
-                })
-                .catch( (err) => {
-                    console.log(err);
-                    out = {
-                        success: false
-                    }
-                    return out;
-                });
-            } else {
-                out = {
-                    success: false
-                }
-                return out;
-            }
-        }
-    })
-    .catch( (err) => {
-        console.log("err");
-        console.log(err);
-        out = {
-            success: false
-        }
-        return out;
-    });
-    return out;
-}
-
-async function unlinkDiscord(id) {
-    var out = {
-        success: false
-    };
-    await connectionms.promise().query(`SELECT * FROM users WHERE id=?`,[id])
-    .then( async ([rows,fields]) => {
-        if(rows.length == 0 || (rows[0] && rows[0].banned == 1) || (rows[0] && rows[0].social == "discord")) {
-            out = {
-                success: false,
-                reason: ((rows[0] && rows[0].social) == "discord" ? "This account registered by Discord." : (rows[0] && rows[0].banned == 1) ? "This account is banned." : (rows.length == 0) ? "Account not exist." : null)
-            }
-            return out;
-        } else {
-            if(rows[0].discordTag != null) {
-                let code = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
-                await connectionms.promise().query(`UPDATE \`users\` SET \`discordTag\`=NULL,\`discordID\`=NULL,\`discordCode\`=NULL WHERE id=?`, [id])
-                .then((rows) => {
-                    out = {
-                        success: true
-                    }
-                    return out;
-                })
-                .catch( (err) => {
-                    console.log(err);
-                    out = {
-                        success: false,
-                        reason: err
-                    }
-                    return out;
-                });
-            } else {
-                out = {
-                    success: false,
-                    reason: "No discord tag linked"
-                }
-                return out;
-            }
-        }
-    })
-    .catch( (err) => {
-        console.log("err");
-        console.log(err);
-        out = {
-            success: false
-        }
-        return out;
-    });
-    return out;
-}
-
-async function getDiscordCode(id) {
-    var out = {
-        success: false
-    };
-    await connectionms.promise().query(`SELECT * FROM users WHERE id=?`, [id])
-    .then( async ([rows,fields]) => {
-        if(rows.length == 0 || (rows[0] && rows[0].banned == 1)) {
-            out = {
-                success: false
-            }
-            return out;
-        } else {
-            out = {
-                success: true,
-                code: rows[0].discordCode
             }
             return out;
         }
@@ -1400,7 +1158,7 @@ async function reqloadAccountData(id, token) {
 
 function addBPEXP(pvk, id, token, xp) {
     xp = Number(xp);
-    if(pvk == 'REMOVED_DUE_TO_SENSITIVE_DATA') {
+    if(pvk == SERVER_KEY) {
         connectionms.promise().query(`SELECT * FROM users WHERE id=? AND password_token=?`,[id, token])
         .then( async ([rows,fields]) => {
             if(rows.length > 0) {
@@ -1446,7 +1204,7 @@ function addBPEXP(pvk, id, token, xp) {
 }
 
 function addCoins(pvk, id, token, coins) {
-    if(pvk == 'REMOVED_DUE_TO_SENSITIVE_DATA') {
+    if(pvk == SERVER_KEY) {
         connectionms.promise().query(`UPDATE \`users\` SET \`coins\`= coins + ${coins} WHERE \`id\`=?`, [id])
         .then( async ([rows,fields]) => {
             //
@@ -1457,33 +1215,11 @@ function addCoins(pvk, id, token, coins) {
     }
 }
 function sendLog(type, executor, target, reason){
-    let isAccLog = false;
-    let channelID = "1244783880133939211"
-    if(type.startsWith("package") || type.startsWith("AccountServer") || type.startsWith("")){
-        channelID = "1255305554037968957"
-        isAccLog = true;
-    }
-    let embed = new EmbedBuilder()
-    .setTitle("💾 LOG 💾")
-    .setColor("Random")
-    .addFields(
-        {name: 'Action Type', value: `${type}`},
-        {name: 'Executor (Account ID)', value: `${executor}`},
-        {name: 'Target ID', value: `${target}`},
-    )
-    if(isAccLog)
-        embed.setDescription(`${reason}`);
-    else embed.addFields({name: 'Reason', value: `${reason}`})
-
-    client.channels.cache.get(channelID).send({
-        embeds: [embed]
-    }).catch(e => console.log(e));
-
-    
+    console.log(`[log] ${type} | executor: ${executor} | target: ${target} | ${reason}`);
 }
 
 function warnUser(pvk, id, reason, executor) {
-    if(pvk == 'REMOVED_DUE_TO_SENSITIVE_DATA') {
+    if(pvk == SERVER_KEY) {
         connectionms.promise().query(`SELECT * FROM \`users\` WHERE \`id\`=?`, [id])
         .then( async ([rows,fields]) => {
             if(rows[0].warns+1 > 2) {
@@ -1513,7 +1249,7 @@ function warnUser(pvk, id, reason, executor) {
 function banUser(pvk, id, reason, executor, time) {
     time = parseInt(time);
     if(time <= 0){
-    if(pvk == 'REMOVED_DUE_TO_SENSITIVE_DATA') {
+    if(pvk == SERVER_KEY) {
         connectionms.promise().query(`UPDATE \`users\` SET \`banned\`=1, \`banreason\`=?, \`banexecutor\`=? WHERE \`id\`=?`, [reason, executor, id])
         .then( async ([rows,fields]) => {
             //
@@ -1524,7 +1260,7 @@ function banUser(pvk, id, reason, executor, time) {
     }
 }
 if(time > 0){
-    if(pvk == 'REMOVED_DUE_TO_SENSITIVE_DATA') {
+    if(pvk == SERVER_KEY) {
         let parserTime = new Date()
         parserTime.setMinutes(parserTime.getMinutes() + time);
         connectionms.promise().query(`UPDATE \`users\` SET \`banned\`=1, \`banreason\`=?, \`banexecutor\`=?, \`banTime\`=? WHERE \`id\`=?`, [reason, executor, parserTime, id])
@@ -1538,7 +1274,7 @@ if(time > 0){
 }
 }
 function unBanUser(pvk, id) {
-    if(pvk == 'REMOVED_DUE_TO_SENSITIVE_DATA') {
+    if(pvk == SERVER_KEY) {
         connectionms.promise().query(`UPDATE \`users\` SET \`banned\`=0, \`banreason\`=NULL, \`banexecutor\`=NULL, \`banTime\`=NULL WHERE \`id\`=?`, [id])
         .then( async ([rows,fields]) => {
             //
@@ -1547,10 +1283,6 @@ function unBanUser(pvk, id) {
             console.log(err);
         });
     }
-}
-
-function discordAuth() {
-    //
 }
 
 testDB();
@@ -1589,8 +1321,8 @@ var updateBan = async function(){
             let actualDate = new Date();
             let bannedTime = new Date(row.banTime)
             if(actualDate > bannedTime){
-                unBanUser("REMOVED_DUE_TO_SENSITIVE_DATA", row.id);
-                client.channels.cache.get("1244783880133939211").send(`Account with ID: \`${row.id}\` unbanned\nReason: Ban time expired.`)
+                unBanUser(SERVER_KEY, row.id);
+                console.log(`Account with ID: ${row.id} unbanned. Reason: Ban time expired.`);
             }
         })
             
@@ -1625,15 +1357,6 @@ app.get('/verify', async function(request, response) {
     response.header("Access-Control-Allow-Origin", "*");
     response.header("Access-Control-Allow-Headers", "X-Requested-With");
     let resp = await verifyUser(encode_utf8(request.query.userId), encode_utf8(request.query.passwordToken));
-    // console.log(resp);
-    response.writeHead(200, {'Content-Type': 'text/html'});
-    response.end(JSON.stringify(resp));
-})
-
-app.get('/discord', async function(request, response) {
-    response.header("Access-Control-Allow-Origin", "*");
-    response.header("Access-Control-Allow-Headers", "X-Requested-With");
-    let resp = await discordCode(encode_utf8(request.query.userId), encode_utf8(request.query.passwordToken));
     // console.log(resp);
     response.writeHead(200, {'Content-Type': 'text/html'});
     response.end(JSON.stringify(resp));
@@ -1740,356 +1463,18 @@ app.post('/warnuserpzl', jsonParser, async function(request, response) {
     response.end('');
 })
 
-const port = 2083;
-var httpsServer = https.createServer(credentials, app);
-httpsServer.listen(port);
-console.log(`Listening at ${port}`);
+// HTTPS is optional: set SSL_KEY and SSL_CERT to file paths to enable it.
+if (process.env.SSL_KEY && process.env.SSL_CERT) {
+    const port = 2083;
+    const credentials = {key: fs.readFileSync(process.env.SSL_KEY), cert: fs.readFileSync(process.env.SSL_CERT)};
+    https.createServer(credentials, app).listen(port);
+    console.log(`Listening at ${port}`);
+}
 
 var localserv = http.createServer(app);
 localserv.listen(14002);
 console.log(`Local listening at 14002`);
 
-//discord
-
-console.log("Discord Initializing...");
-
-const dcToken = "REMOVED_DUE_TO_SENSITIVE_DATA";
-
-const clientId = 'REMOVED_DUE_TO_SENSITIVE_DATA';
-const guildId = 'REMOVED_DUE_TO_SENSITIVE_DATA';
-
-const commands = [];
-const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
-
-for (let file of commandFiles) {
-	let command = require(`./commands/${file}`);
-    commands.push(command.data.toJSON());
-}
-
-const rest = new REST({ version: '10' }).setToken(dcToken);
-
-(async () => {
-	try {
-		console.log('Started refreshing application (/) commands.');
-
-		await rest.put(
-			Routes.applicationCommands(clientId),
-			{ body: commands },
-		);
-
-		console.log('Successfully reloaded application (/) commands.');
-	} catch (error) {
-		console.error(error);
-	}
-})();
-
-var adminsIDs = [];
-
-async function fetchAdmins() {
-    await connectionms.promise().query(`SELECT * FROM \`users\` WHERE \`discordAdmin\`=1 AND discordID IS NOT NULL`)
-    .then( async ([rows,fields]) => {
-        if(rows.length == 0) {
-            console.log("no discord admins");
-        } else {
-            adminsIDs = [];
-            for(var i = 0; i< rows.length; i++) {adminsIDs.push(rows[i].discordID);}
-        }
-    })
-    .catch( (err) => {
-        console.log(err);
-    });
-}
-
-async function getAccountByDiscord(dcid) {
-    var out = null;
-    await connectionms.promise().query(`SELECT * FROM \`users\` WHERE \`discordID\`='${dcid}'`)
-    .then( async ([rows,fields]) => {
-        if(rows.length == 0) {
-            out = null;
-            return out;
-        } else {
-            out = rows[0];
-            return out;
-        }
-    })
-    .catch( (err) => {
-        console.log(err);
-        out = null;
-        return out;
-    });
-    return out;
-}
-
-async function getAccountByID(id) {
-    var out = null;
-    await connectionms.promise().query(`SELECT * FROM \`users\` WHERE \`id\`='${id}'`)
-    .then( async ([rows,fields]) => {
-        if(rows.length == 0) {
-            out = null;
-            return out;
-        } else {
-            out = rows[0];
-            return out;
-        }
-    })
-    .catch( (err) => {
-        console.log(err);
-        out = null;
-        return out;
-    });
-    return out;
-}
-
-function checkAdmin(id) {
-    for(var i in adminsIDs) {
-        if(Number(adminsIDs[i]) == Number(id)) return true;
-    }
-    return false;
-}
-
-fetchAdmins();
-
-var emoji_mopecoin = ":moneybag:";
-
-client.on('ready', () => {
-    console.log(`Discord is ready!`);
-    client.user.setPresence({ activities: [{ type: "WATCHING", name: '/help' }] });
-});
-
-client.on('interactionCreate', async interaction => {
-	if (!interaction.isCommand()) return;
-
-    try {
-        var whiteList = ["828722395485044756", "1087895305254608896", "664806978991685633", "724553482626924625", "383861914301759489", "831202707728629770", "819295905526054942"];
-
-        if(interaction.commandName === "ban"){
-            if(!whiteList.includes(interaction.user.id)) return interaction.reply({
-                content: "Not enought permissions.",
-                ephemeral: true
-            });
-            let id = interaction.options.getNumber("id")
-            let reason = interaction.options.getString("reason")
-            let time = interaction.options.getNumber("time")
-            let myAccount = await getAccountByDiscord(interaction.user.id)
-            if(!myAccount) return interaction.reply({
-                content: "Your Discord account wasn't found, please use the command /auth.",
-                ephemeral: true
-            })
-            if(id == 1 || id == 81) return interaction.reply({
-                content: "Not enought permissions.",
-                ephemeral: true
-            });
-            let acc = await getAccountByID(id);
-            if(!acc) return interaction.reply({content: "Account not found"});
-
-            if(acc.banned == 1) return interaction.reply({
-                content: "Account already banned.",
-                ephemeral: true
-            })
-         
-            banUser("REMOVED_DUE_TO_SENSITIVE_DATA", id, reason, myAccount.id, time);
-            client.users.cache.get("828722395485044756").send({
-                content: `Account banned\nID: \`${id}\`\nReason: \`\`\`yml\n${reason}\`\`\`\nTime: \`${time}m\` (0m = Permanent ban)\nExecutorId: \`${myAccount.id}\``
-            })
-
-
-        }
-        if(interaction.commandName === "unban"){
-            if(!whiteList.includes(interaction.user.id)) return interaction.reply({
-                content: "Not enought permissions.",
-                ephemeral: true
-            });
-            let id = interaction.options.getNumber("id")
-            let myAccount = await getAccountByDiscord(interaction.user.id)
-            if(!myAccount) return interaction.reply({
-                content: "Your Discord account wasn't found, please use the command /auth."
-            })
-            let acc = await getAccountByID(id);
-            if(!acc) return interaction.reply({content: "Account not found"});
-
-            if(acc.banned == 0) return interaction.reply({
-                content: "Account isn't banned.",
-                ephemeral: true
-            })
-         
-            unBanUser("REMOVED_DUE_TO_SENSITIVE_DATA", id);
-            client.users.cache.get("828722395485044756").send({
-                content: `Account unbanned\nID:\`${id}\`\nExecutorId:\`${myAccount.id}\``
-            })
-            return interaction.reply({
-                content: "Account unbanned."
-            })
-
-        }
-
-        if(interaction.commandName === "checkaccount"){
-            if(!whiteList.includes(interaction.user.id)) return interaction.reply({
-                content: "Not enought permissions.",
-                ephemeral: true
-            });
-            let id = interaction.options.getNumber("id")
-            let acc = await getAccountByID(id);
-            if(!acc) return interaction.reply({content: "Account not found"});
-            let msg = `💾 ${acc.name}'s account 💾`
-            msg+=`\nCoins \`${acc.coins}\``
-            msg+=`\nadmin \`${acc.admin}\``
-            msg+=`\nlimited \`${acc.limited}\``
-            msg+=`\nbanned \`${acc.banned == null ? "0" : acc.banned}\``
-            if(acc.discordTag !== null) msg+=`\nDiscord User\`${acc.discordTag}\``
-
-            return interaction.reply({
-                content: msg,
-                ephemeral: true
-            }
-            )
-
-        }
-        if(interaction.commandName === "restart"){
-            return;
-            let whiteList1 = ["828722395485044756", "724553482626924625", "1087895305254608896", "383861914301759489", "664806978991685633"]
-            if(!whiteList1.includes(interaction.user.id)){ return interaction.reply({
-                content: "Not enought permissions.",
-                ephemeral: true
-            });
-        }
-         
-            restartServer();
-            
-
-             await interaction.reply({
-                content: "Server should be restarting.",
-                ephemeral: true
-            }
-            )
-
-        }
-        if (interaction.commandName === 'ping') {
-            await interaction.reply({ content: 'Pong!', ephemeral: true });
-        } else if (interaction.commandName === 'auth') {
-            let acc = await getAccountByDiscord(interaction.user.id);
-            if(!acc) {
-                let code = interaction.options.getString('code');
-                let id = interaction.options.getString('id');
-                if(!code || !id) return await interaction.reply({ content: 'something goes wrong...', ephemeral: true });
-                let validcode = await getDiscordCode(id);
-                if(validcode.code == code) {
-                    let res = await setDiscord(id, interaction.user);
-                    if(res.success == true) await interaction.reply({ content: `Successful linked! Refresh page in your game.`, ephemeral: true }); // yesd.io нужно вернуть команду на получение инфы про других игроков эфф
-                    else await interaction.reply({ content: 'Link failed!', ephemeral: true });
-                }
-                else await interaction.reply({ content: `Wrong code!`, ephemeral: true });
-            } else {
-                await interaction.reply({ content: `Your Discord account already linked with game account id ` + acc.id + '!', ephemeral: true });
-            }
-        } else if (interaction.commandName === 'refresh') {
-            if(!checkAdmin(interaction.user.id)) {
-                await interaction.reply({ content: 'You can\'t do this!', ephemeral: true });
-            } else {
-                fetchAdmins();
-                await interaction.reply({ content: 'Refreshed!', ephemeral: true });
-            }
-        } else if (interaction.commandName === 'stats') {
-            let acc = await getAccountByDiscord(interaction.user.id);
-            if(!acc) {
-                await interaction.reply({ content: 'Your Discord account not linked to game account!', ephemeral: true });
-            } else {
-                let msg = ':floppy_disk: Your game account:\n\nNick: ' + acc.name + '\nCoins: ' + acc.coins + ' ' + emoji_mopecoin;
-                msg += "\nYour admin lvl is"+acc.admin;
-                if(acc.admin > 0) msg += "\nYour default nick: `" + acc.persistentName + '`';
-                await interaction.reply({ content: msg, ephemeral: true });
-            }
-        } else if (interaction.commandName === 'unlink') {
-            if(!checkAdmin(interaction.user.id)) {
-                await interaction.reply({ content: 'You can\'t do this!', ephemeral: true });
-            } else {
-                let type = interaction.options.getString('type');
-                if(type == 'discord') {
-                    let user = interaction.options.getUser('tag');
-                    if(!user) return await interaction.reply({ content: 'Please, specify the tag!', ephemeral: true });
-                    let id = user.id;
-                    let acc = await getAccountByDiscord(id);
-                    if(!acc) {
-                        await interaction.reply({ content: 'This Discord account is not linked to any game account!', ephemeral: true });
-                    } else {
-                        let ae = await unlinkDiscord(acc.id);
-                        if(ae.success) await interaction.reply({ content: 'Unlinked.', ephemeral: true });
-                        else await interaction.reply({ content: 'Something goes wrong when unlinking. Aborted.'+(ae.reason ? "\nReason: "+ae.reason : ""), ephemeral: true });
-                    }
-                } else {
-                    let user = interaction.options.getString('id');
-                    if(!user) return await interaction.reply({ content: 'Please, specify the id!', ephemeral: true });
-                    let id = user;
-                    let acc = await getAccountByID(id);
-                    if(!acc) {
-                        await interaction.reply({ content: 'This game account is not linked to any Discord account!', ephemeral: true });
-                    } else {
-                        let ae = await unlinkDiscord(id);
-                        if(ae.success) await interaction.reply({ content: 'Unlinked.', ephemeral: true });
-                        else await interaction.reply({ content: 'Something goes wrong when unlinking. Aborted.'+(ae.reason ? "\nReason: "+ae.reason : ""), ephemeral: true });
-                    }
-                }
-            }
-        } else {
-            await interaction.reply({ content: 'something goes wrong...', ephemeral: true });
-        }
-    }catch(e) {
-        console.error(e);
-    }
-});
-var lastT = null;
-// setInterval(() => {sendServerStatus("1195134136227205230")}, 60 * 1000)
-// async function sendServerStatus(channelID){
-//     let channel = await client.channels.cache.get(channelID);
-//     let message = await channel.messages.fetch({limit: 10}).then((msg) => msg.filter(m => m.author.id === client.user.id).last());
-//     let embed = new EmbedBuilder()
-//     .setTitle("Server Status")
-//     .setColor('Red')
-//     .addFields(
-//         {name: 'Players', value: '0'},//<a:online:1195128022739726398> 
-//         {name: 'Status', value: '<a:offline:1195128150045229106>'},
-//         // {name: 'Last update', value: '???'},
-//         {name: 'Next Update', value: '???'},
-//         {name: 'Current GameMode', value: "???"}
-//     )
-//     .setThumbnail(client.user.displayAvatarURL({forceStatic: true}));
-
-//     try{
-//     fetch('http\://localhost\:14001').then(response => {
-//         if(!response.ok)
-//         return console.log("Something went wrong...")
-
-//         let result =  response.json();
-//         return result;
-//     }).then(async data => {
-//         if(!data) return console.log("Something went wrong..");
-//         embed.data.fields[0].value = data.totalPlayersOnline;
-//         // data.servers.map(())
-//         embed.data.fields[1].value = data.servers[0].ofl ? "<a:offline:1195128150045229106>" : "<a:online:1195128022739726398>";
-//         // lastT =  await time(new Date(Date.now()), "R") 
-//         // embed.data.fields[2].value = lastT;
-//         let nextUpd = new Date(Date.now())
-//         embed.data.fields[2].value = await time(new Date(nextUpd.setSeconds(nextUpd.getMinutes() + 1)), "R")
-//         embed.data.fields[3].value = data.servers[0].gm == 2 ? "Battle Royale" : data.servers[0].gm == 0 ? "Normal" : data.servers[0].gm
-
-//         if(data.servers[0].ofl){
-//              embed.setColor('Red')
-//              embed.data.fields[0].value = "0"
-//         }
-//         if(!data.servers[0].ofl) embed.setColor('Green')
-//         if(message){
-//         message.edit({embeds: [], content: "Loading..."});
-//         message.edit({embeds: [embed], content: ""});
-//         }
-//         if(!message) channel.send({embeds: [embed]})
-//     }).catch(() => {})
-//     }catch(e){
-//         console.log(e);
-//     }
-
-
-// }
-
-client.login(dcToken);
 
 parseSeasons();
 
