@@ -5,8 +5,18 @@ var MOPE_CONFIG = window.MOPE_CONFIG || {};
 var ACCOUNT_SERVER_URL = (MOPE_CONFIG.accountServerUrl || (location.protocol + '//' + location.hostname + ':14002')).replace(/\/+$/, '');
 var MASTER_SERVER_URL = (MOPE_CONFIG.masterServerUrl || (location.protocol + '//' + location.hostname + ':14001')).replace(/\/+$/, '');
 // Game servers shown in the server list: {name, host, port, ssl, region}.
+// The default uses classic mope.io's regions, one server each, all on this page's
+// host. Set gameServers in config.js (GAME_SERVERS for server.js) to give each one a real host.
 var GAME_SERVERS = (MOPE_CONFIG.gameServers && MOPE_CONFIG.gameServers.length) ? MOPE_CONFIG.gameServers
-    : [{ name: 'Local', host: location.hostname, port: 8080, ssl: false, region: 'Local' }];
+    : [
+        { name: 'USA W 1', region: 'USA West' },
+        { name: 'Brazil 1', region: 'Brazil/USA South' },
+        { name: 'Europe 1', region: 'Europe' },
+        { name: 'Russia 1', region: 'Russia' },
+        { name: 'Asia 1', region: 'Asia/Australia' }
+    ].map(function (s) {
+        return { name: s.name, region: s.region, host: location.hostname, port: 8080, ssl: false };
+    });
 
 var disconectttt = false;
 const isChristmas = false;
