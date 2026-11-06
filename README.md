@@ -17,7 +17,7 @@ On the first run this installs the Node packages and builds the game server jar.
 | `/` | web client (`web/`) |
 | `/api/account` | account server (internal port 14002) |
 | `/api/master` | master server (internal port 14001) |
-| `/game` | game server WebSocket (internal port 8080, set in `config.txt`) |
+| `/game` | game server WebSocket (internal port 18080, `GAME_PORT`) |
 
 Open http://localhost:8000 to play. Press Ctrl+C to stop everything. Set `REBUILD_GAME=1` to rebuild the game server jar.
 
@@ -49,7 +49,7 @@ Run only one instance of the app, because all players share the one game server 
 
 | Variable | Used by | Default |
 |----------|---------|---------|
-| `PORT`, `WEB_PORT` | public port for everything | `8000` |
+| `PORT`, `WEB_PORT` | public port for everything | `8000`, or `8080` in the Docker image |
 | `GOOGLE_CLIENT_ID` | web client and account server: turns on Google login | off |
 | `ACCOUNT_SERVER_URL` | web client: where it reaches the account server | `/api/account` |
 | `MASTER_SERVER_URL` | web client: where it reads the server list and player count | `/api/master` |

@@ -25,5 +25,8 @@ COPY . .
 COPY --from=game-build /build/target/MopeSBoxServer-1.0-SNAPSHOT.jar backup_server/server/target/
 
 ENV NODE_ENV=production
-EXPOSE 8000
+# Public port. Hosts like Sevalla and Render set PORT themselves; 8080 is the
+# usual default when they don't.
+ENV PORT=8080
+EXPOSE 8080
 CMD ["node", "server.js"]
