@@ -5,16 +5,24 @@ var MOPE_CONFIG = window.MOPE_CONFIG || {};
 var ACCOUNT_SERVER_URL = (MOPE_CONFIG.accountServerUrl || (location.protocol + '//' + location.hostname + ':14002')).replace(/\/+$/, '');
 var MASTER_SERVER_URL = (MOPE_CONFIG.masterServerUrl || (location.protocol + '//' + location.hostname + ':14001')).replace(/\/+$/, '');
 // Game servers shown in the server list: {name, host, port, ssl, region}.
-// The default uses classic mope.io's server locations, all on this page's host.
+// The default lists the server locations by region, all on this page's host.
 // Set gameServers in config.js (GAME_SERVERS for server.js) to give each one a real host.
 var GAME_SERVERS = (MOPE_CONFIG.gameServers && MOPE_CONFIG.gameServers.length) ? MOPE_CONFIG.gameServers
     : [
         { name: 'New York', region: 'USA' },
+        { name: 'Chicago', region: 'USA' },
         { name: 'Denver', region: 'USA' },
+        { name: 'Seattle', region: 'USA' },
         { name: 'Los Angeles', region: 'USA' },
+        { name: 'São Paulo', region: 'South America' },
+        { name: 'London', region: 'Europe' },
+        { name: 'Amsterdam', region: 'Europe' },
         { name: 'Roubaix', region: 'Europe' },
         { name: 'Frankfurt', region: 'Europe' },
+        { name: 'Stockholm', region: 'Europe' },
         { name: 'Moscow', region: 'Russia' },
+        { name: 'Tokyo', region: 'Asia' },
+        { name: 'Singapore', region: 'Asia' },
         { name: 'Sydney', region: 'Australia' }
     ].map(function (s) {
         return { name: s.name, region: s.region, host: location.hostname, port: 8080, ssl: false };
@@ -3217,7 +3225,7 @@ function _0x3d7fd4(_0x4bfafd) {
                 _0x2c8469();
             }, 0x1388);
             else {
-                for (var _0x4bfafd = 0; _0x4bfafd < _0x495e4f.length; _0x4bfafd++) if (_0x495e4f[_0x4bfafd].testWs.OPEN == _0x4eebc7.testWs.readyState) _0x495e4f[_0x4bfafd].testWs.close();
+                for (var _0x4bfafd = 0; _0x4bfafd < _0x495e4f.length; _0x4bfafd++) if (_0x495e4f[_0x4bfafd].testWs.OPEN == _0x495e4f[_0x4bfafd].testWs.readyState) _0x495e4f[_0x4bfafd].testWs.close();
                 _0x2c8469();
             }
         }, 0x4b0);
