@@ -1153,7 +1153,8 @@ public class GameClient {
                         // Main.log.info(ress);
               
                         if (ress.get("success").getAsBoolean()
-                                && ress.get("hostname").getAsString().equalsIgnoreCase("mope2020.fun")) {
+                                && (Constants.CAPTCHA_HOSTNAME.isEmpty()
+                                        || ress.get("hostname").getAsString().equalsIgnoreCase(Constants.CAPTCHA_HOSTNAME))) {
                             if (ress.get("score").getAsDouble() < 0.5) {
                                 logsArray.put("AccountServer: Solved bot attack "+this.ip, "...");
                                 this.saveSession = false;

@@ -91,6 +91,7 @@ const MIME = {
 function clientConfig() {
     const config = {
         googleClientId: process.env.GOOGLE_CLIENT_ID || '',
+        recaptchaSiteKey: process.env.RECAPTCHA_SITE_KEY || '',
         accountServerUrl: process.env.ACCOUNT_SERVER_URL || '/api/account',
         masterServerUrl: process.env.MASTER_SERVER_URL || '/api/master',
         // The default server list reaches the game through this page's address at this path.
@@ -119,13 +120,31 @@ function matchRoute(url) {
     return null;
 }
 
+// X-Forwarded-For with this connection's address appended, so the internal servers
+// see the player's address rather than this proxy's.
+function forwardedFor(req) {
+    const remote = req.socket.remoteAddress || '';
+    const existing = req.headers['x-forwarded-for'];
+    return existing ? `${existing}, ${remote}` : remote;
+}
+
+// Sevalla (and most hosts) end HTTPS at their proxy and say so in X-Forwarded-Proto.
+function forwardedProto(req) {
+    return String(req.headers['x-forwarded-proto'] || '').split(',')[0].trim();
+}
+
 function proxyHttp(req, res, route) {
     const upstream = http.request({
         host: '127.0.0.1',
         port: route.port,
         method: req.method,
         path: route.path,
-        headers: { ...req.headers, host: `localhost:${route.port}` },
+        headers: {
+            ...req.headers,
+            host: `localhost:${route.port}`,
+            'x-forwarded-for': forwardedFor(req),
+            'x-forwarded-proto': forwardedProto(req) || 'http',
+        },
     }, (up) => {
         res.writeHead(up.statusCode, up.headers);
         up.pipe(res);
@@ -143,9 +162,13 @@ function proxyGameSocket(req, socket, head) {
         const lines = [`${req.method} / HTTP/${req.httpVersion}`];
         for (let i = 0; i < req.rawHeaders.length; i += 2) {
             const name = req.rawHeaders[i];
-            const value = name.toLowerCase() === 'host' ? `localhost:${GAME_PORT}` : req.rawHeaders[i + 1];
+            const lower = name.toLowerCase();
+            if (lower === 'x-forwarded-for' || lower === 'x-forwarded-proto') continue;
+            const value = lower === 'host' ? `localhost:${GAME_PORT}` : req.rawHeaders[i + 1];
             lines.push(`${name}: ${value}`);
         }
+        lines.push(`X-Forwarded-For: ${forwardedFor(req)}`);
+        lines.push(`X-Forwarded-Proto: ${forwardedProto(req) || 'http'}`);
         upstream.write(lines.join('\r\n') + '\r\n\r\n');
         if (head && head.length) upstream.write(head);
         upstream.pipe(socket);
@@ -161,6 +184,12 @@ function proxyGameSocket(req, socket, head) {
 // Public server: the web client plus the forwarded routes.
 function startWebServer() {
     const server = http.createServer((req, res) => {
+        // Behind an HTTPS proxy, send plain-HTTP visitors to the secure address.
+        if (forwardedProto(req) === 'http' && process.env.FORCE_HTTPS !== '0') {
+            res.writeHead(301, { Location: `https://${req.headers.host}${req.url}` });
+            res.end();
+            return;
+        }
         const route = matchRoute(req.url);
         if (route) {
             proxyHttp(req, res, route);
@@ -243,5 +272,7 @@ ensureGameJar();
 
 start('master', process.execPath, ['index.js'], MASTER_DIR);
 start('account', process.execPath, ['index.js'], ACCOUNT_DIR);
-start('game', 'java', ['-Dfile.encoding=UTF-8', '-jar', GAME_JAR], GAME_DIR);
+// JAVA_OPTS sets the game server's JVM flags, e.g. a memory cap on small hosting plans.
+const javaOpts = (process.env.JAVA_OPTS || '-XX:MaxRAMPercentage=50').split(/\s+/).filter(Boolean);
+start('game', 'java', [...javaOpts, '-Dfile.encoding=UTF-8', '-jar', GAME_JAR], GAME_DIR);
 startWebServer();

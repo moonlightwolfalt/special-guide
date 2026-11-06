@@ -52,7 +52,13 @@ public class Constants {
         public static final int BR_COINSAFTERWIN = Utils.toInt(conf.GetProp("br_coinsAfterWin", "1000"));
         public static final double NEWANGLESPEED = Utils.toDouble(conf.GetProp("newAngleSpeed", "0.2"));
         public static final boolean USINGSSL = Utils.toBool(conf.GetProp("usingSSL", "false"));
-        public static final boolean ENABLEDCAPTCHA = Utils.toBool(conf.GetProp("enabledCaptcha", "false"));
+        // reCAPTCHA keys only work on the domain they were made for, so it is off unless
+        // ENABLE_CAPTCHA (or enabledCaptcha in config.txt) turns it on.
+        public static final boolean ENABLEDCAPTCHA = Utils.toBool(System.getenv("ENABLE_CAPTCHA") != null
+                ? System.getenv("ENABLE_CAPTCHA") : conf.GetProp("enabledCaptcha", "false"));
+        // Site hostname reCAPTCHA must report; empty accepts any hostname.
+        public static final String CAPTCHA_HOSTNAME = System.getenv("CAPTCHA_HOSTNAME") != null
+                ? System.getenv("CAPTCHA_HOSTNAME") : conf.GetProp("captchaHostname", "");
         public static final boolean ENABLEPACKETLOGGING = Utils.toBool(conf.GetProp("enabledPacketLogging", "false"));
         // 0 - FFA
         // 3 - Team

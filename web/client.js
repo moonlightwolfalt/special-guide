@@ -5610,18 +5610,14 @@ function _0x7db050(_0x217874) {//49397
 
 // recaptcha section
 
-var recaptcha_clientkey = "6Le5FOspAAAAANh5XTXlJUs8bcXoXA-rjiFn1PwQ";
+// reCAPTCHA v3 site key from config.js (RECAPTCHA_SITE_KEY). The game server only asks
+// for a token when its captcha check is on (ENABLE_CAPTCHA).
+var recaptcha_clientkey = MOPE_CONFIG.recaptchaSiteKey || "";
 
-getScript(
+if (recaptcha_clientkey) getScript(
     "https://www.google.com/recaptcha/api.js?render=" + recaptcha_clientkey,
     function () {
         console.log("loaded recatcha script.");
-
-
-        grecaptcha.ready(function () {
-            //recaptcha();
-        });
-
     }
 );
 
@@ -5629,6 +5625,14 @@ var re_token = null;
 
 var recaptcha = function () {
     console.log("@@@@@@@@@@@@@@@@@@@ recaptcha called");
+    if (!recaptcha_clientkey || typeof grecaptcha === 'undefined') {
+        console.log("Server asked for reCAPTCHA but no site key is set (RECAPTCHA_SITE_KEY).");
+        var em = new MsgWriter(2 + 5 + 2);
+        em.writeUInt8(64);
+        em.writeString("error");
+        wsSendMsg(em);
+        return;
+    }
 
     grecaptcha.ready(function () {
         console.log("@@@@@@@@@@@@@@@@@@@ recaptcha ready");
