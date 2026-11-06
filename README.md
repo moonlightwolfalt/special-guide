@@ -4,7 +4,7 @@ Mope 2020 server dump: web client, master server, account server and Java game s
 
 ## Run everything
 
-Needs Node.js 18+, Java 17+, Maven, and a MySQL database created from `users_structure.sql`.
+Needs Node.js 18+, Java 17+ and Maven. Logins, coins and skins also need a MySQL database; the account server creates its table automatically.
 
 ```
 node server.js
@@ -27,8 +27,8 @@ The repo includes a `Dockerfile` that builds the game server and runs `server.js
 
 1. In Sevalla, create an **Application** from this GitHub repository and branch.
 2. Under **Settings → Build**, set the build strategy to **Dockerfile** (path `Dockerfile`, context `.`).
-3. Optional, for logins and coins: create a **MySQL database** in Sevalla, connect it to the app, and run `users_structure.sql` on it.
-4. Under **Environment variables**, set `DB_HOST`, `DB_USER`, `DB_PASSWORD` and `DB_NAME` from the database's connection details. Add `GOOGLE_CLIENT_ID` for Google login, and add your Sevalla domain (`https://….sevalla.app`) to that client's authorized JavaScript origins.
+3. Optional, for logins, coins and skins: create a **MySQL database** in Sevalla in the same location as the app. On the database's **Networking** tab, add an **internal connection** to the app and turn on **Add environment variables to the application**. That sets `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` and `DB_URL`, which the account server reads. You don't need to run any SQL: the account server creates the `users` table on startup (from `users_structure.sql`) and retries until the database is reachable.
+4. Under **Environment variables**, add `GOOGLE_CLIENT_ID` for Google login, and add your Sevalla domain (`https://….sevalla.app`) to that client's authorized JavaScript origins.
 5. Deploy. Players open the app's URL. The site is served over HTTPS and the game connects with `wss://` on the same address.
 
 Run only one instance of the app, because all players share the one game server it starts.
@@ -42,7 +42,7 @@ Run only one instance of the app, because all players share the one game server 
 | `ACCOUNT_SERVER_URL` | web client: where it reaches the account server | `/api/account` |
 | `MASTER_SERVER_URL` | web client: where it reads the server list and player count | `/api/master` |
 | `GAME_SERVERS` | web client: JSON list of game servers, e.g. `[{"name":"EU 1","host":"game.example.com","port":443,"ssl":true}]` | 15 locations in USA, South America, Europe, Russia, Asia and Australia (see `GAME_SERVERS` in `web/client.js`), all on this site's `/game` address |
-| `DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` | account server | `127.0.0.1`, `root`, empty, `mope` |
+| `DB_HOST`, `DB_PORT`, `DB_DATABASE` (or `DB_NAME`), `DB_USERNAME` (or `DB_USER`), `DB_PASSWORD`, or one `DB_URL` (`mysql://user:pass@host:3306/db`) | account server | `127.0.0.1`, `3306`, `mope`, `root`, empty |
 | `SERVER_KEY` | account server (key the game server sends) | placeholder |
 | `RECAPTCHA_SECRET` | account server | empty |
 | `MASTER_KEY`, `GAME_SERVER_NAME`, `GAME_SERVER_KEY` | master server (`GAME_SERVER_NAME` must match the game server's host) | placeholders, `localhost` |

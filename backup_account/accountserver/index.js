@@ -21,11 +21,36 @@ var coinsperoutlevel = 2000;
 //DB
 
 var mysql = require('mysql2');
+
+// Database settings. Sevalla's internal database connection sets DB_URL and
+// DB_HOST/DB_PORT/DB_DATABASE/DB_USERNAME/DB_PASSWORD; DB_USER and DB_NAME also work.
+function dbSettings() {
+    const env = process.env;
+    const settings = {
+        host: env.DB_HOST || '127.0.0.1',
+        port: Number(env.DB_PORT) || 3306,
+        user: env.DB_USERNAME || env.DB_USER || 'root',
+        password: env.DB_PASSWORD || '',
+        database: env.DB_DATABASE || env.DB_NAME || 'mope',
+    };
+    if (env.DB_URL && !env.DB_HOST) {
+        try {
+            const url = new URL(env.DB_URL);
+            settings.host = url.hostname || settings.host;
+            settings.port = Number(url.port) || settings.port;
+            if (url.username) settings.user = decodeURIComponent(url.username);
+            if (url.password) settings.password = decodeURIComponent(url.password);
+            if (url.pathname.length > 1) settings.database = decodeURIComponent(url.pathname.slice(1));
+        } catch (err) {
+            console.log("DB_URL is not a valid URL:", err.message);
+        }
+    }
+    return settings;
+}
+
+var dbConfig = dbSettings();
 var connectionms = mysql.createPool({
-  host     : process.env.DB_HOST || '127.0.0.1',
-  user     : process.env.DB_USER || 'root',
-  password : process.env.DB_PASSWORD || '',
-  database : process.env.DB_NAME || 'mope',
+  ...dbConfig,
   multipleStatements: false
 });
 
@@ -33,14 +58,38 @@ var encode_utf8 = function(s) {
     return unescape(encodeURIComponent(s));
 }
 
-function testDB() {
-    connectionms.query('SELECT * FROM users WHERE id=1', function (error, results, fields) {
+// Create the users table if it is missing, retrying until the database is reachable.
+function ensureSchema(attempt = 1) {
+    const schema = fs.readFileSync(__dirname + '/../../users_structure.sql', 'utf8');
+    const conn = mysql.createConnection({ ...dbConfig, multipleStatements: true });
+    conn.query(schema, (error) => {
+        conn.end(() => {});
         if (error) {
-            console.log(error);
+            const wait = Math.min(30, attempt * 2);
+            console.log(`Database not ready (${error.code || error.message}) at ${dbConfig.host}:${dbConfig.port}/${dbConfig.database}; retrying in ${wait}s`);
+            setTimeout(() => ensureSchema(attempt + 1), wait * 1000);
         } else {
-            console.log("Connection estabilished!");
+            fixSeasonDataColumn();
         }
     });
+}
+
+// Battle-pass progress is a string of digits ("0100..."). Older copies of the schema
+// made seasondata an integer, which turns it into 0, so convert that column to text.
+function fixSeasonDataColumn() {
+    connectionms.query(
+        "SELECT DATA_TYPE FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'seasondata'",
+        (error, rows) => {
+            if (error) {
+                console.log("Could not check the seasondata column:", error.message);
+            } else if (rows.length && rows[0].DATA_TYPE !== 'varchar') {
+                connectionms.query("ALTER TABLE `users` MODIFY `seasondata` varchar(225) DEFAULT NULL", (err) => {
+                    if (err) console.log("Could not convert seasondata to text:", err.message);
+                    else console.log("Converted users.seasondata to text so battle-pass progress is kept.");
+                });
+            }
+            console.log(`Database ready: ${dbConfig.host}:${dbConfig.port}/${dbConfig.database}`);
+        });
 }
 
 let seasondata = null;
@@ -1299,7 +1348,7 @@ function unBanUser(pvk, id) {
     }
 }
 
-testDB();
+ensureSchema();
 
 // registerUser('sas');
 

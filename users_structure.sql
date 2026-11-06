@@ -9,7 +9,8 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `mope2020`
+-- Safe to run more than once: it only creates the table if it is missing.
+-- The account server runs it on startup.
 --
 
 -- --------------------------------------------------------
@@ -18,12 +19,12 @@ SET time_zone = "+00:00";
 -- Table structure for table `users`
 --
 
-CREATE TABLE `users` (
-  `id` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `users` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `email` varchar(225) NOT NULL,
   `password_token` longtext NOT NULL,
   `discordCode` int(11) DEFAULT NULL,
-  `seasondata` int(11) DEFAULT NULL,
+  `seasondata` varchar(225) DEFAULT NULL,
   `discordTag` varchar(226) DEFAULT NULL,
   `discordID` varchar(225) DEFAULT NULL,
   `coins` int(11) DEFAULT 0,
@@ -140,24 +141,10 @@ CREATE TABLE `users` (
   `persistentName` varchar(225) DEFAULT NULL,
   `adminType` int(11) NOT NULL DEFAULT 0,
   `youtube` int(11) NOT NULL DEFAULT 0,
-  `artist` int(11) NOT NULL DEFAULT 0
+  `artist` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Indexes for table `users`
---
-ALTER TABLE `users`
-  ADD PRIMARY KEY (`id`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `users`
---
-ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=0;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
