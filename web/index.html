@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<style type="text/css">
+	body {
+		background-color: #3FBA54 !important;
+	}
+
+	hr {
+		height: 1px;
+		border: 0px;
+		background: #ffffff;
+	}
+</style>
+<style type="text/css">
+	body {
+		margin-top: 0 !important;
+		padding-top: 0 !important;
+		/*min-width:800px !important;*/
+	}
+</style>
+
+<head>
+	<title>Mope2020 Project</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable  =no" />
+	<meta name="description" content="Survive and climb the food chain in mopeio, the hit browser game!">
+	<meta name="keywords"
+		content="Mope2020 Project, mope2020, mrmodpack, 2020, mope, mope.io, mopeio,io games, .io, spaceships, browser game, html game, html5 game, agario, diepio, flash game, space, multiplayer">
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<meta property="og:image" content="img/share_banner.jpg">
+	<meta property="og:image:type" content="image/jpg">
+	<meta property="og:image:width" content="1263">
+	<meta property="og:image:height" content="707">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="robots" content="index, follow">
+	<meta name="revisit-after" content="3 days">
+	<meta name="googlebot" content="all">
+	<meta name="twitter:card" content="summary_large_image">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+	<script src="pako.min.js"></script>
+	<!-- <link rel="stylesheet" href="main.css" /> -->
+	<link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+	<script src="jquery_3_3_1.js"></script>
+	<script src="config.js"></script>
+
+</head>
+
+<body>
+	<div id="gameAreaWrapper">
+		<input id="chatinput" type="text" class="chat-input" placeholder="Chat here..." maxlength="35" />
+		<canvas tabindex="1" id="gCanvas"></canvas>
+	</div>
+	<div id="preroll" class="vidAd"></div>
+	<div id="pvVidContainer" class="vidAd" style="width:640px;height:360px; display:none;"> </div>
+	<div>
+		<div id="my-content-2" style="display:none; visibility:hidden;"> </div>
+	</div>
+	<div id="startMenuWrapper">
+		<div id="xsollaStoreFrameWrapper">
+			<div id="xsollaStoreAndButton">
+				<div class="loadingAnim_xsolla" id="loadingAnim_xsolla">
+					<div></div>
+					<div></div>
+					<div></div>
+					<div></div>
+					<div></div>
+					<div></div>
+					<div></div>
+					<div></div>
+				</div>
+				<button id="xsollaStoreCloseButton">Close</button>
+				<div id="xsollaStoreInnerDiv"> </div>
+			</div>
+		</div>
+		<!-- <div id="BETADIV" style="    position: relative;
+    top: 10px;
+    left: 16px;
+    background: red;
+    width: 211px;
+    padding: 5px;
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 20px;
+    color: white;
+    text-align: center;
+    border: 6px solid white;"> -->
+			<!-- <strong>Credits to:</strong> Yesd
+						     RussianMope
+						     PashaGames
+						     MaximMoper
+							 ProxyGamer -->
+<!-- 
+		</div> -->
+		<div id="updates">
+			<div id="updatesDiv">
+				<h2>07/08/24: Summer Update Part 1</h2>
+				<ul>
+					<li>Added: New Map!</li>
+					<img src="/img/screenshots/upd23.png" alt="" style="width: 100px;">
+					<li>Added: New Staff Levels!</li>
+					<li>Added: New Size System(BETA)!</li>
+					<li>Fixed: Some skins assets!</li>
+					<li>Fixed: Some Litte Bugs!</li>
+				</ul>
+				<h2>26/05/24: Preparation for Summer update Part</h2>
+				<ul>
+					<li>Added: Log In With Google!</li>
+					<img src="/img/screenshots/upd22.png" alt="" style="width: 100px;">
+					<li>Added: 8 New Skins To The Shop!</li>
+					<li>Added: New Staff Levels!</li>
+					<li>Fixed: Shooting in invinsible mode!</li>
+					<li>Fixed: Some Litte Bugs!</li>
+				</ul>
+				<h2>13/05/24: Re-Start</h2>
+				<ul>
+					<li>Project 'Mope2020' started!</li>
+				</ul>
+			</div>
+			<div id="ytDiv">
+				<hr />
+				<div class="wrapper-buttons" style="width: 200px;
+				max-height: 80px;">
+					<button onclick="window.open('https://discord.gg/3rAW73F6mJ', '_blank').focus();"
+						class="blue-button">
+						<img src="/img/footer/discord_logo.png" width="35px">
+					</button>
+					<!-- <button disabled onclick="window.open('https://www.donationalerts.com/r/yesdxploiter', '_blank').focus();"
+						style="float: right;margin-right: 20px;" class="orange-button">
+						<img src="/img/footer/da_logo.png" width="35px">
+					</button> -->
+				</div>
+			</div>
+		</div>
+		<div id="startMenu">
+			<div id="mopeMenu">
+				<img id="logo" src="img/logo.png" width="350px" height="99px" />
+				<div id="onconnectDiv" style="visibility:visible;">
+					<br />
+
+
+					<div id="onPlayReadyWrap" style="display: none;">
+						<select id="serverSelect">
+							<option>
+								Finding Server...
+							</option>
+						</select>
+						<div class="optionsBtn">
+							<button id="settingsButton" class="button" type="submit"
+								style="background-color:transparent; border-color:transparent;">
+								<img src="img/settings.png" width="30" height="30" />
+							</button>
+						</div>
+						<div id="nickInputContainer" style="display: block;">
+							<input id="nickInput" autofocus placeholder="Your name" maxlength="15"
+								style="width: 100%; height: 40px; line-height: 36px;">
+						</div>
+						<a>
+							<button id="shopbutton" class="shopbutton">Shop</button>
+						</a>
+						<a>
+							<button id="startButton">Play</button>
+						</a>
+						<a>
+							<button id="btnSpectate" style="display:block">Spectate</button>
+						</a>
+					</div>
+					<div id="connecting">
+						<div id="conimgContainer">
+							<img class="conimg" src="skins/land/mouse/0/mouse.png" width="80px" />
+						</div>
+						<p>Connecting...</p>
+						<p id="txtServer" style="font-size:14px;">
+						</p>
+					</div>
+					<p id="spawnXpLabel">
+					</p>
+					<div id="plusCoins" title="Earned coins">
+						<img src="shop/mopecoin.png" class="buycoin-img">
+						<span id="plusCoinsLabel" class="coins">loading....</span>
+					</div>
+					<p id="serverResponse">
+				</div>
+				<div id="optionsDiv">
+					<button id="closeBut" type="submit" class="button"
+						style="background-color:transparent; border-color:transparent;">
+						<img src="img/x.png" width="35" height="35" />
+					</button>
+					</h3><br /><br /><br />
+					<button id="logoutbut">Logout of account</button>
+					<button id="button_mute" class="button" type="submit"
+						style="background-color:transparent; border-color:transparent;">
+						<img id="button_mute_img" src="img/sound_on.png" width="30" height="30"
+							title="Mute/unmute sounds" />
+					</button>
+					<div id="options_graphicsButs">
+						<p>Graphics (Use Medium/Low if the game lags for you) </p>
+						<p id="graphics_fps">FPS: (...)</p>
+						<button id="graphicsBut_mid">Low Graphics</button>
+						<button id="graphicsBut_hd">Normal Graphics(HD)</button>
+					</div>
+					<h3>Options:</h3>
+					<div id="optionsContainer">
+					</div>
+					<br />
+					<a>
+						<!-- <button id="btnSpectate" style="display:block">Spectate</button> -->
+					</a>
+				</div>
+
+				<div id="moneyRectWrap">
+					<div id="moneyRect">
+
+
+
+
+						<div id="mope-io_300x250">
+							<script type="text/javascript">
+							</script>
+						</div>
+
+						<div id="cdm-zone-02"></div>
+					</div>
+				</div>
+			</div>
+			<div class="endscreen" id="endScreen" style="display:none">
+			</div>
+			<div id="mopeMenu" style="margin-top: 25px;">
+				<h1 style="font-size: 12px;
+				color: #000;
+				margin: 0;
+				text-shadow: 1px 1px #064e1982;">Network Status</h1>
+				<div id="serversDiv">
+					<h2>Loading...</h2>
+				</div>
+			</div>
+		</div>
+		<div id="rightSide">
+			<div id="loginDiv">
+				<div id="notLoggedInDiv">
+					<p id="notLoggedInTxt">Log in to earn coins and unlock new skins! <img src="shop/mopecoin.png"
+							width="15px" height="15px" class="buycoin-img" /></p>
+					<div id="googleLoginBtn" class="googleLoginBtn"></div>
+				</div>
+				<div id="onloggedInDiv" style="display:none;">
+					<img id="loggedInUserImg" src="" />
+					<p id="loggedInNameTxt">account name...</p>
+					<div id="login_coins" title="add more coins">
+						<img src="shop/mopecoin.png" class="buycoin-img">
+						<span id="loginCoins" class="coins">loading....</span>
+					</div>
+					<!-- <button id="shopbutton" class="shopbutton">Shop</button> -->
+				</div>
+			</div>
+			<div id="devsDiv">
+				<script src="https://apis.google.com/js/platform.js"></script>
+				<div id="ytButton" style="margin-top: 20px;margin-bottom: 7px;text-align:center;">
+					<div class="devhead" style="color:#fff;
+						margin: 0 auto;
+						width: 160px;
+						height: 14px;
+						background-color: #09992f;
+						padding: 3px;
+						margin-top: 1px; margin-bottom: 1px; font-size:14px;
+						">Developers</div>
+					<h2 style="color:#f1c34c;margin-top: 10px;">breakout</h2>
+					<div class="g-ytsubscribe" data-channelid="UCnWxatNx2ZTYNB746wVcGyw" data-layout="full"
+						data-count="default"></div>
+					<!-- <h2 style="color:#f1c34c;margin-top: 10px;">Mahdi</h2>
+					<div class="g-ytsubscribe" data-channelid="UCkAal_X9Gpo51OxfHTGhxDw" data-layout="full"
+						data-count="default"></div> -->
+						<!-- <h2 style="color:#f1c34c;margin-top: 10px;">Goldy</h2>
+					<div class="g-ytsubscribe" data-channelid="UCuX2kf3Pz6ksQWO3608e74Q" data-layout="full"
+						data-count="default"></div> -->
+						<h2 style="color:#f1c34c;margin-top: 10px;">WhoDark</h2>
+					<div class="g-ytsubscribe" data-channelid="UCHeylpSWscBoDgFWXuFM7yg" data-layout="full"
+						data-count="default"></div>
+				</div>
+			</div>
+			<div id="devsDiv">
+				<script src="https://apis.google.com/js/platform.js"></script>
+				<div id="ytButton" style="margin-top: 20px;margin-bottom: 7px;text-align:center;">
+					<div class="devhead" style="color:#fff;
+						margin: 0 auto;
+						width: 160px;
+						height: 14px;
+						background-color: #d10e00;
+						padding: 3px;
+						margin-top: 1px; margin-bottom: 1px; font-size:14px;
+						">Popular YouTubers</div>
+						<h2>NO POPULAR YOUTUBERS FOR NOW</h2>
+					<!-- <h2 style="color:#f1c34c;margin-top: 10px;">LuckyDen</h2>
+					<div class="g-ytsubscribe" data-channelid="UC50nLNIsOH0xrMOhaNsz7jg" data-layout="full"
+						data-count="default"></div> -->
+				</div>
+			</div>
+			<div id="devsDiv">
+				<script src="https://apis.google.com/js/platform.js"></script>
+				<div id="ytButton" style="margin-top: 20px;margin-bottom: 7px;text-align:center;">
+					<div class="devhead" style="color:#fff;
+						margin: 0 auto;
+						width: 160px;
+						height: 14px;
+						background-color: #4900d1;
+						padding: 3px;
+						margin-top: 1px; margin-bottom: 1px; font-size:14px;
+						">Sponsors</div>
+						<h2>NO SPONSORTS FOR NOW</h2>
+					<!-- <h2 style="color:#f1c34c;margin-top: 10px;">LuckyDen</h2>
+					<div class="g-ytsubscribe" data-channelid="UC50nLNIsOH0xrMOhaNsz7jg" data-layout="full"
+						data-count="default"></div> -->
+				</div>
+			</div>
+		</div>
+		<div id="mope-io_728x90">
+			<script type="text/javascript">
+
+			</script>
+		</div>
+		<div id="cdm-zone-01"></div>
+	</div>
+	</div>
+	</div>
+	<div class="g-recaptcha" data-sitekey="6Le5FOspAAAAANh5XTXlJUs8bcXoXA-rjiFn1PwQ" data-callback="onSubmit"
+		data-size="invisible">
+	</div>
+
+	<script>
+		var script = document.createElement('script');
+		script.id = 'mopejs';
+		//enable caching= faster load
+		script.src = 'client.js?x=' + (+new Date());
+		script.async = false;
+		script.type = 'text/javascript';
+		document.head.appendChild(script);
+
+		if (location.href.indexOf("http") == -1) {
+
+			var hideUpdates = false;
+
+			if (hideUpdates) {
+				var updatesDiv = document.getElementById("updatesDiv");
+				if (updatesDiv) updatesDiv.style.display = "none";
+			}
+		}
+		//css
+		var head = document.getElementsByTagName('head')[0];
+		var link = document.createElement('link');
+		link.id = 'mopecss';
+		link.rel = 'stylesheet';
+		link.type = 'text/css';
+		link.href = 'main.css?x=' + (+new Date());
+		link.media = 'all';
+		head.appendChild(link);
+	</script>
+
+	<div id="cdm-zone-end"></div>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8" crossorigin="anonymous"></script>
+	</body>
+</html>

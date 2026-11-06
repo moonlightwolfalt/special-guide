@@ -1,0 +1,116 @@
+{
+    "0": {
+        "name": "The awakening of the volcano",
+        "end": 1711310400,
+        "levels": {
+            "gold": [
+                {
+                    "level": "1",
+                    "bonus": "coins",
+                    "value": 1000
+                },
+                {
+                    "level": "2",
+                    "bonus": "coins",
+                    "value": 1000
+                },
+                {
+                    "level": "3",
+                    "bonus": "coins",
+                    "value": 1000
+                },
+                {
+                    "level": "4",
+                    "bonus": "coins",
+                    "value": 1000
+                },
+                {
+                    "level": "5",
+                    "bonus": "coins",
+                    "value": 10000
+                },
+                {
+                    "level": "6",
+                    "bonus": "coins",
+                    "value": 1000
+                },
+                {
+                    "level": "7",
+                    "bonus": "coins",
+                    "value": 1000
+                },
+                {
+                    "level": "8",
+                    "bonus": "coins",
+                    "value": 1000
+                },
+                {
+                    "level": "9",
+                    "bonus": "coins",
+                    "value": 1000
+                },
+                {
+                    "level": "10",
+                    "bonus": "skin",
+                    "ani": "1",
+                    "skin": "4",
+                    "path": "skins/land/mouse/4/mouse.png",
+                    "title": "Star Mouse",
+                    "dbskin": "skin_starMouse"
+                }
+            ],
+            "free":  [
+                {
+                    "level": "1",
+                    "bonus": "coins",
+                    "value": 100
+                },
+                {
+                    "level": "2",
+                    "bonus": "coins",
+                    "value": 150
+                },
+                {
+                    "level": "3",
+                    "bonus": "coins",
+                    "value": 200
+                },
+                {
+                    "level": "4",
+                    "bonus": "coins",
+                    "value": 250
+                },
+                {
+                    "level": "5",
+                    "bonus": "coins",
+                    "value": 300
+                },
+                {
+                    "level": "6",
+                    "bonus": "coins",
+                    "value": 350
+                },
+                {
+                    "level": "7",
+                    "bonus": "coins",
+                    "value": 400
+                },
+                {
+                    "level": "8",
+                    "bonus": "coins",
+                    "value": 450
+                },
+                {
+                    "level": "9",
+                    "bonus": "coins",
+                    "value": 500
+                },
+                {
+                    "level": "10",
+                    "bonus": "coins",
+                    "value": 1000
+                }
+            ]
+        }
+    }
+}

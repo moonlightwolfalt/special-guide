@@ -1,0 +1,79 @@
+package io.mopesbox.Objects.ETC;
+
+
+import io.mopesbox.Constants;
+import io.mopesbox.Animals.Animal;
+import io.mopesbox.Objects.GameObject;
+import io.mopesbox.Utils.Timer;
+import io.mopesbox.World.Room;
+
+public class CrocShit extends Ability {
+    private Timer liveTimer = new Timer(5000);
+    private Timer seeTimer = new Timer(500);
+    private Room room;
+    public Animal owner;
+    public Animal gotcha;
+    public boolean canSee = true;
+    public CrocShit(int id, double x, double y, int radius, Room room, Animal owner, int species) {
+        super(id, x, y, 21, radius, 0);
+        this.room = room;
+        this.owner = owner;
+        this.setSpecies(species);
+        this.setSendsAngle(true);
+        this.setCollideable(false);
+        this.setCollideCallbacking(true);
+        this.setHasCustomCollisionRadius(true);
+        this.setCustomCollisionRadius(radius * 1.3);
+    }
+
+    @Override
+    public void onCollision(GameObject o) {
+        if(o instanceof Animal && (gotcha == null || gotcha == (Animal)o) && ((Animal) o) != this.owner && !((Animal) o).inArena && !((Animal) o).isInvincible() && !((Animal) o).flag_flying && !((Animal) o).isInHole() && ((Animal) o).bleedingSeconds <= 0 && !((Animal) o).isStunned()) {
+            double x = ((Math.cos(Math.toRadians(this.owner.getAngle())) * (o.getRadius())));
+            double y = ((Math.sin(Math.toRadians(this.owner.getAngle())) * (o.getRadius())));
+            ((Animal)o).setX(this.getX()+x);
+            ((Animal)o).setY(this.getY()+y);
+            ((Animal)o).setStun(3);
+            if(this.gotcha == null) {
+                this.gotcha = (Animal)o;
+                this.gotcha.hurt(20, 14, this.owner);
+            }
+        }
+    }
+
+    @Override
+    public void update() {
+        super.update();
+        liveTimer.update(Constants.TICKS_PER_SECOND);
+
+        if (liveTimer.isDone() || this.owner == null) {
+            this.room.removeObj(this, null);
+            liveTimer.reset();
+            return;
+        }
+        if(seeTimer != null) {
+            seeTimer.update(Constants.TICKS_PER_SECOND);
+            if (seeTimer.isDone()) {
+                canSee = false;
+                seeTimer.reset();
+                seeTimer = null;
+                this.owner.getClient().getRoom().removeVisObj(this, null, null);
+            }
+        }
+        double ang = this.owner.getAngle();
+        ang -= 180;
+        if(ang < 0) ang += 360;
+        this.setAngle(ang);
+
+        double x = ((Math.cos(Math.toRadians(this.owner.getAngle())) * (this.owner.getRadius())));
+        double y = ((Math.sin(Math.toRadians(this.owner.getAngle())) * (this.owner.getRadius())));
+        this.setX(this.owner.getX()+x);
+        this.setY(this.owner.getY()+y);
+        if(this.gotcha != null){
+             x = ((Math.cos(Math.toRadians(this.owner.getAngle())) * (gotcha.getRadius())));
+             y = ((Math.sin(Math.toRadians(this.owner.getAngle())) * (gotcha.getRadius())));
+            ((Animal)gotcha).setX(this.getX()+x);
+            ((Animal)gotcha).setY(this.getY()+y);
+        }
+    }
+}

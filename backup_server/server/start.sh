@@ -1,0 +1,1 @@
+java -jar ./target/MopeSBoxServer-1.0-SNAPSHOT.jar -Dfile.encoding=UTF-8

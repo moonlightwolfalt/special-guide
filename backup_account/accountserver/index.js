@@ -1,0 +1,1494 @@
+var express = require('express');
+var fs = require('fs');
+var app = express();
+var https = require('https');
+var http = require('http');
+var bodyParser = require('body-parser');
+var crypto = require('crypto');
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+var _ = require('lodash');
+// Shared key the game server sends with privileged requests.
+const SERVER_KEY = process.env.SERVER_KEY || 'REMOVED_DUE_TO_SENSITIVE_DATA';
+const googleKey = process.env.RECAPTCHA_SECRET || "";
+// OAuth client ID of the web client. Google ID tokens must be issued for it.
+const googleClientId = process.env.GOOGLE_CLIENT_ID || "";
+if (!googleClientId) console.log("GOOGLE_CLIENT_ID is not set: Google login is off.");
+var season = 0;
+
+
+var coinsperoutlevel = 2000;
+
+//DB
+
+var mysql = require('mysql2');
+var connectionms = mysql.createPool({
+  host     : process.env.DB_HOST || '127.0.0.1',
+  user     : process.env.DB_USER || 'root',
+  password : process.env.DB_PASSWORD || '',
+  database : process.env.DB_NAME || 'mope',
+  multipleStatements: false
+});
+
+var encode_utf8 = function(s) {
+    return unescape(encodeURIComponent(s));
+}
+
+function testDB() {
+    connectionms.query('SELECT * FROM users WHERE id=1', function (error, results, fields) {
+        if (error) {
+            console.log(error);
+        } else {
+            console.log("Connection estabilished!");
+        }
+    });
+}
+
+let seasondata = null;
+let seasonlevels = -1;
+
+function parseSeasons() {
+    let data = fs.readFileSync(__dirname + '/seasons.json');
+    data = JSON.parse(data);
+    data = data[season];
+    seasondata = data;
+    seasonlevels = seasondata.levels.free.length;
+    console.log("Season "+season+" config loaded! Levels: "+seasonlevels);
+}
+
+async function registerUser(token, social, code) {
+    // console.log(code)
+    var out = {
+        success: false
+    };
+    let email, email_ver, name, picture, given_name, family_name, locale = null;
+    let query1, query1add = null;
+    if(social == "google") {
+        if(!googleClientId || !token) return out;
+        // Google checks the token's signature and expiry; we check it was issued for this game.
+        let data;
+        try {
+            let response = await fetch('https://oauth2.googleapis.com/tokeninfo?id_token=' + encodeURIComponent(token));
+            data = await response.json();
+        } catch (err) {
+            console.log("Google token check failed:", err.message);
+            return out;
+        }
+        if(!data || data.error_description || data.error) return out;
+        if(data.aud !== googleClientId) {
+            console.log("Rejected Google token issued for another app:", data.aud);
+            return out;
+        }
+        if(data.iss !== "accounts.google.com" && data.iss !== "https://accounts.google.com") return out;
+        if(String(data.email_verified) !== "true" || !data.email) return out;
+        // The ID token only proves who the player is; the session uses its own random token.
+        token = crypto.randomBytes(32).toString('hex');
+
+        email = data.email;
+        email_ver = data.email_verified;
+        name = data.name;
+        picture = data.picture;
+        given_name = data.given_name;
+        family_name = data.family_name;
+        locale = data.locale;
+        query1 = `SELECT * FROM users WHERE email=?`;
+        query1add = [email];
+    }
+    if(query1 == null)
+        return out;
+    await connectionms.promise().query(query1, query1add)
+    .then( async ([rows,fields]) => {
+        if(rows.length == 0) {
+            let massiv = [email,social,email_ver,name,picture,locale,token,+new Date()+21600000];
+            await connectionms.promise().query('INSERT INTO `users`(`email`, `social`, `email_isVerified`, `name`, `profilePicUrl`, `locale`, `password_token`, `expirydate`) VALUES (?,?,?,?,?,?,?,?)', massiv)
+            .then(async ([rows,fields]) => {
+                await connectionms.promise().query(query1, query1add)
+                .then( ([rows,fields]) => {
+                    if(!rows || !rows.length) return out;
+                    out = {
+                        success: true,
+                        login_userId: rows[0].id,
+                        login_passwordToken: rows[0].password_token,
+                        login_name: rows[0].name,
+                        login_profilePicURL: rows[0].profilePicUrl
+                    }
+                    // console.log("da");
+                    return out;
+                })
+                .catch( (err) => {
+                    console.log(err);
+                    console.log("errr");
+                    out = {
+                        success: false
+                    }
+                    return out;
+                });
+            })
+            .catch( (err) => {
+                console.log(err);
+                console.log("errr");
+                out = {
+                    success: false
+                }
+                return out;
+            });
+        } else {
+            let query2, query2add = null;
+            query2add = [token, +new Date()+21600000];
+            if(social == "google") {
+                query2 = `UPDATE \`users\` SET \`password_token\`=?, \`expirydate\`=? WHERE \`email\`=?`;
+                query2add.push(email);
+            }
+            if(query2 == null)
+                return out;
+            await connectionms.promise().query(query2, query2add)
+            .then( ([]) => {
+                out = {
+                    success: true,
+                    login_userId: rows[0].id,
+                    login_passwordToken: token,
+                    login_name: rows[0].name,
+                    login_profilePicURL: rows[0].profilePicUrl
+                }
+                // console.log("da");
+                return out;
+            })
+            .catch( (err) => {
+                console.log(err);
+                console.log("errr");
+                out = {
+                    success: false
+                }
+                return out;
+            });
+        }
+    })
+    .catch( (err) => {
+        console.log(err);
+        console.log("errr");
+        out = {
+            success: false
+        }
+        return out;
+    });
+    return out;
+}
+
+async function verifyUser(id, token) {
+    var out = {
+        success: false
+    };
+    await connectionms.promise().query(`SELECT * FROM users WHERE id=? AND password_token=?`, [id, token])
+    .then( async ([rows,fields]) => {
+        if(rows.length == 0) {
+            out = {
+                success: false
+            }
+            return out;
+        } else {
+            if(rows[0].expirydate > +new Date()) {
+                await connectionms.promise().query(`UPDATE \`users\` SET \`expirydate\`=? WHERE id=? AND password_token=?`, [+new Date()+21600000, id, token])
+                .catch( (err) => {
+                    console.log(err);
+                });
+                out = {
+                    success: true,
+                    pfp: rows[0].profilePicUrl
+                }
+                return out;
+            } else {
+                out = {
+                    success: false
+                }
+                return out;
+            }
+        }
+    })
+    .catch( (err) => {
+        console.log("err");
+        console.log(err);
+        out = {
+            success: false
+        }
+        return out;
+    });
+    return out;
+}
+
+function isTaken(data, level, gold) {
+    if(gold == true) level += seasonlevels;
+    data = data.split('');
+    if(level > data.length) return false;
+    if(Number(data[level-1]) == 0) return false;
+    else return true;
+}
+
+function setLevel(data, level, gold, value) {
+    if(gold == true) level += seasonlevels;
+    data = data.split('');
+    data[level-1] = value;
+    data = data.join('');
+    return data;
+}
+
+function isValidSeasonData(data) {
+    if(!data) return false;//not hard to fix rlly, kys russianmope
+    data = data.split('');
+    if(data.length != seasonlevels*2) return false;
+    return true;
+}
+
+function constructSeasonData() {
+    let data = "";
+    for(var i = 0; i < seasonlevels*2; i++) {
+        data += "0";
+    }
+    return data;
+}
+
+async function getBattlePass(id, token) {
+    var out = {
+        success: false
+    };
+    await connectionms.promise().query(`SELECT * FROM users WHERE id=? AND password_token=?`, [id, token])
+    .then( async ([rows,fields]) => {
+        if(rows.length == 0 || (rows[0] && rows[0].banned == 1)) {
+            out = {
+                success: false
+            }
+            return out;
+        } else {
+            if(!isValidSeasonData(rows[0].seasondata)) {
+                await connectionms.promise().query(`UPDATE \`users\` SET \`seasondata\`=? WHERE id=?`, [constructSeasonData(), id])
+                .then((rows) => {})
+                .catch( (err) => {
+                    console.log(err);
+                });
+                rows[0].seasondata = constructSeasonData();
+            }
+            let tempdata = seasondata;
+            let temp = tempdata.levels.free;
+            let tempgold = tempdata.levels.gold;
+            let finaldata = {};
+            finaldata.maxlevel = temp.length;
+            finaldata.season_number = season;
+            finaldata.haspass = rows[0].seasonpass == 1;
+            finaldata.end = tempdata.end;
+            finaldata.name = tempdata.name;
+            finaldata.levels = {};
+            finaldata.levels.free = [];
+            finaldata.levels.gold = [];
+            for(var i in temp) {
+                i = Number(i);
+                finaldata.levels.free[i] = _.clone(temp[i]);
+                finaldata.levels.free[i].id = i;
+                if(i+1 <= rows[0].level) {
+                    finaldata.levels.free[i].cantake = !isTaken(rows[0].seasondata, i+1, false);
+                    finaldata.levels.free[i].taken = isTaken(rows[0].seasondata, i+1, false);
+                } else {
+                    finaldata.levels.free[i].taken = false;
+                    finaldata.levels.free[i].cantake = false;
+                }
+                if(finaldata.levels.free[i].bonus == "coins") {
+                    delete finaldata.levels.free[i].bonus;
+                    finaldata.levels.free[i].type = 0;
+                } else if(finaldata.levels.free[i].bonus == "ani") {
+                    delete finaldata.levels.free[i].bonus;
+                    finaldata.levels.free[i].type = Number(finaldata.levels.free[i].ani);
+                }
+            }
+            for(var i in tempgold) {
+                i = Number(i);
+                finaldata.levels.gold[i] = _.clone(tempgold[i]);
+                finaldata.levels.gold[i].id = i;
+                if(i+1 <= rows[0].level) {
+                    finaldata.levels.gold[i].cantake = !isTaken(rows[0].seasondata, i+1, true);
+                    finaldata.levels.gold[i].taken = isTaken(rows[0].seasondata, i+1, true);
+                } else {
+                    finaldata.levels.gold[i].taken = false;
+                    finaldata.levels.gold[i].cantake = false;
+                }
+                if(finaldata.levels.gold[i].bonus == "coins") {
+                    delete finaldata.levels.gold[i].bonus;
+                    finaldata.levels.gold[i].type = 0;
+                } else if(finaldata.levels.gold[i].bonus == "ani") {
+                    delete finaldata.levels.gold[i].bonus;
+                    finaldata.levels.gold[i].type = Number(finaldata.levels.gold[i].ani);
+                }
+            }
+            out = {
+                success: true,
+                data: finaldata
+            }
+            return out;
+        }
+    })
+    .catch( (err) => {
+        console.log("err");
+        console.log(err);
+        out = {
+            success: false
+        }
+        return out;
+    });
+    return out;
+}
+
+async function loadAccountData(id, token) {
+    var out = {
+        success: false
+    };
+    await connectionms.promise().query(`SELECT * FROM users WHERE id=? AND password_token=?`, [id, token])
+    .then( async ([rows,fields]) => {
+        if(rows.length == 0) {
+            out = {
+                success: false
+            }
+            return out;
+        } else {
+            out = {
+                coins: rows[0].coins,
+                level: rows[0].level,
+                xp: rows[0].xp,
+                xpNextLvl: getNextLevelXP(rows[0].level),
+                banned: rows[0].banned,
+                reason: rows[0].banned == 1 ? rows[0].banreason || "no reason" : "null"
+            }
+            return out;
+        }
+    })
+    .catch( (err) => {
+        console.log("err");
+        console.log(err);
+        out = {
+            success: false
+        }
+        return out;
+    });
+    return out;
+}
+
+var shopitems = [
+    {
+        coinsPrice: 20000,
+        shopCategory: 'gold',
+        itemName: "gold_blackDragon"
+    },
+    {
+        coinsPrice: 20000,
+        shopCategory: 'gold',
+        itemName: "gold_kingDragon"
+    },
+    {
+        coinsPrice: 5000,
+        shopCategory: 'gold',
+        itemName: "gold_Dragon"
+    },
+    {
+        coinsPrice: 5000,
+        shopCategory: 'gold',
+        itemName: "gold_kraken"
+    },
+    {
+        coinsPrice: 5000,
+        shopCategory: 'gold',
+        itemName: "gold_yeti"
+    },
+    {
+        coinsPrice: 5000,
+        shopCategory: 'gold',
+        itemName: "gold_trex"
+    },
+    {
+        coinsPrice: 5000,
+        shopCategory: 'gold',
+        itemName: "gold_kingCrab"
+    },
+    {
+        coinsPrice: 6000,
+        shopCategory: 'gold',
+        itemName: "gold_phoenix"
+    },
+    {
+        coinsPrice: 8000,
+        shopCategory: 'gold',
+        itemName: "gold_pterodactyl"
+    },
+    {
+        coinsPrice: 10000,
+        shopCategory: 'gold',
+        itemName: "gold_iceMonster"
+    },
+    {
+        coinsPrice: 10000,
+        shopCategory: 'gold',
+        itemName: "gold_dinoMonster"
+    },
+    {
+        coinsPrice: 10000,
+        shopCategory: 'gold',
+        itemName: "gold_seaMonster" // stoppped here
+    },
+    {
+        coinsPrice: 10000,
+        shopCategory: 'gold',
+        itemName: "gold_landMonster"
+    },
+    {
+        coinsPrice: 10000,
+        shopCategory: 'gold',
+        itemName: "gold_giantScorion"
+    },
+    {
+        coinsPrice: 7000,
+        shopCategory: 'gold',
+        itemName: "gold_bluewhale"
+    },
+    {
+        coinsPrice: 7000,
+        shopCategory: 'gold',
+        itemName: "gold_elephant"
+    },
+    {
+        coinsPrice: 7000,
+        shopCategory: 'gold',
+        itemName: "gold_cassowary"
+    },
+    {
+        coinsPrice: 7000,
+        shopCategory: 'gold',
+        itemName: "gold_giantspider"
+    },
+    {
+        coinsPrice: 7000,
+        shopCategory: 'gold',
+        itemName: "gold_blackwidow"
+    },
+    {
+        coinsPrice: 7000,
+        shopCategory: 'gold',
+        itemName: "gold_mammoth"
+    },
+    {
+        coinsPrice: 5000,
+        shopCategory: 'gold',
+        itemName: "gold_hippo"
+    },
+    {
+        coinsPrice: 5000,
+        shopCategory: 'gold',
+        itemName: "gold_ostrich"
+    },
+    {
+        coinsPrice: 5000,
+        shopCategory: 'gold',
+        itemName: "gold_boa"
+    },
+    {
+        coinsPrice: 5000,
+        shopCategory: 'gold',
+        itemName: "gold_komodo"
+    },
+    {
+        coinsPrice: 5000,
+        shopCategory: 'gold',
+        itemName: "gold_killerwhale"
+    },
+    {
+        coinsPrice: 5000,
+        shopCategory: 'gold',
+        itemName: "gold_sabertooth"
+    },
+    {
+        coinsPrice: 14000,
+        shopCategory: 'locked',
+        itemName: "skin_orangeScorpion"
+    },
+    {
+        coinsPrice: 20000,
+        shopCategory: 'locked',
+        itemName: "skin_blueDragon"
+    },
+    {
+        coinsPrice: 25000,
+        shopCategory: 'locked',
+        itemName: "skin_kingRipper"
+    },
+    {
+        coinsPrice: 25000,
+        shopCategory: 'locked',
+        itemName: "skin_kingStan"
+    },
+    {
+        coinsPrice: 25000,
+        shopCategory: 'locked',
+        itemName: "skin_kingShah"
+    },
+    {
+        coinsPrice: 6000,
+        shopCategory: 'locked',
+        itemName: "skin_dragon_gray"
+    },
+    {
+        coinsPrice: 7000,
+        shopCategory: 'locked',
+        itemName: "skin_kraken_cyan"
+    },
+    {
+        coinsPrice: 6000,
+        shopCategory: 'locked',
+        itemName: "skin_yeti_emerald"
+    },
+    {
+        coinsPrice: 8000,
+        shopCategory: 'locked',
+        itemName: "skin_snowman" // new station
+    },
+    {
+        coinsPrice: 5000,
+        shopCategory: 'locked',
+        itemName: "skin_trex_gray"
+    },
+    {
+        coinsPrice: 8000,
+        shopCategory: 'locked',
+        itemName: "skin_kingCrab"
+    },
+    {
+        coinsPrice: 7000,
+        shopCategory: 'locked',
+        itemName: "skin_phoenix_blue"
+    },
+    {
+        coinsPrice: 9000,
+        shopCategory: 'locked',
+        itemName: "skin_pterodactyl_green"
+    },
+    {
+        coinsPrice: 20000,
+        shopCategory: 'locked',
+        itemName: "skin_lavaStrider"
+    },
+    {
+        coinsPrice: 35000,
+        shopCategory: 'locked',
+        itemName: "skin_boneKing"
+    },
+    {
+        coinsPrice: 8000,
+        shopCategory: 'locked',
+        itemName: "skin_dragon_terminator"
+    },
+    {
+        coinsPrice: 6000,
+        shopCategory: 'locked',
+        itemName: "skin_dragon_red"
+    },
+    {
+        coinsPrice: 13000,
+        shopCategory: 'locked',
+        itemName: "skin_iceMonster"
+    },
+    {
+        coinsPrice: 13000,
+        shopCategory: 'locked',
+        itemName: "skin_dinoMonster"
+    },
+    {
+        coinsPrice: 13000,
+        shopCategory: 'locked',
+        itemName: "skin_seaMonster"
+    },
+    {
+        coinsPrice: 13000,
+        shopCategory: 'locked',
+        itemName: "skin_landMonster"
+    },
+    {
+        coinsPrice: 7000,
+        shopCategory: 'locked',
+        itemName: "skin_bluewhale"
+    },
+    {
+        coinsPrice: 8000,
+        shopCategory: 'locked',
+        itemName: "skin_elephant"
+    },
+    {
+        coinsPrice: 3000,
+        shopCategory: 'locked',
+        itemName: "skin_cassowary"
+    },
+    {
+        coinsPrice: 6000,
+        shopCategory: 'locked',
+        itemName: "skin_giantspider"
+    },
+    {
+        coinsPrice: 3000,
+        shopCategory: 'locked',
+        itemName: "skin_blackwidow"
+    },
+    {
+        coinsPrice: 3000,
+        shopCategory: 'locked',
+        itemName: "skin_mammoth"
+    },
+    {
+        coinsPrice: 4000,
+        shopCategory: 'locked',
+        itemName: "skin_hippo"
+    },
+    {
+        coinsPrice: 6000,
+        shopCategory: 'locked',
+        itemName: "skin_ostrich"
+    },
+    {
+        coinsPrice: 3000,
+        shopCategory: 'locked',
+        itemName: "skin_boa"
+    },
+    {
+        coinsPrice: 6000,
+        shopCategory: 'locked',
+        itemName: "skin_komodo"
+    },
+    {
+        coinsPrice: 7000,
+        shopCategory: 'locked',
+        itemName: "skin_killerwhale"
+    },
+    {
+        coinsPrice: 4000,
+        shopCategory: 'locked',
+        itemName: "skin_sabertooth"
+    },
+    {
+        coinsPrice: 6000,
+        shopCategory: 'locked',
+        itemName: "skin_tigerShark"
+    },
+    {
+        coinsPrice: 7000,
+        shopCategory: 'locked',
+        itemName: "skin_hamerHeadShark"
+    },
+    {
+        coinsPrice: 3000,
+        shopCategory: 'locked',
+        itemName: "skin_panda"
+    },
+    {
+        coinsPrice: 3000,
+        shopCategory: 'locked',
+        itemName: "skin_zonkey"
+    },
+    {
+        coinsPrice: 4000,
+        shopCategory: 'locked',
+        itemName: "skin_okapi"
+    },
+    {
+        coinsPrice: 3000,
+        shopCategory: 'locked',
+        itemName: "skin_giantCroc"
+    },
+    {
+        coinsPrice: 2000,
+        shopCategory: 'locked',
+        itemName: "skin_purpleMouse"
+    },
+    {
+        coinsPrice: 2000,
+        shopCategory: 'locked',
+        itemName: "skin_starMouse",
+        isExclusive: true
+    },
+    {
+        coinsPrice: 2000,
+        shopCategory: 'locked',
+        itemName: "skin_winterMouse",
+        isExclusive: true
+    },
+    {
+        coinsPrice: 2000,
+        shopCategory: 'locked',
+        itemName: "skin_prismaToucan"
+    },
+    {
+        coinsPrice: 2000,
+        shopCategory: 'gold',
+        itemName: "gold_mouse"
+    },
+    {
+        coinsPrice: 25000,
+        shopCategory: 'locked',
+        itemName: "skin_queenScarlet"
+    },
+    {
+        coinsPrice: 100000,
+        shopCategory: 'community',
+        itemName: "skin_queenRipper",
+        author: "Ahmetcan"
+    },
+    {
+        coinsPrice: 100000,
+        shopCategory: 'community',
+        itemName: "skin_sapphireMouse",
+        author: "krkika"
+    },
+    {
+        coinsPrice: 100000,
+        shopCategory: 'community',
+        itemName: "skin_amethystMouse",
+        author: "krkika"
+    },
+    {
+        coinsPrice: 100000,
+        shopCategory: 'community',
+        itemName: "skin_emeraldMouse",
+        author: "krkika"
+    },
+    {
+        coinsPrice: 100000,
+        shopCategory: 'community',
+        itemName: "skin_diamondMouse",
+        author: "krkika"
+    },
+    {
+        coinsPrice: 200000,
+        shopCategory: 'community',
+        itemName: "skin_lordofice",
+        author: "Nike"
+    },
+    {
+        coinsPrice: 250000,
+        shopCategory: 'community',
+        itemName: "skin_kingMelon",
+        author: "Nike"
+    },
+    {
+        coinsPrice: 49999,
+        shopCategory: 'community',
+        itemName: "skin_partycrock",
+        author: "Croccin"
+    },
+    {
+        coinsPrice: 99999,
+        shopCategory: 'community',
+        itemName: "skin_retrocrocodilealligator",
+        author: "Croccin"
+    },
+    {
+        coinsPrice: 199999,
+        shopCategory: 'community',
+        itemName: "skin_rubblealligator",
+        author: "Croccin"
+    },
+    {
+        coinsPrice: 111111,
+        shopCategory: 'community',
+        itemName: "skin_rubyblackdragon",
+        author: "Krkika"
+    },
+    {
+        coinsPrice: 35000,
+        shopCategory: 'gold',
+        itemName: "skin_kingGolder"
+    },
+    {
+        coinsPrice: 100000,
+        shopCategory: 'community',
+        itemName: "skin_kingInferno",
+        author: "Ahmetcan"
+    },
+    {
+        coinsPrice: 25000,
+        shopCategory: 'locked',
+        itemName: "skin_queenCeleste"
+    },
+    {
+        coinsPrice: 15000,
+        shopCategory: 'locked',
+        itemName: "skin_bigFoot"
+    },
+    {
+        coinsPrice: 3000,
+        shopCategory: 'locked',
+        itemName: "skin_woollyRhino"
+    },
+    //hello
+    {
+        coinsPrice: 30300,
+        shopCategory: 'community',
+        itemName: "skin_banditMouse",
+        author: "Myst"
+    },
+    {
+        coinsPrice: 86400,
+        shopCategory: 'community',
+        itemName: "skin_chocolatebirthdaycakeMouse",
+        author: "Krkika"
+    },
+    {
+        coinsPrice: 86400,
+        shopCategory: 'community',
+        itemName: "skin_strawberrybirthdaycakeMouse",
+        author: "Krkika"
+    },
+    {
+        coinsPrice: 50505,
+        shopCategory: 'community',
+        itemName: "skin_chocolateDragon",
+        author: "Krkika"
+    },
+    {
+        coinsPrice: 50000,
+        shopCategory: 'community',
+        itemName: "skin_neonDragon",
+        author: "Krkika"
+    },
+    {
+        coinsPrice: 220222,
+        shopCategory: 'community',
+        itemName: "skin_galaxyPhoenix",
+        author: "Myst"
+    },
+    {
+        coinsPrice: 500000,
+        shopCategory: 'community',
+        itemName: "skin_meltedMonster",
+        author: "Myst"
+    },
+    {
+        coinsPrice: 200000,
+        shopCategory: 'community',
+        itemName: "skin_giftboxKraken",
+        author: "Myst"
+    },
+ 
+];
+
+var exclusiveitems = [];
+
+for(var i in shopitems) {
+    if(shopitems[i].isExclusive) {
+        exclusiveitems.push(shopitems[i]);
+    }
+}
+
+shopitems.sort((prev, next) => prev.coinsPrice - next.coinsPrice);
+
+var levelxps = [
+    500,
+    500,
+    500,
+    600,
+    650,
+    700,
+    700,
+    800,
+    800,
+    1000
+]
+
+function getNextLevelXP(level) {
+    return levelxps[level-1] == null ? levelxps[levelxps.length-1] : levelxps[level-1];
+}
+
+function getCost(itemName) {
+    for(var i in shopitems) {
+        if(shopitems[i].itemName == itemName) return shopitems[i].coinsPrice;
+    }
+    return false;
+}
+
+async function getBattlePassReward(id, token, level, gold) {
+    level = Number(level);
+    gold = gold == "true";
+    var out = {
+        success: false
+    };
+    if(level > seasonlevels) return out;
+    await connectionms.promise().query(`SELECT * FROM users WHERE id=? AND password_token=?`, [id, token])
+    .then( async ([rows,fields]) => {
+        if(rows.length == 0 || (rows[0] && rows[0].banned == 1)) {
+            out = {
+                success: false,
+                reason: 'error'
+            }
+            return out;
+        } else {
+            if(!isValidSeasonData(rows[0].seasondata)) {
+                out = {
+                    success: false,
+                    reason: 'baddata'
+                }
+                return out;
+            } else if(gold && !rows[0].seasonpass) {
+                out = {
+                    success: false,
+                    reason: 'nopass'
+                }
+                return out;
+            } else if(isTaken(rows[0].seasondata, level, gold)) {
+                out = {
+                    success: false,
+                    reason: 'alreadytaken'
+                }
+                return out;
+            } else if(rows[0].level < level) {
+                out = {
+                    success: false,
+                    reason: 'lowlevel'
+                }
+                return out;
+            } else {
+                let bonus = getBonus(level, gold);
+                let newseasondata = setLevel(rows[0].seasondata, level, gold, 1);
+                await connectionms.promise().query(`UPDATE \`users\` SET \`seasondata\`=?${bonus} WHERE id=? AND password_token=?`, [newseasondata, id, token])
+                .then( ([]) => {
+                    out = {
+                        success: true
+                    }
+                    return out;
+                })
+                .catch( (err) => {
+                    console.log(err);
+                    console.log("errr");
+                    out = {
+                        success: false,
+                        reason: 'error'
+                    }
+                    return out;
+                });
+            }
+        }
+    })
+    .catch( (err) => {
+        console.log("err");
+        console.log(err);
+        out = {
+            success: false
+        }
+        return out;
+    });
+    return out;
+}
+
+function getBonus(level, gold) {
+    let lvl = seasondata.levels;
+    if(gold) lvl = lvl.gold;
+    else lvl = lvl.free;
+    lvl = lvl[level-1];
+    let bonus = lvl.bonus;
+    if(bonus == "coins") {
+        let sql = ", `coins`=`coins`+"+lvl.value;
+        return sql;
+    } else if(bonus == "skin") {
+        let sql = ", `"+lvl.dbskin+"`=1";
+        return sql;
+    }
+    return "";
+}
+
+async function buyItem(id, token, itemName) {
+    var out = {
+        success: false
+    };
+    if(getCost(itemName) == false) {
+        return out;
+    }
+    for(var i in exclusiveitems) {
+        if(exclusiveitems[i].itemName == itemName) {
+            out = {
+                success: false,
+                reason: 'error'
+            }
+            return out;
+        }
+    }
+    await connectionms.promise().query(`SELECT * FROM users WHERE id=? AND password_token=?`, [id, token])
+    .then( async ([rows,fields]) => {
+        if(rows.length == 0 || (rows[0] && rows[0].banned == 1)) {
+            out = {
+                success: false,
+                reason: 'error'
+            }
+            return out;
+        } else {
+            if(rows[0][itemName] == 1) {
+                out = {
+                    success: false,
+                    reason: 'alreadyowned'
+                }
+                return out;
+            } else {
+                let cst = getCost(itemName);
+                if(rows[0].coins < cst) {
+                    out = {
+                        success: false,
+                        reason: 'cantafford'
+                    }
+                    return out;
+                }
+                await connectionms.promise().query(`UPDATE \`users\` SET \`${itemName}\`='1', \`coins\`=coins-${cst} WHERE id=? AND password_token=?`, [id, token])
+                .then( ([]) => {
+                    out = {
+                        success: true
+                    }
+                    // console.log("da");
+                    return out;
+                })
+                .catch( (err) => {
+                    console.log(err);
+                    console.log("errr");
+                    out = {
+                        success: false,
+                        reason: 'error'
+                    }
+                    return out;
+                });
+            }
+        }
+    })
+    .catch( (err) => {
+        console.log("err");
+        console.log(err);
+        out = {
+            success: false
+        }
+        return out;
+    });
+    return out;
+}
+
+async function loadShopData(id, token) {
+    var out = {
+        success: false
+    };
+    await connectionms.promise().query(`SELECT * FROM users WHERE id=? AND password_token=?`, [id, token])
+    .then( async ([rows,fields]) => {
+        if(rows.length == 0 || (rows[0] && rows[0].banned == 1)) {
+            out = shopitems;
+            return out;
+        } else {
+            let modshopitems = [];
+            let shopitemssorted = shopitems;
+            for(var i in shopitemssorted) {
+                if(shopitemssorted[i].isExclusive && rows[0][shopitems[i].itemName] != 1) {
+                    var index = shopitemssorted.indexOf(shopitemssorted[i]);
+                    if (index > -1) {
+                        shopitemssorted.splice(index, 1);
+                    }
+                }
+            }
+            shopitemssorted.sort((prev, next) => {
+                if(rows[0][next.itemName] == 1) {
+                    return -1;
+                } else {
+                    return 1;
+                }
+            });
+            for(var i = 0; i < shopitems.length; i++) {
+                let item = shopitems[i];
+                if(rows[0][shopitems[i].itemName] == 1) {
+                    item.purchasedByPlayer = true;
+                } else {
+                    item.purchasedByPlayer = false;
+                }
+                modshopitems.push(item);
+            }
+            out = modshopitems;
+            return out;
+        }
+    })
+    .catch( (err) => {
+        console.log("err");
+        console.log(err);
+        out = {
+            success: false
+        }
+        return out;
+    });
+    return out;
+}
+
+async function getAccountData(id) {
+    var out = {
+        success: false
+    };
+    await connectionms.promise().query(`SELECT * FROM users WHERE id=?`,[id])
+    .then( async ([rows,fields]) => {
+        if(rows.length == 0) {
+            // console.log('eerrre');
+            out = {
+                success: false
+            }
+            return out;
+        } else {
+            out = rows[0];
+            return out;
+        }
+    })
+    .catch( (err) => {
+        console.log("err");
+        console.log(err);
+        out = {
+            success: false
+        }
+        return out;
+    });
+    return out;
+}
+
+async function reqloadAccountData(id, token) {
+    var out = {
+        success: false
+    };
+    await connectionms.promise().query(`SELECT * FROM users WHERE id=? AND password_token=?`,[id, token])
+    .then( async ([rows,fields]) => {
+        if(rows.length == 0) {
+            // console.log('eerrre');
+            out = {
+                success: false
+            }
+            return out;
+        } else {
+            out = rows[0];
+            return out;
+        }
+    })
+    .catch( (err) => {
+        console.log("err");
+        console.log(err);
+        out = {
+            success: false
+        }
+        return out;
+    });
+    return out;
+}
+
+function addBPEXP(pvk, id, token, xp) {
+    xp = Number(xp);
+    if(pvk == SERVER_KEY) {
+        connectionms.promise().query(`SELECT * FROM users WHERE id=? AND password_token=?`,[id, token])
+        .then( async ([rows,fields]) => {
+            if(rows.length > 0) {
+                let sql = "";
+                if(rows[0].xp+xp > getNextLevelXP(rows[0].level)) {
+                    if(rows[0].level < seasonlevels) {
+                        let newxp = rows[0].xp+xp;
+                        let level = rows[0].level;
+                        while(newxp > getNextLevelXP(level)) {
+                            newxp -= getNextLevelXP(level);
+                            level++;
+                        }
+                        if(level > seasonlevels) level = seasonlevels;
+                        sql = "UPDATE `users` SET `xp`="+newxp+", `level`="+level+" WHERE `id`=?";
+                    } else {
+                        let newxp = rows[0].xp+xp;
+                        let coins = coinsperoutlevel;
+                        while(newxp > getNextLevelXP(rows[0].level)) {
+                            newxp -= getNextLevelXP(rows[0].level);
+                            coins += coinsperoutlevel;
+                        }
+                        sql = "UPDATE `users` SET `xp`="+newxp+", `coins`=`coins`+"+coins+" WHERE `id`=?";
+                    }
+                } else {
+                    sql = "UPDATE `users` SET `xp`=`xp`+"+xp+" WHERE `id`=?";
+                }
+                if(sql.length > 1) {
+                    connectionms.promise().query(sql, [id])
+                    .then( async ([rows,fields]) => {
+                        //
+                    })
+                    .catch( (err) => {
+                        console.log(err);
+                    });
+                }
+            }
+        })
+        .catch( (err) => {
+            console.log("err");
+            console.log(err);
+        });
+    }
+}
+
+function addCoins(pvk, id, token, coins) {
+    if(pvk == SERVER_KEY) {
+        connectionms.promise().query(`UPDATE \`users\` SET \`coins\`= coins + ${coins} WHERE \`id\`=?`, [id])
+        .then( async ([rows,fields]) => {
+            //
+        })
+        .catch( (err) => {
+            console.log(err);
+        });
+    }
+}
+function sendLog(type, executor, target, reason){
+    console.log(`[log] ${type} | executor: ${executor} | target: ${target} | ${reason}`);
+}
+
+function warnUser(pvk, id, reason, executor) {
+    if(pvk == SERVER_KEY) {
+        connectionms.promise().query(`SELECT * FROM \`users\` WHERE \`id\`=?`, [id])
+        .then( async ([rows,fields]) => {
+            if(rows[0].warns+1 > 2) {
+                connectionms.promise().query(`UPDATE \`users\` SET \`admin\`=0 WHERE \`id\`=?`, [id])
+                .then( async ([rows,fields]) => {
+                    //
+                })
+                .catch( (err) => {
+                    console.log(err);
+                });
+            }
+        })
+        .catch( (err) => {
+            console.log(err);
+        });
+        var wrs = ""+executor+"-"+reason+",";
+        connectionms.promise().query(`UPDATE \`users\` SET \`warns\`=\`warns\`+1, \`warn_executors\`=CONCAT(warn_executors, ?) WHERE \`id\`=?`, [wrs, id])
+        .then( async ([rows,fields]) => {
+            //
+        })
+        .catch( (err) => {
+            console.log(err);
+        });
+    }
+}
+
+function banUser(pvk, id, reason, executor, time) {
+    time = parseInt(time);
+    if(time <= 0){
+    if(pvk == SERVER_KEY) {
+        connectionms.promise().query(`UPDATE \`users\` SET \`banned\`=1, \`banreason\`=?, \`banexecutor\`=? WHERE \`id\`=?`, [reason, executor, id])
+        .then( async ([rows,fields]) => {
+            //
+        })
+        .catch( (err) => {
+            console.log(err);
+        });
+    }
+}
+if(time > 0){
+    if(pvk == SERVER_KEY) {
+        let parserTime = new Date()
+        parserTime.setMinutes(parserTime.getMinutes() + time);
+        connectionms.promise().query(`UPDATE \`users\` SET \`banned\`=1, \`banreason\`=?, \`banexecutor\`=?, \`banTime\`=? WHERE \`id\`=?`, [reason, executor, parserTime, id])
+        .then( async ([rows,fields]) => {
+            //
+        })
+        .catch( (err) => {
+            console.log(err);
+        });
+    }
+}
+}
+function unBanUser(pvk, id) {
+    if(pvk == SERVER_KEY) {
+        connectionms.promise().query(`UPDATE \`users\` SET \`banned\`=0, \`banreason\`=NULL, \`banexecutor\`=NULL, \`banTime\`=NULL WHERE \`id\`=?`, [id])
+        .then( async ([rows,fields]) => {
+            //
+        })
+        .catch( (err) => {
+            console.log(err);
+        });
+    }
+}
+
+testDB();
+
+// registerUser('sas');
+
+//app.use()
+const getRawBody = require('raw-body');
+
+app.use((req, res, next) => {
+    if(req.url === "/"){ 
+        next();
+        return;
+    }
+    if(req.url === "/sendLog"){ 
+        next();
+        return;
+    }
+    if(req.headers.host == "localhost:14002"){
+        next();
+        return;
+    }
+    
+    sendLog("AccountServer request", "0", "0", `Type ${req.method}\nURL ${req.url}\nHeaders: ${JSON.stringify(req.headers)}`)
+    next();
+});
+var parsedServers = [];
+var updateBan = async function(){
+    let rowss = [];
+    await connectionms.promise().query(`SELECT * FROM \`users\` WHERE \`banned\`=1 AND banTime IS NOT NULL`)
+    .then( async ([rows,fields]) => {
+        if(rows.length == 0) {
+    
+        } else {
+            rows.map((row) => {
+            let actualDate = new Date();
+            let bannedTime = new Date(row.banTime)
+            if(actualDate > bannedTime){
+                unBanUser(SERVER_KEY, row.id);
+                console.log(`Account with ID: ${row.id} unbanned. Reason: Ban time expired.`);
+            }
+        })
+            
+        }
+    })
+    .catch( (err) => {
+        console.log(err);
+            });
+
+}
+setInterval(updateBan, 10000)
+// var html = JSON.stringify(htm);
+
+var jsonParser = bodyParser.json();
+
+app.get('/', function(request, response) {
+    response.header("Access-Control-Allow-Origin", "*");
+    response.header("Access-Control-Allow-Headers", "X-Requested-With");
+    response.writeHead(200, {'Content-Type': 'text/html'});
+    response.end('failed');
+})
+
+app.get('/reglog', async ({ query }, response) => {
+    response.header("Access-Control-Allow-Origin", "*");
+    response.header("Access-Control-Allow-Headers", "X-Requested-With");
+    let resp = await registerUser(encode_utf8(query.accessToken), encode_utf8(query.socialNetwork));
+    response.writeHead(200, {'Content-Type': 'text/html'});
+    response.end(JSON.stringify(resp));
+})
+
+app.get('/verify', async function(request, response) {
+    response.header("Access-Control-Allow-Origin", "*");
+    response.header("Access-Control-Allow-Headers", "X-Requested-With");
+    let resp = await verifyUser(encode_utf8(request.query.userId), encode_utf8(request.query.passwordToken));
+    // console.log(resp);
+    response.writeHead(200, {'Content-Type': 'text/html'});
+    response.end(JSON.stringify(resp));
+})
+
+app.get('/battlepass', async function(request, response) {
+    response.header("Access-Control-Allow-Origin", "*");
+    response.header("Access-Control-Allow-Headers", "X-Requested-With");
+    let resp = await getBattlePass(encode_utf8(request.query.userId), encode_utf8(request.query.passwordToken));
+    // console.log(resp);
+    response.writeHead(200, {'Content-Type': 'text/html'});
+    response.end(JSON.stringify(resp));
+})
+
+app.get('/loadAccountData', async function(request, response) {
+    response.header("Access-Control-Allow-Origin", "*");
+    response.header("Access-Control-Allow-Headers", "X-Requested-With");
+    let resp = await loadAccountData(encode_utf8(request.query.userId), encode_utf8(request.query.passwordToken));
+    // console.log(resp);
+    response.writeHead(200, {'Content-Type': 'text/html'});
+    response.end(JSON.stringify(resp));
+})
+
+app.get('/loadShopItems', async function(request, response) {
+    response.header("Access-Control-Allow-Origin", "*");
+    response.header("Access-Control-Allow-Headers", "X-Requested-With");
+    let resp = await loadShopData(encode_utf8(request.query.userId), encode_utf8(request.query.passwordToken));
+    // console.log(resp);
+    response.writeHead(200, {'Content-Type': 'text/html'});
+    response.end(JSON.stringify(resp));
+})
+
+app.get('/buyShopItem', async function(request, response) {
+    response.header("Access-Control-Allow-Origin", "*");
+    response.header("Access-Control-Allow-Headers", "X-Requested-With");
+    let resp = await buyItem(encode_utf8(request.query.userId), encode_utf8(request.query.passwordToken), encode_utf8(request.query.itemName));
+    // console.log(resp);
+    response.writeHead(200, {'Content-Type': 'text/html'});
+    response.end(JSON.stringify(resp));
+})
+
+app.get('/getReward', async function(request, response) {
+    response.header("Access-Control-Allow-Origin", "*");
+    response.header("Access-Control-Allow-Headers", "X-Requested-With");
+    let resp = await getBattlePassReward(encode_utf8(request.query.userId), encode_utf8(request.query.passwordToken), request.query.level, request.query.gold);
+    // console.log(resp);
+    response.writeHead(200, {'Content-Type': 'text/html'});
+    response.end(JSON.stringify(resp));
+})
+
+const handleSend = (req, res) => {
+    let token = req.body.token;
+    let url = `https://www.google.com/recaptcha/api/siteverify?secret=${googleKey}&response=${token}`;
+
+    fetch(url, {
+        method: 'post'
+    })
+        .then(response => response.json())
+        .then(google_response => res.json({ google_response }))
+        .catch(error => res.json({ error }));
+};
+app.post('/verifykey', jsonParser, handleSend);
+
+app.post('/', jsonParser, function(request, response) {
+    response.writeHead(200, {'Content-Type': 'text/html'});
+    response.end('failed');
+})
+
+app.post('/reqplr', jsonParser, async function(request, response) {
+    // console.log(request.body.id);
+    let reesp = await reqloadAccountData(encode_utf8(request.body.id), encode_utf8(request.body.token));
+    response.writeHead(200, {'Content-Type': 'text/html'});
+    response.end(JSON.stringify(reesp));
+})
+
+app.post('/sendLog', jsonParser, async function(request, response) {
+    setTimeout(() => {
+    sendLog(encode_utf8(request.body.requestType), encode_utf8(request.body.executor), encode_utf8(request.body.targetId), encode_utf8(request.body.reason));
+    response.writeHead(200, {'Content-Type': 'text/html'});
+    response.end('');
+    }, 2000)
+})
+app.post('/a2pcoins', jsonParser, async function(request, response) {
+    addCoins(encode_utf8(request.body.pvk), encode_utf8(request.body.id), encode_utf8(request.body.token), encode_utf8(request.body.coins));
+    response.writeHead(200, {'Content-Type': 'text/html'});
+    response.end('');
+})
+
+app.post('/addbpexp', jsonParser, async function(request, response) {
+    addBPEXP(encode_utf8(request.body.pvk), encode_utf8(request.body.id), encode_utf8(request.body.token), encode_utf8(request.body.xp));
+    response.writeHead(200, {'Content-Type': 'text/html'});
+    response.end('');
+})
+
+app.post('/banuserpzl', jsonParser, async function(request, response) {
+    banUser(encode_utf8(request.body.pvk), encode_utf8(request.body.id), encode_utf8(request.body.reason), encode_utf8(request.body.executor), encode_utf8(request.body.time));
+    response.writeHead(200, {'Content-Type': 'text/html'});
+    response.end('');
+})
+
+app.post('/warnuserpzl', jsonParser, async function(request, response) {
+    warnUser(encode_utf8(request.body.pvk), encode_utf8(request.body.id), encode_utf8(request.body.reason), encode_utf8(request.body.executor));
+    response.writeHead(200, {'Content-Type': 'text/html'});
+    response.end('');
+})
+
+// HTTPS is optional: set SSL_KEY and SSL_CERT to file paths to enable it.
+if (process.env.SSL_KEY && process.env.SSL_CERT) {
+    const port = 2083;
+    const credentials = {key: fs.readFileSync(process.env.SSL_KEY), cert: fs.readFileSync(process.env.SSL_CERT)};
+    https.createServer(credentials, app).listen(port);
+    console.log(`Listening at ${port}`);
+}
+
+var localserv = http.createServer(app);
+localserv.listen(14002);
+console.log(`Local listening at 14002`);
+
+
+parseSeasons();
+
