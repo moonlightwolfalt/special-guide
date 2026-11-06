@@ -1,0 +1,41 @@
+package io.mopesbox.Utils;
+import java.util.HashMap;
+import java.util.Map;
+import io.mopesbox.Client.GameClient;
+
+public class IPCheck {
+    public Map<String, Integer> ipInteractions = new HashMap<>();
+   
+
+    public boolean interactWithIP(GameClient client) {
+        if (ipInteractions.containsKey(client.ip) && ipInteractions.get(client.ip) > 3) {
+            blockConnection(client);
+            return true;
+        } else {
+            int interactions = ipInteractions.getOrDefault(client.ip, 0) + 1;
+            ipInteractions.put(client.ip, interactions);
+
+
+            return false;
+        }
+    }
+
+    private void blockConnection(GameClient client) {
+            ipInteractions.put(client.ip, ipInteractions.get(client.ip) - 1);
+        client.sendDisconnect(false, "MOPERR_465", false);
+    }
+    public void removeIP(String ip){
+        if(ipInteractions.containsKey(ip)){
+        if(ipInteractions.get(ip) == 1) {
+        ipInteractions.remove(ip);
+        return;
+        }
+
+        ipInteractions.put(ip, ipInteractions.get(ip) - 1);
+        }
+    }
+
+
+
+
+}
