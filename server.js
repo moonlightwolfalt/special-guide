@@ -78,7 +78,17 @@ function clientConfig() {
     const config = {
         googleClientId: process.env.GOOGLE_CLIENT_ID || '',
         accountServerUrl: process.env.ACCOUNT_SERVER_URL || '',
+        masterServerUrl: process.env.MASTER_SERVER_URL || '',
+        // JSON list of {name, host, port, ssl, region}; empty means this page's host on port 8080.
+        gameServers: [],
     };
+    if (process.env.GAME_SERVERS) {
+        try {
+            config.gameServers = JSON.parse(process.env.GAME_SERVERS);
+        } catch (err) {
+            log('web', `GAME_SERVERS is not valid JSON: ${err.message}`);
+        }
+    }
     return `window.MOPE_CONFIG = ${JSON.stringify(config)};\n`;
 }
 
@@ -113,22 +123,43 @@ function startWebServer() {
             res.end(data);
         });
     });
+    server.on('error', (err) => {
+        log('web', err.code === 'EADDRINUSE'
+            ? `port ${WEB_PORT} is already in use (is another copy of server.js running?)`
+            : `server error: ${err.message}`);
+        shutdown(1);
+    });
     server.listen(WEB_PORT, () => log('web', `serving web/ at http://localhost:${WEB_PORT}`));
     return server;
 }
 
-function shutdown() {
+function killChildren(signal) {
+    for (const child of children) {
+        if (child.exitCode === null && child.signalCode === null) child.kill(signal);
+    }
+}
+
+function shutdown(code = 0) {
     if (shuttingDown) return;
     shuttingDown = true;
     console.log('\nStopping all servers...');
-    for (const child of children) {
-        if (child.exitCode === null) child.kill('SIGTERM');
-    }
-    setTimeout(() => process.exit(0), 3000).unref();
+    killChildren('SIGTERM');
+    // Give the servers a moment to exit, then force-stop anything still running.
+    setTimeout(() => {
+        killChildren('SIGKILL');
+        process.exit(code);
+    }, 3000);
 }
 
-process.on('SIGINT', shutdown);
-process.on('SIGTERM', shutdown);
+process.on('SIGINT', () => shutdown(0));
+process.on('SIGTERM', () => shutdown(0));
+process.on('SIGHUP', () => shutdown(0));
+// Never leave servers running behind if the launcher itself crashes.
+process.on('uncaughtException', (err) => {
+    console.error(err);
+    shutdown(1);
+});
+process.on('exit', () => killChildren('SIGKILL'));
 
 ensureNodeModules('master', MASTER_DIR);
 ensureNodeModules('account', ACCOUNT_DIR);

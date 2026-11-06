@@ -3,6 +3,10 @@
 // Site settings come from config.js (served by server.js); fall back to local defaults.
 var MOPE_CONFIG = window.MOPE_CONFIG || {};
 var ACCOUNT_SERVER_URL = (MOPE_CONFIG.accountServerUrl || (location.protocol + '//' + location.hostname + ':14002')).replace(/\/+$/, '');
+var MASTER_SERVER_URL = (MOPE_CONFIG.masterServerUrl || (location.protocol + '//' + location.hostname + ':14001')).replace(/\/+$/, '');
+// Game servers shown in the server list: {name, host, port, ssl, region}.
+var GAME_SERVERS = (MOPE_CONFIG.gameServers && MOPE_CONFIG.gameServers.length) ? MOPE_CONFIG.gameServers
+    : [{ name: 'Local', host: location.hostname, port: 8080, ssl: false, region: 'Local' }];
 
 var disconectttt = false;
 const isChristmas = false;
@@ -3145,8 +3149,7 @@ function _0x464eec(_0xb396a7) {
 }
 var _0x517e9d = function (_0xc2a8da) {
     this.serverObj = _0xc2a8da;
-    let urlaaa = ('https:' === window.location.protocol ? 'wss://' : 'ws://') + this.serverObj.serverConnURL
-    if (this.serverObj.path) ('https:' === window.location.protocol ? 'wss://' : 'ws://') + this.serverObj.serverConnURL
+    let urlaaa = (this.serverObj.ssl ? 'wss://' : 'ws://') + this.serverObj.serverConnURL + ':' + this.serverObj.port + '/';
     this.testWs = new WebSocket(urlaaa);
 
     this.startT = +new Date();
@@ -3292,9 +3295,9 @@ function _0x26e227() {
     _0x247fb6 = [];
     _0x2199c7 = [];
     _0x2e8a7d = {};
-    if (KTestingExperimental) {
-        _0x2845ed('Europe 1', 'gameserver.mope2020.fun', 'Europe', 443, true);
-    }
+    GAME_SERVERS.forEach(function (s) {
+        _0x2845ed(s.name || s.host, s.host || location.hostname, s.region || 'Local', s.port || 8080, !!s.ssl);
+    });
 
 
 
@@ -3382,11 +3385,7 @@ function _0x5e33f8(_0x1336b6, _0x17ea24) {
     isGhost = false;
     document.getElementById('connecting').style.display = 'block';
     document.getElementById('txtServer').innerHTML = '(' + _0xfa658b.name + ')';
-    var _0x1c1189 = ('https:' === window.location.protocol ? _0xfa658b.ssl ? 'wss://' : 'ws://' : 'ws://') + _0xfa658b.serverConnURL + ':' + _0xfa658b.port + "/"
-    if (_0xfa658b.path) {
-        _0x1c1189 = ('https:' === window.location.protocol ? _0xfa658b.ssl ? 'wss://' : 'ws://' : 'ws://') + _0xfa658b.serverConnURL
-
-    }
+    var _0x1c1189 = (_0xfa658b.ssl ? 'wss://' : 'ws://') + _0xfa658b.serverConnURL + ':' + _0xfa658b.port + '/';
 
     console.log('Connecting to ' + _0x1c1189);
     if (isInActiveGameSession) {
@@ -5394,7 +5393,7 @@ var _0x494868 = 0,
 
 function _0x281c42() {//49416
     $.ajax({
-        'url': 'https://masterserver.mope2020.fun/',
+        'url': MASTER_SERVER_URL + '/',
         'type': 'GET',
         'success': function (_0x321835) {
             _0x321835 = JSON.parse(_0x321835);
@@ -24962,7 +24961,7 @@ function serverStatus() {
     }
     //
     var xmlHttp2 = new XMLHttpRequest();
-    xmlHttp2.open("GET", "https://masterserver.mope2020.fun/");
+    xmlHttp2.open("GET", MASTER_SERVER_URL + "/");
     xmlHttp2.send(null);
     xmlHttp2.onload = function () {
         var resp = xmlHttp2.responseText;

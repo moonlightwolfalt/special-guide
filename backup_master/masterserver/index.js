@@ -24,7 +24,7 @@ function addServer(ip, key) {
     console.log("Added server - " + ip);
 }
 
-addServer(process.env.GAME_SERVER_NAME || "gameserver.mope2020.fun", process.env.GAME_SERVER_KEY || "REMOVED_DUE_TO_SENSITIVE_DATA");
+addServer(process.env.GAME_SERVER_NAME || "localhost", process.env.GAME_SERVER_KEY || "REMOVED_DUE_TO_SENSITIVE_DATA");
 
 function parseServer(get) {
     var key = get.pvk;
