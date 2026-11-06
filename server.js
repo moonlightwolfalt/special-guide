@@ -73,6 +73,15 @@ const MIME = {
     '.woff': 'font/woff', '.woff2': 'font/woff2', '.ttf': 'font/ttf',
 };
 
+// Client settings, built from environment variables so nothing is hardcoded in web/.
+function clientConfig() {
+    const config = {
+        googleClientId: process.env.GOOGLE_CLIENT_ID || '',
+        accountServerUrl: process.env.ACCOUNT_SERVER_URL || '',
+    };
+    return `window.MOPE_CONFIG = ${JSON.stringify(config)};\n`;
+}
+
 // Static file server for the browser client.
 function startWebServer() {
     const server = http.createServer((req, res) => {
@@ -81,6 +90,11 @@ function startWebServer() {
             urlPath = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
         } catch {
             res.writeHead(400).end('Bad request');
+            return;
+        }
+        if (urlPath === '/config.js') {
+            res.writeHead(200, { 'Content-Type': 'text/javascript; charset=utf-8', 'Cache-Control': 'no-store' });
+            res.end(clientConfig());
             return;
         }
         let file = path.normalize(path.join(WEB_DIR, urlPath));

@@ -1,5 +1,9 @@
 //test#1
 
+// Site settings come from config.js (served by server.js); fall back to local defaults.
+var MOPE_CONFIG = window.MOPE_CONFIG || {};
+var ACCOUNT_SERVER_URL = (MOPE_CONFIG.accountServerUrl || (location.protocol + '//' + location.hostname + ':14002')).replace(/\/+$/, '');
+
 var disconectttt = false;
 const isChristmas = false;
 // var inUpgrade = false;
@@ -132,7 +136,7 @@ function updateBPStats() {
 
 function load_battlepass_data() {//49397
     $.ajax({
-        'url': 'https://accountserver.mope2020.fun/battlepass?userId=' + login_userId + '&passwordToken=' + login_passwordToken,
+        'url': ACCOUNT_SERVER_URL + '/battlepass?userId=' + login_userId + '&passwordToken=' + login_passwordToken,
         'success': function (aeae) {
             let a;
             try { a = JSON.parse(aeae); } catch { }
@@ -5447,28 +5451,26 @@ window.fbAsyncInit = function () {
     // var _0x5cb583 = _0x3aa1e4.getElementsByTagName(_0x144bba)[0];
     // _0x3aa1e4.getElementById(_0x5e5d8a) || (_0x3aa1e4 = _0x3aa1e4.createElement(_0x144bba), _0x3aa1e4.id = _0x5e5d8a, _0x3aa1e4.src = 'https://web.archive.org/web/20231111025823/https://connect.facebook.net/en_US/sdk.js', _0x5cb583.parentNode.insertBefore(_0x3aa1e4, _0x5cb583));
 }(document, 'script', 'facebook-jssdk'));
-$.loadScript('https://apis.google.com/js/api:client.js', function () {
-    function _0x4a02d5(_0x1d3bb0) {
-        auth2.attachClickHandler(_0x1d3bb0, {}, function (_0x5a3d74) {
-            var _0x2f7df8 = _0x5a3d74.getAuthResponse().id_token;
-            console.log('Google signed in ()! ID token (send to server) is ' + _0x2f7df8);
-            _0x27737e(_0x2f7df8, 'google');
-            _0x5a3d74 = _0x5a3d74.getBasicProfile();
-            console.log('Name: ' + _0x5a3d74.getName());
-        }, function (_0x3f2f28) {
-            console.log('google sign-in error! ' + JSON.stringify(_0x3f2f28, void 0, 0x2));
-        });
-    } (function () {
-        gapi.load('auth2', function () {
-            auth2 = gapi.auth2.init({
-                'client_id': '243239359447-5le1esnf5bf5g15iqe8du4v601ie256n.apps.googleusercontent.com',
-                'cookiepolicy': 'single_host_origin',
-                'plugin_name': "hello" // you may use any custom name here
-
-            });
-            _0x4a02d5(document.getElementById('googleLoginBtn'));
-        });
-    }());
+$.loadScript('https://accounts.google.com/gsi/client', function () {
+    var googleButton = document.getElementById('googleLoginBtn');
+    if (!MOPE_CONFIG.googleClientId) {
+        console.log('Google login is off: set googleClientId in config.js (GOOGLE_CLIENT_ID for server.js).');
+        googleButton && (googleButton.style.display = 'none');
+        return;
+    }
+    google.accounts.id.initialize({
+        'client_id': MOPE_CONFIG.googleClientId,
+        'callback': function (response) {
+            // response.credential is a Google ID token; the account server verifies it.
+            _0x27737e(response.credential, 'google');
+        }
+    });
+    googleButton && google.accounts.id.renderButton(googleButton, {
+        'theme': 'filled_blue',
+        'size': 'medium',
+        'text': 'signin_with',
+        'shape': 'pill'
+    });
 });
 var login_userId = localStorage.getItem('login_userId'),
     login_passwordToken = localStorage.getItem('login_passwordToken'),
@@ -5499,18 +5501,11 @@ function _0x3a61e5(_0x41e308) {
         _0x41e308 && location.reload();
     });
     else if ('google' == _0x4a41f4) {
-        _0x4a41f4 = gapi.auth2.getAuthInstance();
         try { _0xa3ac90.close(); } catch { }
-        try {
-            _0x4a41f4.signOut().then(function () {
-                console.log('Logged out of Google');
-                _0x41e308 && location.reload();
-            });
-        } catch (_0x6a2625) {
-            console.log('Error signing out of google.'), setTimeout(function () {
-                location.reload();
-            }, 0x1f4);
-        }
+        // Stop Google from signing the player straight back in on the next visit.
+        try { google.accounts.id.disableAutoSelect(); } catch { }
+        console.log('Logged out of Google');
+        _0x41e308 && location.reload();
     } else _0x41e308 && location.reload();
     setTimeout(function () {
         _0x41e308 && location.reload();
@@ -5521,7 +5516,7 @@ isUserLoggedIn && _0x15f11a();
 function _0x15f11a() {//49397
     console.log('Checking if logged in user (based on saved info) is still authorized... ' + login_userId);
     if (isUserLoggedIn) {
-        var _0x132ae3 = 'https://accountserver.mope2020.fun/verify?userId=' + login_userId + '&passwordToken=' + login_passwordToken;
+        var _0x132ae3 = ACCOUNT_SERVER_URL + '/verify?userId=' + login_userId + '&passwordToken=' + login_passwordToken;
         KTestingExperimental && console.log('Sending URL request :' + _0x132ae3);
         $.ajax({
             'url': _0x132ae3,
@@ -5550,7 +5545,7 @@ var userInfo = {
 
 function _0x7db050(_0x217874) {//49397
     if (isUserLoggedIn) {
-        var _0x13a5c0 = 'https://accountserver.mope2020.fun/loadAccountData?userId=' + login_userId + '&passwordToken=' + login_passwordToken;
+        var _0x13a5c0 = ACCOUNT_SERVER_URL + '/loadAccountData?userId=' + login_userId + '&passwordToken=' + login_passwordToken;
         KTestingExperimental && console.log('Sending URL request :' + _0x13a5c0);
         $.ajax({
             'url': _0x13a5c0,
@@ -5646,7 +5641,7 @@ function _0x4f607e(_0x41d6ee) {
 function _0x68def2(_0x5b2d01) {//49397
     console.log('Loading shop items for logged in user! ' + login_userId);
     $.ajax({
-        'url': 'https://accountserver.mope2020.fun/loadShopItems?userId=' + login_userId + '&passwordToken=' + login_passwordToken,
+        'url': ACCOUNT_SERVER_URL + '/loadShopItems?userId=' + login_userId + '&passwordToken=' + login_passwordToken,
         crossDomain: true,
         'success': function (_0xf3037c) {
             _0xf3037c = JSON.parse(_0xf3037c);
@@ -5662,7 +5657,7 @@ function _0x68def2(_0x5b2d01) {//49397
 function _0x3e4625(_0x5f244b, _0x248383) {//49397
     KTestingExperimental && console.log('Sending URL request to load coins for logged in user! ' + login_userId);
     _0x5f244b || (_0x5f244b = 'goldDragon');
-    var _0x24a81b = 'https://accountserver.mope2020.fun/buyShopItem?userId=' + login_userId + '&passwordToken=' + login_passwordToken + '&itemName=' + _0x5f244b;
+    var _0x24a81b = ACCOUNT_SERVER_URL + '/buyShopItem?userId=' + login_userId + '&passwordToken=' + login_passwordToken + '&itemName=' + _0x5f244b;
     KTestingExperimental && console.log('Sending URL request :' + _0x24a81b);
     $.ajax({
         'url': _0x24a81b,
@@ -5681,7 +5676,7 @@ function _0x3e4625(_0x5f244b, _0x248383) {//49397
 
 function getBattlePassReward(level, gold, callback) {//49397
     KTestingExperimental && console.log('Taking a bonus of bp level!');
-    var _0x24a81b = 'https://accountserver.mope2020.fun/getReward?userId=' + login_userId + '&passwordToken=' + login_passwordToken + '&level=' + level + '&gold=' + gold;
+    var _0x24a81b = ACCOUNT_SERVER_URL + '/getReward?userId=' + login_userId + '&passwordToken=' + login_passwordToken + '&level=' + level + '&gold=' + gold;
     KTestingExperimental && console.log('Sending URL request :' + _0x24a81b);
     $.ajax({
         'url': _0x24a81b,
@@ -5731,7 +5726,7 @@ function _0x13496b() {
 }
 
 function _0x27737e(_0x3c3fef, _0x2d8cb6) {//49397
-    var _0x3daaf1 = 'https://accountserver.mope2020.fun/reglog?socialNetwork=' + _0x2d8cb6 + '&accessToken=' + _0x3c3fef;
+    var _0x3daaf1 = ACCOUNT_SERVER_URL + '/reglog?socialNetwork=' + encodeURIComponent(_0x2d8cb6) + '&accessToken=' + encodeURIComponent(_0x3c3fef);
     KTestingExperimental && console.log('Sending URL request :' + _0x3daaf1);
     $.ajax({
         'url': _0x3daaf1,
@@ -24952,7 +24947,7 @@ function setStatus() {
 
 function serverStatus() {
     var xmlHttp = new XMLHttpRequest();
-    xmlHttp.open("GET", "https://accountserver.mope2020.fun/");
+    xmlHttp.open("GET", ACCOUNT_SERVER_URL + "/");
     xmlHttp.send(null);
     xmlHttp.onload = function () {
         var resp = xmlHttp.responseText;

@@ -1,0 +1,10 @@
+// Site settings for the web client. server.js serves its own version of this
+// file built from environment variables; edit this copy only if you host web/
+// with a different web server.
+window.MOPE_CONFIG = {
+    // OAuth client ID from Google Cloud Console ("Web application" type).
+    // Leave empty to hide the Google login button.
+    googleClientId: "",
+    // Account server address. Empty means this page's host on port 14002.
+    accountServerUrl: ""
+};

@@ -4,11 +4,15 @@ var app = express();
 var https = require('https');
 var http = require('http');
 var bodyParser = require('body-parser');
+var crypto = require('crypto');
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 var _ = require('lodash');
 // Shared key the game server sends with privileged requests.
 const SERVER_KEY = process.env.SERVER_KEY || 'REMOVED_DUE_TO_SENSITIVE_DATA';
 const googleKey = process.env.RECAPTCHA_SECRET || "";
+// OAuth client ID of the web client. Google ID tokens must be issued for it.
+const googleClientId = process.env.GOOGLE_CLIENT_ID || "";
+if (!googleClientId) console.log("GOOGLE_CLIENT_ID is not set: Google login is off.");
 var season = 0;
 
 
@@ -59,15 +63,25 @@ async function registerUser(token, social, code) {
     let email, email_ver, name, picture, given_name, family_name, locale = null;
     let query1, query1add = null;
     if(social == "google") {
-        let response = await fetch('https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=' + token, {
-            method: 'GET',
-            body: null,
-            headers: {'Content-Type': 'application/json'}
-        });
-        let data = await response.json();
-        if(!data || data.error_description) {
+        if(!googleClientId || !token) return out;
+        // Google checks the token's signature and expiry; we check it was issued for this game.
+        let data;
+        try {
+            let response = await fetch('https://oauth2.googleapis.com/tokeninfo?id_token=' + encodeURIComponent(token));
+            data = await response.json();
+        } catch (err) {
+            console.log("Google token check failed:", err.message);
             return out;
         }
+        if(!data || data.error_description || data.error) return out;
+        if(data.aud !== googleClientId) {
+            console.log("Rejected Google token issued for another app:", data.aud);
+            return out;
+        }
+        if(data.iss !== "accounts.google.com" && data.iss !== "https://accounts.google.com") return out;
+        if(String(data.email_verified) !== "true" || !data.email) return out;
+        // The ID token only proves who the player is; the session uses its own random token.
+        token = crypto.randomBytes(32).toString('hex');
 
         email = data.email;
         email_ver = data.email_verified;
