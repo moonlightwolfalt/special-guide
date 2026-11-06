@@ -5,6 +5,8 @@ window.MOPE_CONFIG = {
     // OAuth client ID from Google Cloud Console ("Web application" type).
     // Leave empty to hide the Google login button.
     googleClientId: "",
+    // reCAPTCHA v3 site key; only needed when the game server's ENABLE_CAPTCHA is on.
+    recaptchaSiteKey: "",
     // Account server address. Empty means this page's host on port 14002.
     accountServerUrl: ""
 };

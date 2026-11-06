@@ -91,6 +91,7 @@ const MIME = {
 function clientConfig() {
     const config = {
         googleClientId: process.env.GOOGLE_CLIENT_ID || '',
+        recaptchaSiteKey: process.env.RECAPTCHA_SITE_KEY || '',
         accountServerUrl: process.env.ACCOUNT_SERVER_URL || '/api/account',
         masterServerUrl: process.env.MASTER_SERVER_URL || '/api/master',
         // The default server list reaches the game through this page's address at this path.
@@ -271,5 +272,7 @@ ensureGameJar();
 
 start('master', process.execPath, ['index.js'], MASTER_DIR);
 start('account', process.execPath, ['index.js'], ACCOUNT_DIR);
-start('game', 'java', ['-Dfile.encoding=UTF-8', '-jar', GAME_JAR], GAME_DIR);
+// JAVA_OPTS sets the game server's JVM flags, e.g. a memory cap on small hosting plans.
+const javaOpts = (process.env.JAVA_OPTS || '-XX:MaxRAMPercentage=50').split(/\s+/).filter(Boolean);
+start('game', 'java', [...javaOpts, '-Dfile.encoding=UTF-8', '-jar', GAME_JAR], GAME_DIR);
 startWebServer();

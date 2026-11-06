@@ -1,0 +1,25 @@
+# Render Blueprint: one Docker web service that runs the whole game.
+# In Render: New > Blueprint, pick this repository, then fill in the prompted values.
+services:
+  - type: web
+    name: mope2020
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    # The game, account and master servers share one instance (about 400 MB at
+    # startup, more with players), so use a plan with at least 2 GB of memory.
+    plan: standard
+    # All players share the one game server, so keep a single instance.
+    numInstances: 1
+    healthCheckPath: /config.js
+    autoDeploy: true
+    envVars:
+      # MySQL for logins, coins and skins (Render has no managed MySQL; use an
+      # external one), e.g. mysql://user:password@host:3306/dbname. Leave empty to
+      # run without accounts.
+      - key: DB_URL
+        sync: false
+      # OAuth client ID for Google login. Add https://<your-service>.onrender.com
+      # to its authorized JavaScript origins.
+      - key: GOOGLE_CLIENT_ID
+        sync: false
