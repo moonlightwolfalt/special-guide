@@ -2,7 +2,7 @@
 // Starts every part of the game with one command:
 //   master server  (backup_master/masterserver)    -> http://localhost:14001
 //   account server (backup_account/accountserver)  -> http://localhost:14002
-//   game server    (backup_server/server, Java)    -> ws://localhost:8080
+//   game server    (backup_server/server, Java)    -> ws://localhost:18080
 //
 // Everything is reachable through one public port (PORT, else WEB_PORT, else 8000):
 //   /             -> the web client (web/)
@@ -31,7 +31,9 @@ const WEB_PORT = Number(process.env.PORT) || Number(process.env.WEB_PORT) || 800
 // Internal servers that the public port forwards to.
 const ACCOUNT_PORT = 14002;
 const MASTER_PORT = 14001;
-const GAME_PORT = Number(process.env.GAME_PORT) || 8080;
+// Kept away from common public ports (8080, 8000, 3000) so it never clashes with PORT.
+const GAME_PORT = Number(process.env.GAME_PORT) || 18080;
+process.env.GAME_PORT = String(GAME_PORT);
 const HTTP_ROUTES = { '/api/account': ACCOUNT_PORT, '/api/master': MASTER_PORT };
 const GAME_PATH = '/game';
 
@@ -265,6 +267,13 @@ process.on('uncaughtException', (err) => {
     shutdown(1);
 });
 process.on('exit', () => killChildren('SIGKILL'));
+
+// The public port must not be one the internal servers use, or one of them can't start.
+const internalPorts = { [MASTER_PORT]: 'master server', [ACCOUNT_PORT]: 'account server', [GAME_PORT]: 'game server' };
+if (internalPorts[WEB_PORT]) {
+    log('web', `PORT ${WEB_PORT} is used internally by the ${internalPorts[WEB_PORT]}; choose another public port.`);
+    process.exit(1);
+}
 
 ensureNodeModules('master', MASTER_DIR);
 ensureNodeModules('account', ACCOUNT_DIR);

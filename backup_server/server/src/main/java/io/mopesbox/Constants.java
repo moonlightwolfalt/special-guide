@@ -25,7 +25,9 @@ public class Constants {
         public static final int OCEANH = 4800;//4800
         public static final int COINSBEGININXSECAFTERSPAWN = Utils
                         .toInt(conf.GetProp("beginCoinsAfterSpawnInSeconds", "30"));
-        public static final int GAMEPORT = Utils.toInt(conf.GetProp("gamePort", "80"));
+        // GAME_PORT (set by server.js) overrides gamePort in config.txt.
+        public static final int GAMEPORT = Utils.toInt(System.getenv("GAME_PORT") != null
+                ? System.getenv("GAME_PORT") : conf.GetProp("gamePort", "80"));
         public static final boolean ENABLECOINEARNING = Utils.toBool(conf.GetProp("enableCoinEarning", "true"));
         public static final boolean ENABLEIDLECOINS = Utils.toBool(conf.GetProp("enableIdleCoins", "true"));
         public static final boolean GUIENABLED = Utils.toBool(conf.GetProp("guiEnabled", "true"));
