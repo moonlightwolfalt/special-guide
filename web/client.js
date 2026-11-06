@@ -4,8 +4,10 @@
 var MOPE_CONFIG = window.MOPE_CONFIG || {};
 var ACCOUNT_SERVER_URL = (MOPE_CONFIG.accountServerUrl || (location.protocol + '//' + location.hostname + ':14002')).replace(/\/+$/, '');
 var MASTER_SERVER_URL = (MOPE_CONFIG.masterServerUrl || (location.protocol + '//' + location.hostname + ':14001')).replace(/\/+$/, '');
-// Game servers shown in the server list: {name, host, port, ssl, region}.
-// The default lists the server locations by region, all on this page's host.
+// Game servers shown in the server list: {name, host, port, ssl, region, path}.
+// The default lists the server locations by region, all on one game server: when
+// config.js sets gamePath (server.js does), the game is reached through this page's
+// own address at that path; otherwise directly on this page's host, port 8080.
 // Set gameServers in config.js (GAME_SERVERS for server.js) to give each one a real host.
 var GAME_SERVERS = (MOPE_CONFIG.gameServers && MOPE_CONFIG.gameServers.length) ? MOPE_CONFIG.gameServers
     : [
@@ -25,6 +27,11 @@ var GAME_SERVERS = (MOPE_CONFIG.gameServers && MOPE_CONFIG.gameServers.length) ?
         { name: 'Singapore', region: 'Asia' },
         { name: 'Sydney', region: 'Australia' }
     ].map(function (s) {
+        if (MOPE_CONFIG.gamePath) {
+            var secure = location.protocol === 'https:';
+            return { name: s.name, region: s.region, host: location.hostname,
+                port: Number(location.port) || (secure ? 443 : 80), ssl: secure, path: MOPE_CONFIG.gamePath };
+        }
         return { name: s.name, region: s.region, host: location.hostname, port: 8080, ssl: false };
     });
 
@@ -3169,7 +3176,7 @@ function _0x464eec(_0xb396a7) {
 }
 var _0x517e9d = function (_0xc2a8da) {
     this.serverObj = _0xc2a8da;
-    let urlaaa = (this.serverObj.ssl ? 'wss://' : 'ws://') + this.serverObj.serverConnURL + ':' + this.serverObj.port + '/';
+    let urlaaa = (this.serverObj.ssl ? 'wss://' : 'ws://') + this.serverObj.serverConnURL + ':' + this.serverObj.port + (this.serverObj.path || '/');
     this.testWs = new WebSocket(urlaaa);
 
     this.startT = +new Date();
@@ -3316,7 +3323,7 @@ function _0x26e227() {
     _0x2199c7 = [];
     _0x2e8a7d = {};
     GAME_SERVERS.forEach(function (s) {
-        _0x2845ed(s.name || s.host, s.host || location.hostname, s.region || 'Local', s.port || 8080, !!s.ssl);
+        _0x2845ed(s.name || s.host, s.host || location.hostname, s.region || 'Local', s.port || 8080, !!s.ssl, s.path);
     });
 
 
@@ -3405,7 +3412,7 @@ function _0x5e33f8(_0x1336b6, _0x17ea24) {
     isGhost = false;
     document.getElementById('connecting').style.display = 'block';
     document.getElementById('txtServer').innerHTML = '(' + _0xfa658b.name + ')';
-    var _0x1c1189 = (_0xfa658b.ssl ? 'wss://' : 'ws://') + _0xfa658b.serverConnURL + ':' + _0xfa658b.port + '/';
+    var _0x1c1189 = (_0xfa658b.ssl ? 'wss://' : 'ws://') + _0xfa658b.serverConnURL + ':' + _0xfa658b.port + (_0xfa658b.path || '/');
 
     console.log('Connecting to ' + _0x1c1189);
     if (isInActiveGameSession) {

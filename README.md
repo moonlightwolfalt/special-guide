@@ -10,26 +10,38 @@ Needs Node.js 18+, Java 17+, Maven, and a MySQL database created from `users_str
 node server.js
 ```
 
-On the first run this installs the Node packages and builds the game server jar. It then starts:
+On the first run this installs the Node packages and builds the game server jar. It then starts every part and serves them all on one port (`PORT`, else `WEB_PORT`, else 8000):
 
-| Part | Folder | Address |
-|------|--------|---------|
-| Web client | `web/` | http://localhost:8000 |
-| Master server | `backup_master/masterserver` | http://localhost:14001 |
-| Account server | `backup_account/accountserver` | http://localhost:14002 |
-| Game server | `backup_server/server` | port 8080 (set in `config.txt`) |
+| Path | Goes to |
+|------|---------|
+| `/` | web client (`web/`) |
+| `/api/account` | account server (internal port 14002) |
+| `/api/master` | master server (internal port 14001) |
+| `/game` | game server WebSocket (internal port 8080, set in `config.txt`) |
 
-Press Ctrl+C to stop all of them. Set `REBUILD_GAME=1` to rebuild the game server jar.
+Open http://localhost:8000 to play. Press Ctrl+C to stop everything. Set `REBUILD_GAME=1` to rebuild the game server jar.
+
+## Deploy to Sevalla
+
+The repo includes a `Dockerfile` that builds the game server and runs `server.js`. Sevalla sets `PORT`, and the whole game runs behind that one address.
+
+1. In Sevalla, create an **Application** from this GitHub repository and branch.
+2. Under **Settings → Build**, set the build strategy to **Dockerfile** (path `Dockerfile`, context `.`).
+3. Optional, for logins and coins: create a **MySQL database** in Sevalla, connect it to the app, and run `users_structure.sql` on it.
+4. Under **Environment variables**, set `DB_HOST`, `DB_USER`, `DB_PASSWORD` and `DB_NAME` from the database's connection details. Add `GOOGLE_CLIENT_ID` for Google login, and add your Sevalla domain (`https://….sevalla.app`) to that client's authorized JavaScript origins.
+5. Deploy. Players open the app's URL. The site is served over HTTPS and the game connects with `wss://` on the same address.
+
+Run only one instance of the app, because all players share the one game server it starts.
 
 ## Settings (environment variables)
 
 | Variable | Used by | Default |
 |----------|---------|---------|
-| `WEB_PORT` | web client | `8000` |
+| `PORT`, `WEB_PORT` | public port for everything | `8000` |
 | `GOOGLE_CLIENT_ID` | web client and account server: turns on Google login | off |
-| `ACCOUNT_SERVER_URL` | web client: where it reaches the account server | this page's host, port 14002 |
-| `MASTER_SERVER_URL` | web client: where it reads the server list and player count | this page's host, port 14001 |
-| `GAME_SERVERS` | web client: JSON list of game servers, e.g. `[{"name":"EU 1","host":"game.example.com","port":443,"ssl":true}]` | 15 locations in USA, South America, Europe, Russia, Asia and Australia (see `GAME_SERVERS` in `web/client.js`), all on this page's host, port 8080, no SSL |
+| `ACCOUNT_SERVER_URL` | web client: where it reaches the account server | `/api/account` |
+| `MASTER_SERVER_URL` | web client: where it reads the server list and player count | `/api/master` |
+| `GAME_SERVERS` | web client: JSON list of game servers, e.g. `[{"name":"EU 1","host":"game.example.com","port":443,"ssl":true}]` | 15 locations in USA, South America, Europe, Russia, Asia and Australia (see `GAME_SERVERS` in `web/client.js`), all on this site's `/game` address |
 | `DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` | account server | `127.0.0.1`, `root`, empty, `mope` |
 | `SERVER_KEY` | account server (key the game server sends) | placeholder |
 | `RECAPTCHA_SECRET` | account server | empty |

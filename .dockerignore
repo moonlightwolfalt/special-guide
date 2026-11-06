@@ -1,0 +1,5 @@
+.git
+**/node_modules
+backup_server/server/target
+Dockerfile
+.dockerignore

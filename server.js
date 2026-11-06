@@ -3,7 +3,13 @@
 //   master server  (backup_master/masterserver)    -> http://localhost:14001
 //   account server (backup_account/accountserver)  -> http://localhost:14002
 //   game server    (backup_server/server, Java)    -> ws://localhost:8080
-//   web client     (web/)                          -> http://localhost:8000
+//
+// Everything is reachable through one public port (PORT, else WEB_PORT, else 8000):
+//   /             -> the web client (web/)
+//   /api/account  -> account server
+//   /api/master   -> master server
+//   /game         -> game server (WebSocket)
+// so the game runs behind a single address, as hosts like Sevalla require.
 //
 // Usage: node server.js
 // Settings come from environment variables (see README.md).
@@ -11,6 +17,7 @@
 const { spawn, spawnSync } = require('child_process');
 const fs = require('fs');
 const http = require('http');
+const net = require('net');
 const path = require('path');
 
 const ROOT = __dirname;
@@ -19,7 +26,14 @@ const ACCOUNT_DIR = path.join(ROOT, 'backup_account', 'accountserver');
 const GAME_DIR = path.join(ROOT, 'backup_server', 'server');
 const GAME_JAR = path.join(GAME_DIR, 'target', 'MopeSBoxServer-1.0-SNAPSHOT.jar');
 const WEB_DIR = path.join(ROOT, 'web');
-const WEB_PORT = Number(process.env.WEB_PORT) || 8000;
+const WEB_PORT = Number(process.env.PORT) || Number(process.env.WEB_PORT) || 8000;
+
+// Internal servers that the public port forwards to.
+const ACCOUNT_PORT = 14002;
+const MASTER_PORT = 14001;
+const GAME_PORT = Number(process.env.GAME_PORT) || 8080;
+const HTTP_ROUTES = { '/api/account': ACCOUNT_PORT, '/api/master': MASTER_PORT };
+const GAME_PATH = '/game';
 
 const children = [];
 let shuttingDown = false;
@@ -77,9 +91,11 @@ const MIME = {
 function clientConfig() {
     const config = {
         googleClientId: process.env.GOOGLE_CLIENT_ID || '',
-        accountServerUrl: process.env.ACCOUNT_SERVER_URL || '',
-        masterServerUrl: process.env.MASTER_SERVER_URL || '',
-        // JSON list of {name, host, port, ssl, region}; empty means this page's host on port 8080.
+        accountServerUrl: process.env.ACCOUNT_SERVER_URL || '/api/account',
+        masterServerUrl: process.env.MASTER_SERVER_URL || '/api/master',
+        // The default server list reaches the game through this page's address at this path.
+        gamePath: GAME_PATH,
+        // JSON list of {name, host, port, ssl, region, path}; empty means the default list.
         gameServers: [],
     };
     if (process.env.GAME_SERVERS) {
@@ -92,9 +108,64 @@ function clientConfig() {
     return `window.MOPE_CONFIG = ${JSON.stringify(config)};\n`;
 }
 
-// Static file server for the browser client.
+// Which internal server a request path belongs to, and the path to send it.
+function matchRoute(url) {
+    for (const prefix of Object.keys(HTTP_ROUTES)) {
+        if (url === prefix || url.startsWith(prefix + '/') || url.startsWith(prefix + '?')) {
+            const rest = url.slice(prefix.length);
+            return { port: HTTP_ROUTES[prefix], path: rest.startsWith('/') ? rest : '/' + rest };
+        }
+    }
+    return null;
+}
+
+function proxyHttp(req, res, route) {
+    const upstream = http.request({
+        host: '127.0.0.1',
+        port: route.port,
+        method: req.method,
+        path: route.path,
+        headers: { ...req.headers, host: `localhost:${route.port}` },
+    }, (up) => {
+        res.writeHead(up.statusCode, up.headers);
+        up.pipe(res);
+    });
+    upstream.on('error', (err) => {
+        if (!res.headersSent) res.writeHead(502, { 'Content-Type': 'text/plain' });
+        res.end(`Server unavailable: ${err.message}`);
+    });
+    req.pipe(upstream);
+}
+
+// Forward a WebSocket upgrade on /game to the game server as raw TCP.
+function proxyGameSocket(req, socket, head) {
+    const upstream = net.connect(GAME_PORT, '127.0.0.1', () => {
+        const lines = [`${req.method} / HTTP/${req.httpVersion}`];
+        for (let i = 0; i < req.rawHeaders.length; i += 2) {
+            const name = req.rawHeaders[i];
+            const value = name.toLowerCase() === 'host' ? `localhost:${GAME_PORT}` : req.rawHeaders[i + 1];
+            lines.push(`${name}: ${value}`);
+        }
+        upstream.write(lines.join('\r\n') + '\r\n\r\n');
+        if (head && head.length) upstream.write(head);
+        upstream.pipe(socket);
+        socket.pipe(upstream);
+    });
+    const close = () => { socket.destroy(); upstream.destroy(); };
+    upstream.on('error', close);
+    socket.on('error', close);
+    upstream.on('close', () => socket.destroy());
+    socket.on('close', () => upstream.destroy());
+}
+
+// Public server: the web client plus the forwarded routes.
 function startWebServer() {
     const server = http.createServer((req, res) => {
+        const route = matchRoute(req.url);
+        if (route) {
+            proxyHttp(req, res, route);
+            return;
+        }
         let urlPath;
         try {
             urlPath = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
@@ -123,13 +194,18 @@ function startWebServer() {
             res.end(data);
         });
     });
+    server.on('upgrade', (req, socket, head) => {
+        const urlPath = req.url.split('?')[0];
+        if (urlPath === GAME_PATH || urlPath === GAME_PATH + '/') proxyGameSocket(req, socket, head);
+        else socket.destroy();
+    });
     server.on('error', (err) => {
         log('web', err.code === 'EADDRINUSE'
             ? `port ${WEB_PORT} is already in use (is another copy of server.js running?)`
             : `server error: ${err.message}`);
         shutdown(1);
     });
-    server.listen(WEB_PORT, () => log('web', `serving web/ at http://localhost:${WEB_PORT}`));
+    server.listen(WEB_PORT, '0.0.0.0', () => log('web', `game ready at http://localhost:${WEB_PORT}`));
     return server;
 }
 
