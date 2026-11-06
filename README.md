@@ -29,7 +29,7 @@ Press Ctrl+C to stop all of them. Set `REBUILD_GAME=1` to rebuild the game serve
 | `GOOGLE_CLIENT_ID` | web client and account server: turns on Google login | off |
 | `ACCOUNT_SERVER_URL` | web client: where it reaches the account server | this page's host, port 14002 |
 | `MASTER_SERVER_URL` | web client: where it reads the server list and player count | this page's host, port 14001 |
-| `GAME_SERVERS` | web client: JSON list of game servers, e.g. `[{"name":"EU 1","host":"game.example.com","port":443,"ssl":true}]` | classic mope.io regions (USA W 1, Brazil 1, Europe 1, Russia 1, Asia 1), all on this page's host, port 8080, no SSL |
+| `GAME_SERVERS` | web client: JSON list of game servers, e.g. `[{"name":"EU 1","host":"game.example.com","port":443,"ssl":true}]` | classic mope.io locations (New York, Denver, Los Angeles, Roubaix, Frankfurt, Moscow, Sydney), all on this page's host, port 8080, no SSL |
 | `DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` | account server | `127.0.0.1`, `root`, empty, `mope` |
 | `SERVER_KEY` | account server (key the game server sends) | placeholder |
 | `RECAPTCHA_SECRET` | account server | empty |
