@@ -3,3 +3,4 @@ backup_server/server/target/
 shop-skins/
 pumpkins/
 shop-skin-assets/
+__pycache__/
