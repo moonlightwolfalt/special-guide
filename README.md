@@ -201,16 +201,20 @@ The menu's update panel lists the repository's commits, grouped by date and link
 
 ## Outer space
 
-Outer space surrounds the map on all four sides and is its edge: animals can't go past it. The client draws a starfield beyond every edge, with a soft glow along the border. Planets, stars, star systems, black holes, quasars, galaxies, galaxy clusters, superclusters, cluster filaments and the observable universe are scattered round all four sides. The bigger, more distant ones drift slowly with the camera, so they look further away. You see space whenever you're near an edge.
+**The space biome.** Past the right ocean is a 2,500-wide space biome, which makes the map 11,000 × 7,500. A force field separates it from the ocean. The field opens every 5 minutes for 60 seconds, and everyone gets a message when it opens and when it closes.
+- While it's open, anyone can cross.
+- Players who crossed can stay in space as long as they like, even after it closes, and they don't get thirsty there. Upgrading keeps them in space.
+- Once they're back on the normal map, they have to wait for the next opening.
+- While closed, the field is red and striped; while open, it's green. Either way it shows a countdown.
+- Developers can jump in with `goto:space`.
+- Settings in `backup_server/server/config.txt`: `spaceWidth` (0 removes the biome), `spaceOpenEverySeconds` and `spaceOpenForSeconds`.
 
-The pictures are in `web/img/space/`, drawn in the game's flat cartoon style. To change them, edit `tools/space-art/make_space_art.py`, then rebuild them:
+**Space food.** Space is full of food that any animal can eat: planets, stars, star systems, black holes, quasars, galaxies, galaxy clusters, superclusters, cluster filaments, the observable universe, asteroids, moons, satellites, the light spectrum from radio waves to gamma rays, and all 118 chemical elements. That's 148 kinds, about 230 at a time, and eaten food grows back after a while.
+- Each bite gives a fixed amount plus a share of your current XP.
+- The best pumpkin goal gives a fifth of your XP, so every share is bigger than that: from 21% for light and 22% for elements, up to 100% (double your XP) for the observable universe.
+- The list of foods, with each one's size, XP and how many float around, is in `tools/space-art/space_foods.py`. After changing it, run `python3 tools/space-art/space_foods.py`. That regenerates the server's `SpaceFoodKind.java`, the client's `SPACE_FOODS` list and the pictures in `web/img/space/food/`.
 
-```
-python3 tools/space-art/make_space_art.py /tmp/space-svg
-node tools/space-art/render.js /tmp/space-svg web/img/space 512
-```
-
-`SPACE_ART` in `web/client.js` sets how many of each appear, their sizes and how far out they sit.
+**Beyond the edge.** Outside the whole map, on every side, the client also draws space with the bigger cosmic objects drifting in it. That part can't be entered: the map's edge is a barrier.
 
 ## Turning speed
 

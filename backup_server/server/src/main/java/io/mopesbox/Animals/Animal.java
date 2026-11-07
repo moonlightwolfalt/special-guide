@@ -1330,6 +1330,9 @@ public class Animal extends GameObject {
     @Override
     public void update() {
         super.update();
+        // the space gate keeps animals without a pass out of outer space
+        if (this.getClient() != null && this.getClient().getRoom() != null && this.getClient().getRoom().space != null)
+            this.getClient().getRoom().space.gate.constrain(this);
 
         checkDiving();
         diveRecharge();

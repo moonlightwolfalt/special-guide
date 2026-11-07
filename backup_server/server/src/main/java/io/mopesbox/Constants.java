@@ -13,9 +13,15 @@ public class Constants {
         public static final int WIDTH1 = 2125; //8500
         public static final int HEIGHT1 = 1875;
 
-        // Outer space surrounds the map on every side; the client draws it beyond these
-        // edges, which animals can't cross.
-        public static final int WIDTH = 8500; //8500
+        // The classic map is CLASSICWIDTH wide. The outer space biome (SPACEW wide,
+        // "spaceWidth" in config.txt) runs along its right edge, past the right ocean, behind
+        // a gate that opens every SPACE_OPEN_EVERY seconds for SPACE_OPEN_FOR seconds.
+        // Beyond every edge of the whole map the client draws more space, which can't be entered.
+        public static final int CLASSICWIDTH = 8500;
+        public static final int SPACEW = Math.max(0, Math.min(8000, Utils.toInt(conf.GetProp("spaceWidth", "2500"))));
+        public static final int WIDTH = CLASSICWIDTH + SPACEW;
+        public static final int SPACE_OPEN_EVERY = Math.max(10, Utils.toInt(conf.GetProp("spaceOpenEverySeconds", "300")));
+        public static final int SPACE_OPEN_FOR = Math.max(5, Utils.toInt(conf.GetProp("spaceOpenForSeconds", "60")));
         public static final int HEIGHT = 7500; //7500
         public static final int LANDW = 5400;//5400
         public static final int LANDH = 4800;//4800

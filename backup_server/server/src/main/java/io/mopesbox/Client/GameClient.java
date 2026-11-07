@@ -37,6 +37,7 @@ import io.mopesbox.Objects.Biome.Biome;
 import io.mopesbox.Objects.Dangerous.MopeCoinBox;
 import io.mopesbox.Objects.ETC.Button;
 import io.mopesbox.Objects.ETC.PumpkinBall;
+import io.mopesbox.Objects.ETC.SpaceGate;
 import io.mopesbox.Objects.ETC.PumpkinType;
 import io.mopesbox.Objects.ETC.ScorpionClaw;
 import io.mopesbox.Objects.ETC.TrexShake;
@@ -1949,6 +1950,9 @@ public class GameClient {
 
     private String customName = null;
 
+    // true while this player is in outer space after crossing the open gate
+    public boolean spacePass = false;
+
     /**
      * @param msg
      * @return
@@ -2789,6 +2793,14 @@ public class GameClient {
                         this.player.setX(this.getRoom().forest.getX());
                         this.player.setY(this.getRoom().forest.getY());
 
+                        break;
+                    case "space":
+                    case "s":
+                        if (this.getRoom().space == null)
+                            return false;
+                        this.spacePass = true;
+                        this.player.setX(this.getRoom().space.getX());
+                        this.player.setY(this.getRoom().space.getY());
                         break;
                     case "a":
                     case "arc":
@@ -4030,6 +4042,11 @@ public class GameClient {
                     }
                     if (this.player.getY() < ymin) {
                         newy = ymin;
+                    }
+                    // explorers who upgrade in outer space stay there instead of moving to the new home biome
+                    if (this.spacePass && this.room.space != null && this.player.getX() > Constants.CLASSICWIDTH) {
+                        newx = this.player.getX();
+                        newy = this.player.getY();
                     }
                     Class<?> rawAnimalClass = info.getType().getAnimalClass();
 
@@ -6300,7 +6317,9 @@ public class GameClient {
                         intersected = false;
                 }
 
-                if (object instanceof SafeArea) {
+                // biomes and the space gate are few and huge, so always send them; the view
+                // test below can miss a biome edge that's on screen
+                if (object instanceof SafeArea || object instanceof Biome || object instanceof SpaceGate) {
                     intersected = true;
                 } else if (object instanceof Rectangle) {
                     intersected = utils.intersectsRectangle((Rectangle) object);
@@ -6328,7 +6347,9 @@ public class GameClient {
             } else {
                 boolean intersected;
 
-                if (object instanceof SafeArea) {
+                // biomes and the space gate are few and huge, so always send them; the view
+                // test below can miss a biome edge that's on screen
+                if (object instanceof SafeArea || object instanceof Biome || object instanceof SpaceGate) {
                     intersected = true;
                 } else if (object instanceof Rectangle) {
                     intersected = utils.intersectsRectangle((Rectangle) object);
