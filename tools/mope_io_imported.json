@@ -1,0 +1,1692 @@
+{
+ "mio_arctic_fox_classic": {
+  "folder": "arctic/210",
+  "number": 210,
+  "type": 41
+ },
+ "mio_arctic_fox_gold_trim": {
+  "folder": "arctic/211",
+  "number": 211,
+  "type": 41
+ },
+ "mio_arctic_fox_summer21": {
+  "folder": "arctic/212",
+  "number": 212,
+  "type": 41
+ },
+ "mio_arctic_hare_classic": {
+  "folder": "arctic/213",
+  "number": 213,
+  "type": 31
+ },
+ "mio_arctic_hare_gold_trim": {
+  "folder": "arctic/214",
+  "number": 214,
+  "type": 31
+ },
+ "mio_arctic_hare_summer21": {
+  "folder": "arctic/215",
+  "number": 215,
+  "type": 31
+ },
+ "mio_armadillo_classic": {
+  "folder": "desert/armadillo/210",
+  "number": 210,
+  "type": 86
+ },
+ "mio_armadillo_gold_trim": {
+  "folder": "desert/armadillo/211",
+  "number": 211,
+  "type": 86
+ },
+ "mio_armadillo_halloween_pumpkin": {
+  "folder": "desert/armadillo/212",
+  "number": 212,
+  "type": 86
+ },
+ "mio_bear_classic": {
+  "folder": "land/bear/210",
+  "number": 210,
+  "type": 10
+ },
+ "mio_bear_gold_trim": {
+  "folder": "land/bear/211",
+  "number": 211,
+  "type": 10
+ },
+ "mio_bear_hw2023_spooky": {
+  "folder": "land/bear/212",
+  "number": 212,
+  "type": 10
+ },
+ "mio_bison_classic": {
+  "folder": "desert/bison/210",
+  "number": 210,
+  "type": 93
+ },
+ "mio_bison_gold_trim": {
+  "folder": "desert/bison/211",
+  "number": 211,
+  "type": 93
+ },
+ "mio_black_dragon_classic": {
+  "folder": "volcano/blackdragon/210",
+  "number": 210,
+  "type": 46
+ },
+ "mio_black_dragon_classiccolossal": {
+  "folder": "volcano/blackdragon/211",
+  "number": 211,
+  "type": 46
+ },
+ "mio_black_dragon_community25_aurorablackdragon": {
+  "folder": "volcano/blackdragon/212",
+  "number": 212,
+  "type": 46
+ },
+ "mio_black_dragon_streamline": {
+  "folder": "volcano/blackdragon/213",
+  "number": 213,
+  "type": 46
+ },
+ "mio_black_widow_bloodwidow_spider": {
+  "folder": "desert/blackwidow/210",
+  "number": 210,
+  "type": 98
+ },
+ "mio_black_widow_classic": {
+  "folder": "desert/blackwidow/211",
+  "number": 211,
+  "type": 98
+ },
+ "mio_black_widow_hw2023_bot_x303": {
+  "folder": "desert/blackwidow/212",
+  "number": 212,
+  "type": 98
+ },
+ "mio_blue_whale_classic": {
+  "folder": "ocean/bluewhale/210",
+  "number": 210,
+  "type": 49
+ },
+ "mio_blue_whale_hw2023_molten_frost": {
+  "folder": "ocean/bluewhale/211",
+  "number": 211,
+  "type": 49
+ },
+ "mio_blue_whale_moby_dick": {
+  "folder": "ocean/bluewhale/212",
+  "number": 212,
+  "type": 49
+ },
+ "mio_blue_whale_summer21_mermaid": {
+  "folder": "ocean/bluewhale/213",
+  "number": 213,
+  "type": 49
+ },
+ "mio_blue_whale_val23": {
+  "folder": "ocean/bluewhale/214",
+  "number": 214,
+  "type": 49
+ },
+ "mio_boa_classic": {
+  "folder": "land/boaconstrictor/210",
+  "number": 210,
+  "type": 51
+ },
+ "mio_boa_donut": {
+  "folder": "land/boaconstrictor/211",
+  "number": 211,
+  "type": 51
+ },
+ "mio_boa_ssscarf": {
+  "folder": "land/boaconstrictor/212",
+  "number": 212,
+  "type": 51
+ },
+ "mio_camel_classic": {
+  "folder": "desert/camel/210",
+  "number": 210,
+  "type": 88
+ },
+ "mio_camel_gold_trim": {
+  "folder": "desert/camel/211",
+  "number": 211,
+  "type": 88
+ },
+ "mio_camel_summer21": {
+  "folder": "desert/camel/212",
+  "number": 212,
+  "type": 88
+ },
+ "mio_cassowary_basilisk": {
+  "folder": "land/cassowary/210",
+  "number": 210,
+  "type": 78
+ },
+ "mio_cassowary_pastel": {
+  "folder": "land/cassowary/212",
+  "number": 212,
+  "type": 78
+ },
+ "mio_cheetah_classic": {
+  "folder": "land/bigcat/210",
+  "number": 210,
+  "type": 9
+ },
+ "mio_cheetah_genie": {
+  "folder": "land/bigcat/211",
+  "number": 211,
+  "type": 9
+ },
+ "mio_cheetah_gold_trim": {
+  "folder": "land/bigcat/212",
+  "number": 212,
+  "type": 9
+ },
+ "mio_cheetah_witch": {
+  "folder": "land/bigcat/213",
+  "number": 213,
+  "type": 9
+ },
+ "mio_chicken_gold_trim": {
+  "folder": "land/chicken/211",
+  "number": 211,
+  "type": 79
+ },
+ "mio_chicken_mope_fried": {
+  "folder": "land/chicken/212",
+  "number": 212,
+  "type": 79
+ },
+ "mio_chicken_summer21": {
+  "folder": "land/chicken/213",
+  "number": 213,
+  "type": 79
+ },
+ "mio_chipmunk_classic": {
+  "folder": "arctic/216",
+  "number": 216,
+  "type": 33
+ },
+ "mio_chipmunk_gold_trim": {
+  "folder": "arctic/217",
+  "number": 217,
+  "type": 33
+ },
+ "mio_chipmunk_summer21_playful": {
+  "folder": "arctic/218",
+  "number": 218,
+  "type": 33
+ },
+ "mio_cobra_classic": {
+  "folder": "land/cobra/210",
+  "number": 210,
+  "type": 50
+ },
+ "mio_cobra_gold_trim": {
+  "folder": "land/cobra/211",
+  "number": 211,
+  "type": 50
+ },
+ "mio_crab_classic": {
+  "folder": "ocean/crab/210",
+  "number": 210,
+  "type": 17
+ },
+ "mio_crab_dark_matter": {
+  "folder": "ocean/crab/211",
+  "number": 211,
+  "type": 17
+ },
+ "mio_crab_gold_trim": {
+  "folder": "ocean/crab/212",
+  "number": 212,
+  "type": 17
+ },
+ "mio_crab_summer21": {
+  "folder": "ocean/crab/213",
+  "number": 213,
+  "type": 17
+ },
+ "mio_crocodile_classic": {
+  "folder": "land/croc/210",
+  "number": 210,
+  "type": 11
+ },
+ "mio_crocodile_gold_trim": {
+  "folder": "land/croc/211",
+  "number": 211,
+  "type": 11
+ },
+ "mio_crocodile_hw2023_sharkodile": {
+  "folder": "land/croc/212",
+  "number": 212,
+  "type": 11
+ },
+ "mio_crocodile_lemonade": {
+  "folder": "land/croc/213",
+  "number": 213,
+  "type": 11
+ },
+ "mio_crocodile_slimy": {
+  "folder": "land/croc/214",
+  "number": 214,
+  "type": 11
+ },
+ "mio_crocodile_summer21": {
+  "folder": "land/croc/215",
+  "number": 215,
+  "type": 11
+ },
+ "mio_deer_classic": {
+  "folder": "land/deer/210",
+  "number": 210,
+  "type": 5
+ },
+ "mio_deer_gold_trim": {
+  "folder": "land/deer/211",
+  "number": 211,
+  "type": 5
+ },
+ "mio_desert_chipmunk_classic": {
+  "folder": "desert/chipmunk/210",
+  "number": 210,
+  "type": 83
+ },
+ "mio_desert_chipmunk_gold_trim": {
+  "folder": "desert/chipmunk/211",
+  "number": 211,
+  "type": 83
+ },
+ "mio_dino_monster_classic": {
+  "folder": "land/dinomonster/210",
+  "number": 210,
+  "type": 73
+ },
+ "mio_dino_monster_cordycera": {
+  "folder": "land/dinomonster/211",
+  "number": 211,
+  "type": 73
+ },
+ "mio_donkey_big_pinata": {
+  "folder": "land/donkey/210",
+  "number": 210,
+  "type": 44
+ },
+ "mio_donkey_classic": {
+  "folder": "land/donkey/211",
+  "number": 211,
+  "type": 44
+ },
+ "mio_donkey_gold_trim": {
+  "folder": "land/donkey/212",
+  "number": 212,
+  "type": 44
+ },
+ "mio_dragon_aberrant": {
+  "folder": "land/dragon/210",
+  "number": 210,
+  "type": 14
+ },
+ "mio_dragon_baby_bd": {
+  "folder": "land/dragon/211",
+  "number": 211,
+  "type": 14
+ },
+ "mio_dragon_behemoth_hive": {
+  "folder": "land/dragon/212",
+  "number": 212,
+  "type": 14
+ },
+ "mio_dragon_classic": {
+  "folder": "land/dragon/213",
+  "number": 213,
+  "type": 14
+ },
+ "mio_dragon_community25_stardragon": {
+  "folder": "land/dragon/214",
+  "number": 214,
+  "type": 14
+ },
+ "mio_dragon_hw2023_storm": {
+  "folder": "land/dragon/215",
+  "number": 215,
+  "type": 14
+ },
+ "mio_dragon_legacy": {
+  "folder": "land/dragon/216",
+  "number": 216,
+  "type": 14
+ },
+ "mio_dragon_magma": {
+  "folder": "land/dragon/217",
+  "number": 217,
+  "type": 14
+ },
+ "mio_dragon_pike": {
+  "folder": "land/dragon/218",
+  "number": 218,
+  "type": 14
+ },
+ "mio_dragon_santa": {
+  "folder": "land/dragon/219",
+  "number": 219,
+  "type": 14
+ },
+ "mio_dragon_summer21_squishy": {
+  "folder": "land/dragon/220",
+  "number": 220,
+  "type": 14
+ },
+ "mio_eagle_blue_firework": {
+  "folder": "eagle/210",
+  "number": 210,
+  "type": 56
+ },
+ "mio_eagle_classic": {
+  "folder": "eagle/211",
+  "number": 211,
+  "type": 56
+ },
+ "mio_eagle_gold_trim": {
+  "folder": "eagle/212",
+  "number": 212,
+  "type": 56
+ },
+ "mio_eagle_red_firework": {
+  "folder": "eagle/213",
+  "number": 213,
+  "type": 56
+ },
+ "mio_elephant_classic": {
+  "folder": "land/elephant/210",
+  "number": 210,
+  "type": 48
+ },
+ "mio_elephant_hw2023_carnival": {
+  "folder": "land/elephant/211",
+  "number": 211,
+  "type": 48
+ },
+ "mio_elephant_lightwave": {
+  "folder": "land/elephant/212",
+  "number": 212,
+  "type": 48
+ },
+ "mio_elephant_summer21": {
+  "folder": "land/elephant/213",
+  "number": 213,
+  "type": 48
+ },
+ "mio_falcon_classic": {
+  "folder": "falcon/210",
+  "number": 210,
+  "type": 65
+ },
+ "mio_falcon_gold_trim": {
+  "folder": "falcon/211",
+  "number": 211,
+  "type": 65
+ },
+ "mio_falcon_halloween_wraith": {
+  "folder": "falcon/212",
+  "number": 212,
+  "type": 65
+ },
+ "mio_falcon_meteor": {
+  "folder": "falcon/213",
+  "number": 213,
+  "type": 65
+ },
+ "mio_fennec_fox_classic": {
+  "folder": "desert/fennecfox/210",
+  "number": 210,
+  "type": 87
+ },
+ "mio_fennec_fox_gold_trim": {
+  "folder": "desert/fennecfox/211",
+  "number": 211,
+  "type": 87
+ },
+ "mio_flamingo_classic": {
+  "folder": "flamingo/210",
+  "number": 210,
+  "type": 77
+ },
+ "mio_flamingo_fly_mango": {
+  "folder": "flamingo/211",
+  "number": 211,
+  "type": 77
+ },
+ "mio_flamingo_gold_trim": {
+  "folder": "flamingo/212",
+  "number": 212,
+  "type": 77
+ },
+ "mio_fox_classic": {
+  "folder": "land/fox/210",
+  "number": 210,
+  "type": 4
+ },
+ "mio_fox_gold_trim": {
+  "folder": "land/fox/211",
+  "number": 211,
+  "type": 4
+ },
+ "mio_gazelle_classic": {
+  "folder": "desert/gazelle/210",
+  "number": 210,
+  "type": 85
+ },
+ "mio_gazelle_gold_trim": {
+  "folder": "desert/gazelle/211",
+  "number": 211,
+  "type": 85
+ },
+ "mio_giant_scorpion_classic": {
+  "folder": "desert/scorpion/210",
+  "number": 210,
+  "type": 95
+ },
+ "mio_giant_scorpion_nebuladon": {
+  "folder": "desert/scorpion/211",
+  "number": 211,
+  "type": 95
+ },
+ "mio_giant_spider_classic": {
+  "folder": "land/giantspider/210",
+  "number": 210,
+  "type": 52
+ },
+ "mio_giant_spider_smile": {
+  "folder": "land/giantspider/211",
+  "number": 211,
+  "type": 52
+ },
+ "mio_giraffe_classic": {
+  "folder": "land/giraffe/210",
+  "number": 210,
+  "type": 55
+ },
+ "mio_giraffe_gold_trim": {
+  "folder": "land/giraffe/211",
+  "number": 211,
+  "type": 55
+ },
+ "mio_giraffe_quilin": {
+  "folder": "land/giraffe/212",
+  "number": 212,
+  "type": 55
+ },
+ "mio_gobi_bear_gobee": {
+  "folder": "desert/gobibear/211",
+  "number": 211,
+  "type": 97
+ },
+ "mio_gobi_bear_gold_trim": {
+  "folder": "desert/gobibear/212",
+  "number": 212,
+  "type": 97
+ },
+ "mio_gorilla_classic": {
+  "folder": "land/gorilla/210",
+  "number": 210,
+  "type": 28
+ },
+ "mio_gorilla_gold_trim": {
+  "folder": "land/gorilla/211",
+  "number": 211,
+  "type": 28
+ },
+ "mio_gorilla_hw2023_mafia": {
+  "folder": "land/gorilla/212",
+  "number": 212,
+  "type": 28
+ },
+ "mio_gorilla_phantom": {
+  "folder": "land/gorilla/213",
+  "number": 213,
+  "type": 28
+ },
+ "mio_gorilla_summer21": {
+  "folder": "land/gorilla/214",
+  "number": 214,
+  "type": 28
+ },
+ "mio_gorilla_val23": {
+  "folder": "land/gorilla/215",
+  "number": 215,
+  "type": 28
+ },
+ "mio_hedgehog_classic": {
+  "folder": "land/hedgehog/210",
+  "number": 210,
+  "type": 57
+ },
+ "mio_hedgehog_gold_trim": {
+  "folder": "land/hedgehog/211",
+  "number": 211,
+  "type": 57
+ },
+ "mio_hippopotamus_classic": {
+  "folder": "land/hippo/210",
+  "number": 210,
+  "type": 13
+ },
+ "mio_hippopotamus_planet": {
+  "folder": "land/hippo/211",
+  "number": 211,
+  "type": 13
+ },
+ "mio_hippopotamus_sun": {
+  "folder": "land/hippo/212",
+  "number": 212,
+  "type": 13
+ },
+ "mio_hyena_classic": {
+  "folder": "desert/hyena/210",
+  "number": 210,
+  "type": 90
+ },
+ "mio_hyena_gold_trim": {
+  "folder": "desert/hyena/211",
+  "number": 211,
+  "type": 90
+ },
+ "mio_hyena_summer21": {
+  "folder": "desert/hyena/212",
+  "number": 212,
+  "type": 90
+ },
+ "mio_ice_monster_blazing": {
+  "folder": "arctic/icemonster/210",
+  "number": 210,
+  "type": 72
+ },
+ "mio_ice_monster_blood_crystal": {
+  "folder": "arctic/icemonster/211",
+  "number": 211,
+  "type": 72
+ },
+ "mio_ice_monster_classic": {
+  "folder": "arctic/icemonster/212",
+  "number": 212,
+  "type": 72
+ },
+ "mio_ice_monster_cupcake": {
+  "folder": "arctic/icemonster/213",
+  "number": 213,
+  "type": 72
+ },
+ "mio_ice_monster_ice_pop": {
+  "folder": "arctic/icemonster/214",
+  "number": 214,
+  "type": 72
+ },
+ "mio_ice_monster_summer21": {
+  "folder": "arctic/icemonster/215",
+  "number": 215,
+  "type": 72
+ },
+ "mio_jellyfish_classic": {
+  "folder": "ocean/jellyfish/210",
+  "number": 210,
+  "type": 23
+ },
+ "mio_jellyfish_gold_trim": {
+  "folder": "ocean/jellyfish/211",
+  "number": 211,
+  "type": 23
+ },
+ "mio_jellyfish_summer21_seafoam": {
+  "folder": "ocean/jellyfish/212",
+  "number": 212,
+  "type": 23
+ },
+ "mio_kangaroo_rat_classic": {
+  "folder": "desert/kangaroorat/210",
+  "number": 210,
+  "type": 82
+ },
+ "mio_kangaroo_rat_gold_trim": {
+  "folder": "desert/kangaroorat/211",
+  "number": 211,
+  "type": 82
+ },
+ "mio_king_crab_behemoth": {
+  "folder": "ocean/kingcrab/210",
+  "number": 210,
+  "type": 61
+ },
+ "mio_king_crab_classic": {
+  "folder": "ocean/kingcrab/211",
+  "number": 211,
+  "type": 61
+ },
+ "mio_king_crab_plasma_core": {
+  "folder": "ocean/kingcrab/212",
+  "number": 212,
+  "type": 61
+ },
+ "mio_king_crab_star_crusher": {
+  "folder": "ocean/kingcrab/213",
+  "number": 213,
+  "type": 61
+ },
+ "mio_king_dragon_bday_mistik": {
+  "folder": "volcano/kingdragon/210",
+  "number": 210,
+  "type": 100
+ },
+ "mio_king_dragon_classic": {
+  "folder": "volcano/kingdragon/211",
+  "number": 211,
+  "type": 100
+ },
+ "mio_king_dragon_community25_kingnightbringer": {
+  "folder": "volcano/kingdragon/212",
+  "number": 212,
+  "type": 100
+ },
+ "mio_kraken_classic": {
+  "folder": "ocean/kraken/210",
+  "number": 210,
+  "type": 24
+ },
+ "mio_kraken_cthulhu": {
+  "folder": "ocean/kraken/211",
+  "number": 211,
+  "type": 24
+ },
+ "mio_kraken_dr_brainiopod": {
+  "folder": "ocean/kraken/212",
+  "number": 212,
+  "type": 24
+ },
+ "mio_kraken_giant_squid": {
+  "folder": "ocean/kraken/213",
+  "number": 213,
+  "type": 24
+ },
+ "mio_kraken_hw2023_beach_battle": {
+  "folder": "ocean/kraken/214",
+  "number": 214,
+  "type": 24
+ },
+ "mio_kraken_hydrothoth": {
+  "folder": "ocean/kraken/215",
+  "number": 215,
+  "type": 24
+ },
+ "mio_kraken_summer21_squishy": {
+  "folder": "ocean/kraken/216",
+  "number": 216,
+  "type": 24
+ },
+ "mio_kraken_volcanic": {
+  "folder": "ocean/kraken/217",
+  "number": 217,
+  "type": 24
+ },
+ "mio_kraken_xmas22_gingerbread": {
+  "folder": "ocean/kraken/218",
+  "number": 218,
+  "type": 24
+ },
+ "mio_lava_monster_belphegor": {
+  "folder": "volcano/landmonster/210",
+  "number": 210,
+  "type": 71
+ },
+ "mio_lava_monster_classic": {
+  "folder": "volcano/landmonster/211",
+  "number": 211,
+  "type": 71
+ },
+ "mio_lava_monster_community25_nebulamonster": {
+  "folder": "volcano/landmonster/212",
+  "number": 212,
+  "type": 71
+ },
+ "mio_lava_monster_hw2023_solar_wyvern": {
+  "folder": "volcano/landmonster/213",
+  "number": 213,
+  "type": 71
+ },
+ "mio_lava_monster_necromus": {
+  "folder": "volcano/landmonster/214",
+  "number": 214,
+  "type": 71
+ },
+ "mio_lava_monster_planet_eater": {
+  "folder": "volcano/landmonster/215",
+  "number": 215,
+  "type": 71
+ },
+ "mio_lava_monster_xmas22_peppermint": {
+  "folder": "volcano/landmonster/216",
+  "number": 216,
+  "type": 71
+ },
+ "mio_lion_classic": {
+  "folder": "land/lion/210",
+  "number": 210,
+  "type": 8
+ },
+ "mio_lion_ghastly_jade": {
+  "folder": "land/lion/211",
+  "number": 211,
+  "type": 8
+ },
+ "mio_lion_gold_trim": {
+  "folder": "land/lion/212",
+  "number": 212,
+  "type": 8
+ },
+ "mio_lion_guardion": {
+  "folder": "land/lion/213",
+  "number": 213,
+  "type": 8
+ },
+ "mio_macaw_classic": {
+  "folder": "macaw/210",
+  "number": 210,
+  "type": 76
+ },
+ "mio_macaw_gold_trim": {
+  "folder": "macaw/211",
+  "number": 211,
+  "type": 76
+ },
+ "mio_mammoth_classic": {
+  "folder": "arctic/mammoth/210",
+  "number": 210,
+  "type": 43
+ },
+ "mio_mammoth_golem": {
+  "folder": "arctic/mammoth/211",
+  "number": 211,
+  "type": 43
+ },
+ "mio_mammoth_summer21": {
+  "folder": "arctic/mammoth/212",
+  "number": 212,
+  "type": 43
+ },
+ "mio_mammoth_val23_mamoth": {
+  "folder": "arctic/mammoth/213",
+  "number": 213,
+  "type": 43
+ },
+ "mio_markhor_classic": {
+  "folder": "arctic/markhor/210",
+  "number": 210,
+  "type": 105
+ },
+ "mio_markhor_gold_trim": {
+  "folder": "arctic/markhor/211",
+  "number": 211,
+  "type": 105
+ },
+ "mio_markhor_golden_devil_goat": {
+  "folder": "arctic/markhor/212",
+  "number": 212,
+  "type": 105
+ },
+ "mio_markhor_krampus": {
+  "folder": "arctic/markhor/213",
+  "number": 213,
+  "type": 105
+ },
+ "mio_markhor_summer21": {
+  "folder": "arctic/markhor/214",
+  "number": 214,
+  "type": 105
+ },
+ "mio_meerkat_classic": {
+  "folder": "desert/meerkat/210",
+  "number": 210,
+  "type": 84
+ },
+ "mio_meerkat_gold_trim": {
+  "folder": "desert/meerkat/211",
+  "number": 211,
+  "type": 84
+ },
+ "mio_meerkat_necromancer": {
+  "folder": "desert/meerkat/212",
+  "number": 212,
+  "type": 84
+ },
+ "mio_meerkat_summer21": {
+  "folder": "desert/meerkat/213",
+  "number": 213,
+  "type": 84
+ },
+ "mio_mole_classic": {
+  "folder": "land/mole/210",
+  "number": 210,
+  "type": 6
+ },
+ "mio_mole_cytokinetic": {
+  "folder": "land/mole/211",
+  "number": 211,
+  "type": 6
+ },
+ "mio_mole_gold_trim": {
+  "folder": "land/mole/212",
+  "number": 212,
+  "type": 6
+ },
+ "mio_mouse_classic": {
+  "folder": "land/mouse/210",
+  "number": 210,
+  "type": 1
+ },
+ "mio_mouse_dark_plague_rat": {
+  "folder": "land/mouse/211",
+  "number": 211,
+  "type": 1
+ },
+ "mio_mouse_gold_trim": {
+  "folder": "land/mouse/212",
+  "number": 212,
+  "type": 1
+ },
+ "mio_mouse_light_plague_rat": {
+  "folder": "land/mouse/213",
+  "number": 213,
+  "type": 1
+ },
+ "mio_mouse_ornamental": {
+  "folder": "land/mouse/214",
+  "number": 214,
+  "type": 1
+ },
+ "mio_mouse_summer21_bubbly": {
+  "folder": "land/mouse/215",
+  "number": 215,
+  "type": 1
+ },
+ "mio_mouse_super": {
+  "folder": "land/mouse/216",
+  "number": 216,
+  "type": 1
+ },
+ "mio_muskox_classic": {
+  "folder": "arctic/muskox/210",
+  "number": 210,
+  "type": 34
+ },
+ "mio_muskox_gold_trim": {
+  "folder": "arctic/muskox/211",
+  "number": 211,
+  "type": 34
+ },
+ "mio_muskox_summer21_firework_ox": {
+  "folder": "arctic/muskox/212",
+  "number": 212,
+  "type": 34
+ },
+ "mio_octopus_classic": {
+  "folder": "ocean/octopus/210",
+  "number": 210,
+  "type": 29
+ },
+ "mio_octopus_gold_trim": {
+  "folder": "ocean/octopus/211",
+  "number": 211,
+  "type": 29
+ },
+ "mio_octopus_na_kika": {
+  "folder": "ocean/octopus/212",
+  "number": 212,
+  "type": 29
+ },
+ "mio_octopus_summer21": {
+  "folder": "ocean/octopus/213",
+  "number": 213,
+  "type": 29
+ },
+ "mio_orca_classic": {
+  "folder": "ocean/killerwhale/210",
+  "number": 210,
+  "type": 26
+ },
+ "mio_orca_summer21": {
+  "folder": "ocean/killerwhale/211",
+  "number": 211,
+  "type": 26
+ },
+ "mio_orca_val23": {
+  "folder": "ocean/killerwhale/212",
+  "number": 212,
+  "type": 26
+ },
+ "mio_ostrich_baby_classic": {
+  "folder": "land/ostrich/210",
+  "number": 210,
+  "type": 69
+ },
+ "mio_ostrich_baby_gold": {
+  "folder": "land/ostrich/211",
+  "number": 211,
+  "type": 69
+ },
+ "mio_ostrich_baby_jogging": {
+  "folder": "land/ostrich/212",
+  "number": 212,
+  "type": 69
+ },
+ "mio_ostrich_baby_ruffled": {
+  "folder": "land/ostrich/213",
+  "number": 213,
+  "type": 69
+ },
+ "mio_ostrich_baby_sunset": {
+  "folder": "land/ostrich/214",
+  "number": 214,
+  "type": 69
+ },
+ "mio_ostrich_classic": {
+  "folder": "land/ostrich/215",
+  "number": 215,
+  "type": 63
+ },
+ "mio_ostrich_jogging": {
+  "folder": "land/ostrich/216",
+  "number": 216,
+  "type": 63
+ },
+ "mio_ostrich_sunset": {
+  "folder": "land/ostrich/217",
+  "number": 217,
+  "type": 63
+ },
+ "mio_peacock_classic": {
+  "folder": "peacock/210",
+  "number": 210,
+  "type": 81
+ },
+ "mio_peacock_gold_trim": {
+  "folder": "peacock/211",
+  "number": 211,
+  "type": 81
+ },
+ "mio_pelican_classic": {
+  "folder": "ocean/pelican/210",
+  "number": 210,
+  "type": 64
+ },
+ "mio_pelican_gold_trim": {
+  "folder": "ocean/pelican/211",
+  "number": 211,
+  "type": 64
+ },
+ "mio_pelican_oil_spill": {
+  "folder": "ocean/pelican/212",
+  "number": 212,
+  "type": 64
+ },
+ "mio_penguin_classic": {
+  "folder": "arctic/penguin/210",
+  "number": 210,
+  "type": 35
+ },
+ "mio_penguin_gift_deliverer": {
+  "folder": "arctic/penguin/211",
+  "number": 211,
+  "type": 35
+ },
+ "mio_penguin_gold_trim": {
+  "folder": "arctic/penguin/212",
+  "number": 212,
+  "type": 35
+ },
+ "mio_penguin_summer21_surfer": {
+  "folder": "arctic/penguin/213",
+  "number": 213,
+  "type": 35
+ },
+ "mio_phoenix_classic": {
+  "folder": "volcano/phoenix/210",
+  "number": 210,
+  "type": 68
+ },
+ "mio_phoenix_community25_celestialphoenix": {
+  "folder": "volcano/phoenix/211",
+  "number": 211,
+  "type": 68
+ },
+ "mio_phoenix_community25_singularityphoenix": {
+  "folder": "volcano/phoenix/212",
+  "number": 212,
+  "type": 68
+ },
+ "mio_phoenix_sundown_flames": {
+  "folder": "volcano/phoenix/213",
+  "number": 213,
+  "type": 68
+ },
+ "mio_pig_bacon": {
+  "folder": "land/pig/210",
+  "number": 210,
+  "type": 3
+ },
+ "mio_pig_butcher": {
+  "folder": "land/pig/211",
+  "number": 211,
+  "type": 3
+ },
+ "mio_pig_classic": {
+  "folder": "land/pig/212",
+  "number": 212,
+  "type": 3
+ },
+ "mio_pig_fumigator": {
+  "folder": "land/pig/213",
+  "number": 213,
+  "type": 3
+ },
+ "mio_pig_gold_trim": {
+  "folder": "land/pig/214",
+  "number": 214,
+  "type": 3
+ },
+ "mio_pig_hampire": {
+  "folder": "land/pig/215",
+  "number": 215,
+  "type": 3
+ },
+ "mio_pig_hot_dog": {
+  "folder": "land/pig/216",
+  "number": 216,
+  "type": 3
+ },
+ "mio_pig_nation": {
+  "folder": "land/pig/217",
+  "number": 217,
+  "type": 3
+ },
+ "mio_pig_summer21": {
+  "folder": "land/pig/218",
+  "number": 218,
+  "type": 3
+ },
+ "mio_pigeon_classic": {
+  "folder": "pigeon/210",
+  "number": 210,
+  "type": 74
+ },
+ "mio_pigeon_gold_trim": {
+  "folder": "pigeon/211",
+  "number": 211,
+  "type": 74
+ },
+ "mio_pigeon_thug": {
+  "folder": "pigeon/212",
+  "number": 212,
+  "type": 74
+ },
+ "mio_polar_bear_classic": {
+  "folder": "arctic/bear/210",
+  "number": 210,
+  "type": 36
+ },
+ "mio_polar_bear_gold_trim": {
+  "folder": "arctic/bear/211",
+  "number": 211,
+  "type": 36
+ },
+ "mio_polar_bear_summer21_connoisseur": {
+  "folder": "arctic/bear/212",
+  "number": 212,
+  "type": 36
+ },
+ "mio_polar_bear_ursa_major": {
+  "folder": "arctic/bear/213",
+  "number": 213,
+  "type": 36
+ },
+ "mio_pterodactyl_aqua": {
+  "folder": "desert/pterodactyl/210",
+  "number": 210,
+  "type": 96
+ },
+ "mio_pterodactyl_classic": {
+  "folder": "desert/pterodactyl/211",
+  "number": 211,
+  "type": 96
+ },
+ "mio_pufferfish_balloon": {
+  "folder": "ocean/pufferfish/210",
+  "number": 210,
+  "type": 25
+ },
+ "mio_pufferfish_classic": {
+  "folder": "ocean/pufferfish/211",
+  "number": 211,
+  "type": 25
+ },
+ "mio_pufferfish_gold_trim": {
+  "folder": "ocean/pufferfish/212",
+  "number": 212,
+  "type": 25
+ },
+ "mio_pufferfish_icicle": {
+  "folder": "ocean/pufferfish/213",
+  "number": 213,
+  "type": 25
+ },
+ "mio_pufferfish_summer21": {
+  "folder": "ocean/pufferfish/214",
+  "number": 214,
+  "type": 25
+ },
+ "mio_rabbit_carrot": {
+  "folder": "land/rabbit/210",
+  "number": 210,
+  "type": 2
+ },
+ "mio_rabbit_classic": {
+  "folder": "land/rabbit/211",
+  "number": 211,
+  "type": 2
+ },
+ "mio_rabbit_fairy": {
+  "folder": "land/rabbit/212",
+  "number": 212,
+  "type": 2
+ },
+ "mio_rabbit_gold_trim": {
+  "folder": "land/rabbit/213",
+  "number": 213,
+  "type": 2
+ },
+ "mio_rabbit_xmas22_jolly": {
+  "folder": "land/rabbit/214",
+  "number": 214,
+  "type": 2
+ },
+ "mio_rattle_snake_classic": {
+  "folder": "desert/rattlesnake/210",
+  "number": 210,
+  "type": 91
+ },
+ "mio_rattle_snake_gold_trim": {
+  "folder": "desert/rattlesnake/211",
+  "number": 211,
+  "type": 91
+ },
+ "mio_reindeer_classic": {
+  "folder": "arctic/reindeer/210",
+  "number": 210,
+  "type": 40
+ },
+ "mio_reindeer_gold_trim": {
+  "folder": "arctic/reindeer/211",
+  "number": 211,
+  "type": 40
+ },
+ "mio_reindeer_spideer": {
+  "folder": "arctic/reindeer/212",
+  "number": 212,
+  "type": 40
+ },
+ "mio_reindeer_summer21_sunburn": {
+  "folder": "arctic/reindeer/213",
+  "number": 213,
+  "type": 40
+ },
+ "mio_rhinoceros_acuti": {
+  "folder": "land/rhino/210",
+  "number": 210,
+  "type": 12
+ },
+ "mio_rhinoceros_classic": {
+  "folder": "land/rhino/211",
+  "number": 211,
+  "type": 12
+ },
+ "mio_rhinoceros_gold_trim": {
+  "folder": "land/rhino/212",
+  "number": 212,
+  "type": 12
+ },
+ "mio_rhinoceros_ink": {
+  "folder": "land/rhino/213",
+  "number": 213,
+  "type": 12
+ },
+ "mio_rhinoceros_summer21": {
+  "folder": "land/rhino/214",
+  "number": 214,
+  "type": 12
+ },
+ "mio_sabertooth_tiger_classic": {
+  "folder": "arctic/sabertooth/210",
+  "number": 210,
+  "type": 47
+ },
+ "mio_sabertooth_tiger_summer21_strawbertooth": {
+  "folder": "arctic/sabertooth/211",
+  "number": 211,
+  "type": 47
+ },
+ "mio_sea_horse_classic": {
+  "folder": "ocean/seahorse/210",
+  "number": 210,
+  "type": 22
+ },
+ "mio_sea_horse_gold_trim": {
+  "folder": "ocean/seahorse/211",
+  "number": 211,
+  "type": 22
+ },
+ "mio_sea_horse_summer21_water_gun": {
+  "folder": "ocean/seahorse/212",
+  "number": 212,
+  "type": 22
+ },
+ "mio_sea_monster_classic": {
+  "folder": "ocean/seamonster/210",
+  "number": 210,
+  "type": 70
+ },
+ "mio_sea_monster_dimensional": {
+  "folder": "ocean/seamonster/211",
+  "number": 211,
+  "type": 70
+ },
+ "mio_sea_monster_summer21": {
+  "folder": "ocean/seamonster/212",
+  "number": 212,
+  "type": 70
+ },
+ "mio_seal_classic": {
+  "folder": "arctic/seal/210",
+  "number": 210,
+  "type": 37
+ },
+ "mio_seal_gold_trim": {
+  "folder": "arctic/seal/211",
+  "number": 211,
+  "type": 37
+ },
+ "mio_seal_summer21": {
+  "folder": "arctic/seal/212",
+  "number": 212,
+  "type": 37
+ },
+ "mio_shark_classic": {
+  "folder": "ocean/shark/210",
+  "number": 210,
+  "type": 19
+ },
+ "mio_shark_gold_trim": {
+  "folder": "ocean/shark/211",
+  "number": 211,
+  "type": 19
+ },
+ "mio_shark_jawsome": {
+  "folder": "ocean/shark/212",
+  "number": 212,
+  "type": 19
+ },
+ "mio_shark_summer21_surfboard_chomper": {
+  "folder": "ocean/shark/213",
+  "number": 213,
+  "type": 19
+ },
+ "mio_shrimp_classic": {
+  "folder": "ocean/shrimp/210",
+  "number": 210,
+  "type": 15
+ },
+ "mio_shrimp_gold_trim": {
+  "folder": "ocean/shrimp/211",
+  "number": 211,
+  "type": 15
+ },
+ "mio_shrimp_summer21": {
+  "folder": "ocean/shrimp/212",
+  "number": 212,
+  "type": 15
+ },
+ "mio_snow_leopard_classic": {
+  "folder": "arctic/snowleopard/210",
+  "number": 210,
+  "type": 38
+ },
+ "mio_snow_leopard_gold_trim": {
+  "folder": "arctic/snowleopard/211",
+  "number": 211,
+  "type": 38
+ },
+ "mio_snow_leopard_martian": {
+  "folder": "arctic/snowleopard/212",
+  "number": 212,
+  "type": 38
+ },
+ "mio_snow_leopard_summer21_coral_queen": {
+  "folder": "arctic/snowleopard/213",
+  "number": 213,
+  "type": 38
+ },
+ "mio_snow_leopard_val23": {
+  "folder": "arctic/snowleopard/214",
+  "number": 214,
+  "type": 38
+ },
+ "mio_snowy_owl_classic": {
+  "folder": "arctic/snowyowl/210",
+  "number": 210,
+  "type": 66
+ },
+ "mio_snowy_owl_gold_trim": {
+  "folder": "arctic/snowyowl/211",
+  "number": 211,
+  "type": 66
+ },
+ "mio_snowy_owl_summer21": {
+  "folder": "arctic/snowyowl/212",
+  "number": 212,
+  "type": 66
+ },
+ "mio_squid_classic": {
+  "folder": "ocean/squid/210",
+  "number": 210,
+  "type": 18
+ },
+ "mio_squid_gold_trim": {
+  "folder": "ocean/squid/211",
+  "number": 211,
+  "type": 18
+ },
+ "mio_squid_summer21": {
+  "folder": "ocean/squid/212",
+  "number": 212,
+  "type": 18
+ },
+ "mio_squid_void_scuttling": {
+  "folder": "ocean/squid/213",
+  "number": 213,
+  "type": 18
+ },
+ "mio_swordfish_summer21_surfboard": {
+  "folder": "ocean/swordfish/210",
+  "number": 210,
+  "type": 27
+ },
+ "mio_tiger_chimera": {
+  "folder": "land/tiger/210",
+  "number": 210,
+  "type": 54
+ },
+ "mio_tiger_classic": {
+  "folder": "land/tiger/211",
+  "number": 211,
+  "type": 54
+ },
+ "mio_tiger_gold_trim": {
+  "folder": "land/tiger/212",
+  "number": 212,
+  "type": 54
+ },
+ "mio_toucan_classic": {
+  "folder": "toucan/210",
+  "number": 210,
+  "type": 75
+ },
+ "mio_toucan_coconut": {
+  "folder": "toucan/211",
+  "number": 211,
+  "type": 75
+ },
+ "mio_toucan_community25_starlighttoucan": {
+  "folder": "toucan/212",
+  "number": 212,
+  "type": 75
+ },
+ "mio_toucan_gold_trim": {
+  "folder": "toucan/213",
+  "number": 213,
+  "type": 75
+ },
+ "mio_toucan_molten": {
+  "folder": "toucan/214",
+  "number": 214,
+  "type": 75
+ },
+ "mio_trex_bio_mutant_t_rex": {
+  "folder": "land/trex/210",
+  "number": 210,
+  "type": 53
+ },
+ "mio_trex_classic": {
+  "folder": "land/trex/211",
+  "number": 211,
+  "type": 53
+ },
+ "mio_trex_tartarus_rex": {
+  "folder": "land/trex/212",
+  "number": 212,
+  "type": 53
+ },
+ "mio_trex_wrapped_tor": {
+  "folder": "land/trex/213",
+  "number": 213,
+  "type": 53
+ },
+ "mio_trout_classic": {
+  "folder": "ocean/trout/210",
+  "number": 210,
+  "type": 16
+ },
+ "mio_trout_gold_trim": {
+  "folder": "ocean/trout/211",
+  "number": 211,
+  "type": 16
+ },
+ "mio_trout_hw2023_dr_lochness": {
+  "folder": "ocean/trout/212",
+  "number": 212,
+  "type": 16
+ },
+ "mio_trout_summer21_popsicle": {
+  "folder": "ocean/trout/213",
+  "number": 213,
+  "type": 16
+ },
+ "mio_trout_xmas22_ice_husk": {
+  "folder": "ocean/trout/214",
+  "number": 214,
+  "type": 16
+ },
+ "mio_turtle_classic": {
+  "folder": "ocean/turtle/210",
+  "number": 210,
+  "type": 21
+ },
+ "mio_turtle_gold_trim": {
+  "folder": "ocean/turtle/211",
+  "number": 211,
+  "type": 21
+ },
+ "mio_turtle_summer21": {
+  "folder": "ocean/turtle/212",
+  "number": 212,
+  "type": 21
+ },
+ "mio_turtle_trash": {
+  "folder": "ocean/turtle/213",
+  "number": 213,
+  "type": 21
+ },
+ "mio_vulture_acid_husk": {
+  "folder": "desert/vulture/210",
+  "number": 210,
+  "type": 92
+ },
+ "mio_vulture_classic": {
+  "folder": "desert/vulture/211",
+  "number": 211,
+  "type": 92
+ },
+ "mio_vulture_gold_trim": {
+  "folder": "desert/vulture/212",
+  "number": 212,
+  "type": 92
+ },
+ "mio_walrus_classic": {
+  "folder": "arctic/walrus/210",
+  "number": 210,
+  "type": 39
+ },
+ "mio_walrus_gold_trim": {
+  "folder": "arctic/walrus/211",
+  "number": 211,
+  "type": 39
+ },
+ "mio_walrus_summer21": {
+  "folder": "arctic/walrus/212",
+  "number": 212,
+  "type": 39
+ },
+ "mio_walrus_val23": {
+  "folder": "arctic/walrus/213",
+  "number": 213,
+  "type": 39
+ },
+ "mio_warthog_candy_corn": {
+  "folder": "desert/warthog/210",
+  "number": 210,
+  "type": 89
+ },
+ "mio_warthog_classic": {
+  "folder": "desert/warthog/211",
+  "number": 211,
+  "type": 89
+ },
+ "mio_warthog_dark_matter": {
+  "folder": "desert/warthog/212",
+  "number": 212,
+  "type": 89
+ },
+ "mio_warthog_gold_trim": {
+  "folder": "desert/warthog/213",
+  "number": 213,
+  "type": 89
+ },
+ "mio_warthog_summer21": {
+  "folder": "desert/warthog/214",
+  "number": 214,
+  "type": 89
+ },
+ "mio_wolf_cerebus": {
+  "folder": "arctic/wolf/210",
+  "number": 210,
+  "type": 30
+ },
+ "mio_wolf_classic": {
+  "folder": "arctic/wolf/211",
+  "number": 211,
+  "type": 30
+ },
+ "mio_wolf_gold_trim": {
+  "folder": "arctic/wolf/212",
+  "number": 212,
+  "type": 30
+ },
+ "mio_wolf_okami": {
+  "folder": "arctic/wolf/213",
+  "number": 213,
+  "type": 30
+ },
+ "mio_wolf_summer21": {
+  "folder": "arctic/wolf/214",
+  "number": 214,
+  "type": 30
+ },
+ "mio_wolverine_classic": {
+  "folder": "arctic/wolverine/210",
+  "number": 210,
+  "type": 42
+ },
+ "mio_wolverine_floral": {
+  "folder": "arctic/wolverine/211",
+  "number": 211,
+  "type": 42
+ },
+ "mio_wolverine_gold_trim": {
+  "folder": "arctic/wolverine/212",
+  "number": 212,
+  "type": 42
+ },
+ "mio_wolverine_summoner": {
+  "folder": "arctic/wolverine/213",
+  "number": 213,
+  "type": 42
+ },
+ "mio_wolverine_val23": {
+  "folder": "arctic/wolverine/214",
+  "number": 214,
+  "type": 42
+ },
+ "mio_woodpecker_classic": {
+  "folder": "woodpecker/210",
+  "number": 210,
+  "type": 80
+ },
+ "mio_woodpecker_gold_trim": {
+  "folder": "woodpecker/211",
+  "number": 211,
+  "type": 80
+ },
+ "mio_woodpecker_jackhammer": {
+  "folder": "woodpecker/212",
+  "number": 212,
+  "type": 80
+ },
+ "mio_yeti_classic": {
+  "folder": "arctic/yeti/210",
+  "number": 210,
+  "type": 32
+ },
+ "mio_yeti_frost_wolf": {
+  "folder": "arctic/yeti/211",
+  "number": 211,
+  "type": 32
+ },
+ "mio_yeti_glacial_demon": {
+  "folder": "arctic/yeti/212",
+  "number": 212,
+  "type": 32
+ },
+ "mio_yeti_summer21_squishy": {
+  "folder": "arctic/yeti/213",
+  "number": 213,
+  "type": 32
+ },
+ "mio_zebra_classic": {
+  "folder": "land/zebra/210",
+  "number": 210,
+  "type": 7
+ },
+ "mio_zebra_gold_trim": {
+  "folder": "land/zebra/211",
+  "number": 211,
+  "type": 7
+ },
+ "mio_zebra_summer21": {
+  "folder": "land/zebra/212",
+  "number": 212,
+  "type": 7
+ },
+ "mio_zebra_synth": {
+  "folder": "land/zebra/213",
+  "number": 213,
+  "type": 7
+ }
+}

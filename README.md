@@ -143,6 +143,38 @@ node tools/fetch-shop-skins.js --no-images           # only write the list
 
 It writes `shop-skins/skins.json` and the images under `shop-skins/images/`, in the same folders as the site's `skins/`. Prices, categories and ownership come from the account server and need a logged-in player: set `MOPE_USER_ID` and `MOPE_PASSWORD_TOKEN` to add them.
 
+## Fetch the mope.io shop skins
+
+`tools/fetch-mope-io-skins.ts` (run with [Bun](https://bun.sh)) downloads the current mope.io shop skin images:
+
+- **s3.mope.io** (`mope-prod/items/`): every skin folder (its textures and its shop picture `<animal>.ui.webp`) and the skinned abilities (`items/abilities/…`). The bucket can be listed, so the script gets every file without guessing names.
+- **mope.io** (`assets/animals/<biome>/<animal>/`): the plain animal textures. A skin folder only holds the parts the skin changes, and the rest of the animal comes from here. Also the shop picture of each subspecies and the coin and gem icons.
+- **api.mope.io/store**: the shop catalog (price, currency, rarity, animal), plus names from s3.mope.io's translations.
+
+```
+bun tools/fetch-mope-io-skins.ts                      # everything, into mope-io-skins/
+bun tools/fetch-mope-io-skins.ts --only fox,dragon    # skins for some animals or item ids
+bun tools/fetch-mope-io-skins.ts --no-base            # only the s3 skin folders
+bun tools/fetch-mope-io-skins.ts --list-only          # only write skins.json
+```
+
+Files keep their server paths under `mope-io-skins/s3/` and `mope-io-skins/mope.io/`, and `mope-io-skins/skins.json` lists every skin with its files. Files already downloaded are skipped, so running it again only fetches new skins. A full run is about 3,200 WebP files (64 MB).
+
+### Add them to the shop
+
+`tools/import_mope_io_skins.py` turns the fetched skins into shop skins for this game. They're in the shop's **MopeIO** tab:
+
+```
+bun tools/fetch-mope-io-skins.ts
+python3 tools/import_mope_io_skins.py      # needs Pillow (pip install pillow)
+```
+
+For each skin it converts the WebP textures to the PNG file names the 2020 client draws, under `web/skins/<animal>/<skin number>/`, and registers the skin in the web client, the account server's shop list, `users_structure.sql`, `AnimalSkins.java` and `Account.java`. New skins get numbers from 210 up, kept in `tools/mope_io_imported.json`. The generated code sits between `mope.io skins` marker comments, so running the script again after fetching new skins replaces it cleanly.
+
+Prices are the mope.io coin prices. Gem prices are ×25 coins, and skins mope.io no longer sells cost 10,000.
+
+`tools/mope_io_animals.json` maps each animal's mope.io texture names to the 2020 ones, found by comparing the default animals pixel by pixel. For about 30 animals the 2020 client only swaps the main sprite for a skin, so their heads, wings and other parts keep the default look. The script skips skins that are already in the shop under the same name, skins that look exactly like the default animal, and skins whose main sprite can't be converted. It also skips the kakapo and turkey, which the 2020 client can't draw.
+
 ## Fetch the mope.io pumpkins
 
 `tools/fetch-pumpkins.js` downloads the pumpkin textures from mope.io: 7 kinds (normal, jack, gold, emerald, ruby, diamond, onyx), 5 frames each, as WebP. The files are served from `mope.io/assets/terrain/pumpkin/`, not from s3.mope.io.
