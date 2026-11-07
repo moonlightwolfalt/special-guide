@@ -47,3 +47,7 @@ sslPath=REMOVED_DUE_TO_SENSITIVE_DATA
 starting_tier=1
 stressTest=false
 usingSSL=false
+turnSpeedPerTier=1190,238,158.67,119,95.2,79.33,68,59.5,52.89,47.6,43.27,39.67,36.62,34,31.73,29.75,28
+spaceWidth=2500
+spaceOpenEverySeconds=300
+spaceOpenForSeconds=60

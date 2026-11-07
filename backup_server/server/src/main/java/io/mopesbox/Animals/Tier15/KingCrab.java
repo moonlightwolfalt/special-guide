@@ -79,7 +79,7 @@ public class KingCrab extends Animal {
         abilityRecharge();
         // if(this.health <= 0) {
         //     if(this.killer != null && this.killer.getClient() != null)
-        //         this.killer.getClient().addXp(this.getClient().getXP());
+        //         this.killer.getClient().addXp(this.getClient().getXPLong());
         //         ((BlackDragon) this.killer).addApex(this.getInfo().getAnimalType(), this.getClient());
         // }
     }

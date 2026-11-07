@@ -63,6 +63,8 @@ Run only one instance of the app, because all players share the one game server 
 | `RECAPTCHA_SITE_KEY`, `RECAPTCHA_SECRET` | web client and account server: your reCAPTCHA v3 keys (needed when `ENABLE_CAPTCHA` is on) | empty |
 | `CAPTCHA_HOSTNAME` | game server: the site hostname reCAPTCHA must report | any |
 | `CAPTCHA_MIN_SCORE` | game server: reCAPTCHA v3 score (0.0 bot to 1.0 human) below which players are kicked | `0.5` |
+| `DEVELOPER_EMAILS` | account server: comma-separated Google account emails that always get the top staff level (super developer). One developer account is built in, stored only as a SHA-256 hash because the repo is public | none |
+| `CHANGELOG_REPO`, `CHANGELOG_BRANCH` | web server: the GitHub repository and branch whose commits the menu's changelog shows when there's no local `.git` (Docker images) | `moonlightwolfalt/special-guide`, `main` |
 | `ADSENSE_CLIENT` | web client: your Google AdSense publisher ID (`ca-pub-…`); turns on ads and `/ads.txt` | off |
 | `ADSENSE_SLOT_RECT`, `ADSENSE_SLOT_BANNER` | web client: AdSense ad unit IDs for the 300×250 menu rectangle and the 728×90 bottom banner | empty |
 | `JAVA_OPTS` | game server JVM flags | `-XX:MaxRAMPercentage=50` |
@@ -192,3 +194,35 @@ python tools/fetch_shop_skin_assets.py --only skin_kaijuRex,gold_trex --source b
 ```
 
 It writes the textures to `shop-skin-assets/` in the site's own folder layout, plus `shop-skin-assets/skins.json`, which lists each skin's files. By default it saves the full-size `skins/…` originals, falling back to the smaller `assets/s/0/…` copies the game loads. `--source game` saves only the game copies, and `--source both` keeps both.
+
+## Changelog
+
+The menu's update panel lists the repository's commits, grouped by date and linked to GitHub, above the older hand-written notes. `server.js` serves them at `/changelog.json`. They come from `git log` when the folder has its `.git` history. In Docker images, which leave `.git` out, they come from GitHub's API for `CHANGELOG_REPO`, cached for 10 minutes (`CHANGELOG_CACHE_MINUTES`). That works without a key while the repository is public.
+
+## Outer space
+
+**The space biome.** Past the right ocean is a 2,500-wide space biome, which makes the map 11,000 × 7,500. A force field separates it from the ocean. The field opens every 5 minutes for 60 seconds, and everyone gets a message when it opens and when it closes.
+- While it's open, anyone can cross.
+- Players who crossed can stay in space as long as they like, even after it closes, and they don't get thirsty there. Upgrading keeps them in space.
+- Once they're back on the normal map, they have to wait for the next opening.
+- While closed, the field is red and striped; while open, it's green. Either way it shows a countdown.
+- Developers can jump in with `goto:space`.
+- Settings in `backup_server/server/config.txt`: `spaceWidth` (0 removes the biome), `spaceOpenEverySeconds` and `spaceOpenForSeconds`.
+
+**Space food.** Space is full of food that any animal can eat: planets, stars, star systems, black holes, quasars, galaxies, galaxy clusters, superclusters, cluster filaments, the observable universe, asteroids, moons, satellites, the light spectrum from radio waves to gamma rays, and all 118 chemical elements. That's 148 kinds, about 230 at a time, and eaten food grows back after a while.
+- Atoms (the 118 elements) are eaten on the first touch. Everything else takes several separate touches: 2 for light and asteroids, up to 12 for the observable universe. Staying on it counts once, so move off and touch it again. Each touch shrinks it a little, and a ring of gold segments shows the touches left. The XP comes with the last touch.
+- Eating one gives a fixed amount plus a share of your current XP.
+- The best pumpkin goal gives a fifth of your XP, so every share is bigger than that: from 21% for light and 22% for elements, up to 100% (double your XP) for the observable universe.
+- The list of foods, with each one's size, XP and how many float around, is in `tools/space-art/space_foods.py`. After changing it, run `python3 tools/space-art/space_foods.py`. That regenerates the server's `SpaceFoodKind.java`, the client's `SPACE_FOODS` list and the pictures in `web/img/space/food/`.
+
+**Beyond the edge.** Outside the whole map, on every side, the client also draws space with the bigger cosmic objects drifting in it. That part can't be entered: the map's edge is a barrier.
+
+## XP limit
+
+A player's XP goes up to 4,294,967,295, the most the client's XP field can hold. It used to stop at 2,000,000,000. The server keeps XP as a 64-bit number, and sends the full value for your XP, the leaderboard and end-of-game stats. Developers can set it with `xp:<amount>`.
+
+## Turning speed
+
+Animals turn on the game server, at most a set number of degrees per tick (`calculateAngle` in `Animal.java`). `turnSpeedPerTier` in `backup_server/server/config.txt` sets the limit for tiers 1 to 17, as degrees per tick (the server runs 20 ticks a second). The defaults are what the old formula gave, which is close to instant: 1,190° per tick for a mouse, down to 28° for tier 17. The client then eases its drawn angle toward the server's the same way v1.mope.io does: 10% of the gap per 1/120 s, at any frame rate.
+
+To match v1's server turning speed, measure it with `tools/measure-v1-turn-speed.js`. The steps are at the top of that file: paste it into the browser console on v1.mope.io, play, and it prints how many degrees per update the server turns each animal.

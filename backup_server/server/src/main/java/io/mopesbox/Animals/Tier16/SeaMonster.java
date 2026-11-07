@@ -176,7 +176,7 @@ public class SeaMonster extends Animal {
         if(this.health <= 0) {
             if(this.killer != null){
             if(this.killer.getClient() != null){
-                this.killer.getClient().addXp(this.getClient().getXP());
+                this.killer.getClient().addXp(this.getClient().getXPLong());
                 if(this.killer instanceof BlackDragon){
                 ((BlackDragon) this.killer).addApex(this.getInfo().getAnimalType(), this.getClient());
                 }

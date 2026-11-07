@@ -2988,3 +2988,61 @@ div#content-items-Coins {
 	margin: 0;
 	text-shadow: 1px 1px #064e1982;
 }
+/* "Buy all skins" button, in the bottom-right corner of the shop next to the page counter */
+#shop_div .buy-all-row {
+	position: absolute;
+	right: 12px;
+	bottom: 6px;
+	z-index: 20;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	color: #fff;
+	font-family: calibri, sans-serif;
+	font-size: 13px;
+	font-weight: 700;
+	white-space: nowrap;
+}
+
+#shop_div .buy-all-button {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	padding: 5px 10px;
+	border: 2px solid #b8860b;
+	border-radius: 7px;
+	background: #f1c34c;
+	color: #5a3d00;
+	font: inherit;
+	font-size: 14px;
+	white-space: nowrap;
+	cursor: pointer;
+}
+
+/* other shop rules give buttons a fixed 130x50 size; this one sizes to its text */
+#shop_div #buyAllRow .buy-all-button {
+	width: auto;
+	height: auto;
+	min-width: 0;
+	min-height: 0;
+	margin: 0;
+	line-height: 1.2;
+}
+
+#shop_div .buy-all-button:hover:not(:disabled) {
+	background: #ffd766;
+}
+
+#shop_div .buy-all-button:disabled {
+	opacity: 0.55;
+	cursor: not-allowed;
+}
+
+#shop_div .buy-all-button .buycoin-img {
+	position: static;
+	display: block;
+	width: 16px;
+	height: 16px;
+	margin: 0;
+	float: none;
+}

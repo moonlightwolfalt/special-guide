@@ -234,7 +234,7 @@ public class BattleRoyaleHandler {
         writer.writeUInt16(client.stat.timeAlive);
         writer.writeUInt16(client.stat.totalKills);
         writer.writeUInt16(client.stat.topRank);
-        writer.writeUInt32(client.stat.maxXP);
+        writer.writeUInt32((int) client.stat.maxXP); // unsigned 32-bit
     }
 
     public void sendRank(GameClient player) {
@@ -249,7 +249,7 @@ public class BattleRoyaleHandler {
         Collections.sort(plrs, new Comparator<GameClient>() {
             @Override
             public int compare(GameClient o1, GameClient o2) {
-                return Integer.valueOf(o2.getXP()).compareTo(o1.getXP());
+                return Long.compare(o2.getXPLong(), o1.getXPLong());
             }
         });
         int a = -1;

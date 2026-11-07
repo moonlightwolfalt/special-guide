@@ -193,8 +193,9 @@ public class WorldUpdate {
                 writer.writeUInt8(ani.getBarType()); // bar type;
 
                 // current experience
-                writer.writeUInt32(client.getXP());
-                double exp1 = ((((double) (client.getXP())) / ((double) (client.getNextXP()))) * 100.0);
+                // as unsigned 32-bit: XP goes up to GameClient.MAX_XP (4,294,967,295)
+                writer.writeUInt32((int) client.getXPLong());
+                double exp1 = ((((double) (client.getXPLong())) / ((double) (client.getNextXP()))) * 100.0);
                 int expper = (int) Math.round(Math.min(Math.max(exp1, 0), 100));
                 writer.writeUInt8((int) expper); // experience percent;
 

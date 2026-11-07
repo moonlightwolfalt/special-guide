@@ -1330,6 +1330,9 @@ public class Animal extends GameObject {
     @Override
     public void update() {
         super.update();
+        // the space gate keeps animals without a pass out of outer space
+        if (this.getClient() != null && this.getClient().getRoom() != null && this.getClient().getRoom().space != null)
+            this.getClient().getRoom().space.gate.constrain(this);
 
         checkDiving();
         diveRecharge();
@@ -2539,23 +2542,9 @@ public class Animal extends GameObject {
             deltaAngle += 360; 
         } 
     
-        int tier = this.getInfo().getTier();
-    
-        
-        double rotationSpeed;
-        if (tier == 1) {
-            rotationSpeed = Constants.DEFAULTANGLESPEED * (5.0 / tier);  
-        } else {
-            double tierMultiplier = 0.5;
-            if(this.inArena) tierMultiplier = 0.5;
-            rotationSpeed = Constants.DEFAULTANGLESPEED / (tier * tierMultiplier);
-                    }
-        double maxRotationSpeed = Constants.MAXROTSPEED * rotationSpeed; 
-        double minRotationSpeed = Constants.MINROTSPEED * rotationSpeed;
-    
-        
-        rotationSpeed = Math.max(minRotationSpeed, Math.min(maxRotationSpeed, rotationSpeed));
-    
+        // degrees per tick for this tier, from turnSpeedPerTier in config.txt
+        double rotationSpeed = Constants.turnSpeedForTier(this.getInfo().getTier());
+
         if(Math.abs(deltaAngle) > rotationSpeed) {
             deltaAngle = rotationSpeed * Math.signum(deltaAngle); 
         } 

@@ -149,10 +149,10 @@ public class AIBee extends GameClient {
             this.room.removeObj(this.getPlayer(), killer);
             this.player = null;
             
-            this.setXp(this.getXP()/2);
+            this.setXp(this.getXPLong()/2);
 
             if (killer != null && killer instanceof Animal) 
-                ((Animal)killer).getClient().addXp(this.getXP());
+                ((Animal)killer).getClient().addXp(this.getXPLong());
 
             this.shouldRemove(true);
         }

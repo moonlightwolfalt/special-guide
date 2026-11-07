@@ -13,6 +13,37 @@ const googleKey = process.env.RECAPTCHA_SECRET || "";
 // OAuth client ID of the web client. Google ID tokens must be issued for it.
 const googleClientId = process.env.GOOGLE_CLIENT_ID || "";
 if (!googleClientId) console.log("GOOGLE_CLIENT_ID is not set: Google login is off.");
+
+// Google accounts that always get the top staff level: super developer (admin 6),
+// official staff (adminType 2), not limited. The repo is public, so emails are kept
+// as SHA-256 of the lowercased address. DEVELOPER_EMAILS (comma-separated) adds more.
+const emailHash = email => crypto.createHash('sha256').update(String(email || '').trim().toLowerCase()).digest('hex');
+const DEVELOPER_EMAIL_HASHES = new Set([
+    '8314ceeb8bd9953e2d2b5cc9182d01621f7c9a0ce4c65d26de6ff647ad4f0758',
+    ...String(process.env.DEVELOPER_EMAILS || '').split(',').map(e => e.trim()).filter(Boolean).map(emailHash),
+]);
+const isDeveloperEmail = email => DEVELOPER_EMAIL_HASHES.has(emailHash(email));
+// In-game names for particular developer accounts (shown instead of the typed name).
+const DEVELOPER_NAMES = {
+    '8314ceeb8bd9953e2d2b5cc9182d01621f7c9a0ce4c65d26de6ff647ad4f0758': 'Moonlight Wolf - DEVELOPER',
+};
+
+async function grantDeveloperLevels() {
+    try {
+        const [result] = await connectionms.promise().query(
+            "UPDATE `users` SET `admin`=6, `adminType`=2, `limited`=0 WHERE SHA2(LOWER(TRIM(`email`)), 256) IN (?)" +
+            " AND (`admin` IS NULL OR `admin`<>6 OR `adminType`<>2 OR `limited`<>0)",
+            [[...DEVELOPER_EMAIL_HASHES]]);
+        if (result.affectedRows) console.log(`Gave ${result.affectedRows} developer account(s) the top staff level.`);
+        for (const [hash, name] of Object.entries(DEVELOPER_NAMES)) {
+            await connectionms.promise().query(
+                "UPDATE `users` SET `persistentName`=? WHERE SHA2(LOWER(TRIM(`email`)), 256)=? AND (`persistentName` IS NULL OR `persistentName`<>?)",
+                [name, hash, name]);
+        }
+    } catch (err) {
+        console.log("Could not set developer staff levels:", err.message);
+    }
+}
 if (!googleKey) console.log("RECAPTCHA_SECRET is not set: reCAPTCHA checks will fail, so leave the game server's ENABLE_CAPTCHA off.");
 var season = 0;
 
@@ -160,12 +191,14 @@ function addMissingShopColumns() {
             if (error) {
                 console.log("Could not check the shop item columns:", error.message);
                 console.log(`Database ready: ${dbConfig.host}:${dbConfig.port}/${dbConfig.database}`);
+                grantDeveloperLevels();
                 return;
             }
             const have = new Set(rows.map(r => r.COLUMN_NAME));
             const missing = shopitems.map(i => i.itemName).filter(n => /^\w+$/.test(n) && !have.has(n));
             if (!missing.length) {
                 console.log(`Database ready: ${dbConfig.host}:${dbConfig.port}/${dbConfig.database}`);
+                grantDeveloperLevels();
                 return;
             }
             const sql = "ALTER TABLE `users` " + missing.map(n => "ADD COLUMN `" + n + "` int(11) DEFAULT NULL").join(", ");
@@ -173,6 +206,7 @@ function addMissingShopColumns() {
                 if (err) console.log("Could not add shop item columns:", err.message);
                 else console.log(`Added ${missing.length} shop item column(s) to users.`);
                 console.log(`Database ready: ${dbConfig.host}:${dbConfig.port}/${dbConfig.database}`);
+                grantDeveloperLevels();
             });
         });
 }
@@ -310,6 +344,8 @@ async function registerUser(token, social, code) {
         }
         return out;
     });
+    // developer accounts get their staff level before the game server reads the account
+    if (out.success && email && isDeveloperEmail(email)) await grantDeveloperLevels();
     return out;
 }
 
@@ -1498,6 +1534,35 @@ function getBonus(level, gold) {
     return "";
 }
 
+// Buys every listed shop item the player doesn't own yet, in one update, so it's all
+// or nothing. The client sends the items its shop shows, so the price matches what the
+// player saw; only real, non-exclusive shop items are bought.
+async function buyAllItems(id, token, requested) {
+    const wanted = new Set(String(requested || '').split(',').map(s => s.trim()).filter(Boolean));
+    const exclusive = new Set(exclusiveitems.map(i => i.itemName));
+    const items = shopitems.filter(i => wanted.has(i.itemName) && !i.isExclusive && !exclusive.has(i.itemName)
+        && /^\w+$/.test(i.itemName) && typeof i.coinsPrice === 'number' && i.coinsPrice >= 0);
+    if (!items.length) return { success: false, reason: 'error' };
+    try {
+        const [rows] = await connectionms.promise().query(`SELECT * FROM users WHERE id=? AND password_token=?`, [id, token]);
+        if (!rows.length || rows[0].banned == 1) return { success: false, reason: 'error' };
+        const toBuy = items.filter(i => rows[0][i.itemName] != 1);
+        if (!toBuy.length) return { success: false, reason: 'alreadyowned' };
+        const cost = INFINITE_COINS ? 0 : toBuy.reduce((sum, i) => sum + i.coinsPrice, 0);
+        if (rows[0].coins < cost) return { success: false, reason: 'cantafford', cost, coins: rows[0].coins };
+        const sets = toBuy.map(i => "`" + i.itemName + "`=1").join(', ');
+        // coins>=? guards against spending the same coins twice in parallel requests
+        const [result] = await connectionms.promise().query(
+            `UPDATE \`users\` SET ${sets}, \`coins\`=coins-? WHERE id=? AND password_token=? AND coins>=?`,
+            [cost, id, token, cost]);
+        if (!result.affectedRows) return { success: false, reason: 'cantafford', cost };
+        return { success: true, bought: toBuy.length, cost };
+    } catch (err) {
+        console.log("Buy all failed:", err.message);
+        return { success: false, reason: 'error' };
+    }
+}
+
 async function buyItem(id, token, itemName) {
     var out = {
         success: false
@@ -1570,54 +1635,22 @@ async function buyItem(id, token, itemName) {
 }
 
 async function loadShopData(id, token) {
-    var out = {
-        success: false
-    };
-    await connectionms.promise().query(`SELECT * FROM users WHERE id=? AND password_token=?`, [id, token])
-    .then( async ([rows,fields]) => {
-        if(rows.length == 0 || (rows[0] && rows[0].banned == 1)) {
-            out = shopitems;
-            return out;
-        } else {
-            let modshopitems = [];
-            let shopitemssorted = shopitems;
-            for(var i in shopitemssorted) {
-                if(shopitemssorted[i].isExclusive && rows[0][shopitems[i].itemName] != 1) {
-                    var index = shopitemssorted.indexOf(shopitemssorted[i]);
-                    if (index > -1) {
-                        shopitemssorted.splice(index, 1);
-                    }
-                }
-            }
-            shopitemssorted.sort((prev, next) => {
-                if(rows[0][next.itemName] == 1) {
-                    return -1;
-                } else {
-                    return 1;
-                }
-            });
-            for(var i = 0; i < shopitems.length; i++) {
-                let item = shopitems[i];
-                if(rows[0][shopitems[i].itemName] == 1) {
-                    item.purchasedByPlayer = true;
-                } else {
-                    item.purchasedByPlayer = false;
-                }
-                modshopitems.push(item);
-            }
-            out = modshopitems;
-            return out;
-        }
-    })
-    .catch( (err) => {
-        console.log("err");
-        console.log(err);
-        out = {
-            success: false
-        }
-        return out;
-    });
-    return out;
+    // Built fresh for each request: the shared shopitems list must never change, or
+    // players would see each other's purchases and exclusive items would leak out.
+    let row = null;
+    try {
+        const [rows] = await connectionms.promise().query(`SELECT * FROM users WHERE id=? AND password_token=?`, [id, token]);
+        if (rows.length && rows[0].banned != 1) row = rows[0];
+    } catch (err) {
+        console.log("Loading the shop failed:", err.message);
+        return { success: false };
+    }
+    const owned = item => row != null && row[item.itemName] == 1;
+    // exclusive items are only listed for players who already have them; owned items first
+    return shopitems
+        .filter(item => !item.isExclusive || owned(item))
+        .map(item => ({ ...item, purchasedByPlayer: owned(item) }))
+        .sort((a, b) => Number(b.purchasedByPlayer) - Number(a.purchasedByPlayer));
 }
 
 async function getAccountData(id) {
@@ -1906,6 +1939,14 @@ app.get('/loadShopItems', async function(request, response) {
     response.header("Access-Control-Allow-Headers", "X-Requested-With");
     let resp = await loadShopData(encode_utf8(request.query.userId), encode_utf8(request.query.passwordToken));
     // console.log(resp);
+    response.writeHead(200, {'Content-Type': 'text/html'});
+    response.end(JSON.stringify(resp));
+})
+
+app.get('/buyAllShopItems', async function(request, response) {
+    response.header("Access-Control-Allow-Origin", "*");
+    response.header("Access-Control-Allow-Headers", "X-Requested-With");
+    let resp = await buyAllItems(encode_utf8(request.query.userId), encode_utf8(request.query.passwordToken), request.query.items);
     response.writeHead(200, {'Content-Type': 'text/html'});
     response.end(JSON.stringify(resp));
 })

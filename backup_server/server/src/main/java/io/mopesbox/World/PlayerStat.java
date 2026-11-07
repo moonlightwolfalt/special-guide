@@ -5,7 +5,7 @@ public class PlayerStat {
     public short topRank;
     public int timeAlive;
     public int totalKills;
-    public int maxXP;
+    public long maxXP;
 
     public PlayerStat() {
 

@@ -13,7 +13,15 @@ public class Constants {
         public static final int WIDTH1 = 2125; //8500
         public static final int HEIGHT1 = 1875;
 
-        public static final int WIDTH = 8500; //8500
+        // The classic map is CLASSICWIDTH wide. The outer space biome (SPACEW wide,
+        // "spaceWidth" in config.txt) runs along its right edge, past the right ocean, behind
+        // a gate that opens every SPACE_OPEN_EVERY seconds for SPACE_OPEN_FOR seconds.
+        // Beyond every edge of the whole map the client draws more space, which can't be entered.
+        public static final int CLASSICWIDTH = 8500;
+        public static final int SPACEW = Math.max(0, Math.min(8000, Utils.toInt(conf.GetProp("spaceWidth", "2500"))));
+        public static final int WIDTH = CLASSICWIDTH + SPACEW;
+        public static final int SPACE_OPEN_EVERY = Math.max(10, Utils.toInt(conf.GetProp("spaceOpenEverySeconds", "300")));
+        public static final int SPACE_OPEN_FOR = Math.max(5, Utils.toInt(conf.GetProp("spaceOpenForSeconds", "60")));
         public static final int HEIGHT = 7500; //7500
         public static final int LANDW = 5400;//5400
         public static final int LANDH = 4800;//4800
@@ -84,6 +92,34 @@ public class Constants {
         public static final boolean FOODSPAWN = Utils.toBool(conf.GetProp("foodSpawn", "true"));
 
         public static final int MIN_START_PLAYER = 4;
+        // Most degrees an animal turns per server tick, for tiers 1 to 17 ("turnSpeedPerTier"
+        // in config.txt, comma-separated). The defaults are the speeds the old formula gave.
+        public static final double[] TURN_SPEED_PER_TIER = parseTurnSpeeds(conf.GetProp("turnSpeedPerTier",
+                        "1190,238,158.67,119,95.2,79.33,68,59.5,52.89,47.6,43.27,39.67,36.62,34,31.73,29.75,28"));
+
+        private static double[] parseTurnSpeeds(String list) {
+                double[] speeds = new double[18];
+                String[] parts = list == null ? new String[0] : list.split(",");
+                for (int tier = 1; tier <= 17; tier++) {
+                        double v = -1;
+                        if (tier - 1 < parts.length) {
+                                try {
+                                        v = Double.parseDouble(parts[tier - 1].trim());
+                                } catch (NumberFormatException e) {
+                                        v = -1;
+                                }
+                        }
+                        // missing or bad entries fall back to the old formula
+                        speeds[tier] = v > 0 ? v : (tier == 1 ? 1190.0 : 476.0 / tier);
+                }
+                speeds[0] = speeds[1];
+                return speeds;
+        }
+
+        public static double turnSpeedForTier(int tier) {
+                return TURN_SPEED_PER_TIER[Math.max(1, Math.min(17, tier))];
+        }
+
         public static final double DEFAULTANGLESPEED = 17.0;
         public static final double MAXROTSPEED = 17.0;
         public static final double MINROTSPEED = 14.0; 
