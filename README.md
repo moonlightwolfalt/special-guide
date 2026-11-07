@@ -143,6 +143,23 @@ node tools/fetch-shop-skins.js --no-images           # only write the list
 
 It writes `shop-skins/skins.json` and the images under `shop-skins/images/`, in the same folders as the site's `skins/`. Prices, categories and ownership come from the account server and need a logged-in player: set `MOPE_USER_ID` and `MOPE_PASSWORD_TOKEN` to add them.
 
+## Fetch the mope.io shop skins
+
+`tools/fetch-mope-io-skins.ts` (run with [Bun](https://bun.sh)) downloads the current mope.io shop skin images:
+
+- **s3.mope.io** (`mope-prod/items/`): every skin folder (its textures and its shop picture `<animal>.ui.webp`) and the skinned abilities (`items/abilities/…`). The bucket can be listed, so the script gets every file without guessing names.
+- **mope.io** (`assets/animals/<biome>/<animal>/`): the plain animal textures. A skin folder only holds the parts the skin changes, and the rest of the animal comes from here. Also the shop picture of each subspecies and the coin and gem icons.
+- **api.mope.io/store**: the shop catalog (price, currency, rarity, animal), plus names from s3.mope.io's translations.
+
+```
+bun tools/fetch-mope-io-skins.ts                      # everything, into mope-io-skins/
+bun tools/fetch-mope-io-skins.ts --only fox,dragon    # skins for some animals or item ids
+bun tools/fetch-mope-io-skins.ts --no-base            # only the s3 skin folders
+bun tools/fetch-mope-io-skins.ts --list-only          # only write skins.json
+```
+
+Files keep their server paths under `mope-io-skins/s3/` and `mope-io-skins/mope.io/`, and `mope-io-skins/skins.json` lists every skin with its files. Files already downloaded are skipped, so running it again only fetches new skins. A full run is about 3,200 WebP files (64 MB).
+
 ## Fetch the mope.io pumpkins
 
 `tools/fetch-pumpkins.js` downloads the pumpkin textures from mope.io: 7 kinds (normal, jack, gold, emerald, ruby, diamond, onyx), 5 frames each, as WebP. The files are served from `mope.io/assets/terrain/pumpkin/`, not from s3.mope.io.
