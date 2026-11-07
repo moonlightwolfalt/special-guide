@@ -91,3 +91,11 @@ node tools/fetch-shop-skins.js --no-images           # only write the list
 ```
 
 It writes `shop-skins/skins.json` and the images under `shop-skins/images/`, in the same folders as the site's `skins/`. Prices, categories and ownership come from the account server and need a logged-in player: set `MOPE_USER_ID` and `MOPE_PASSWORD_TOKEN` to add them.
+
+## Fetch the mope.io pumpkins
+
+`tools/fetch-pumpkins.js` downloads the pumpkin textures from mope.io: 7 kinds (normal, jack, gold, emerald, ruby, diamond, onyx), 5 frames each, as WebP. The files are served from `mope.io/assets/terrain/pumpkin/`, not from s3.mope.io.
+
+```
+node tools/fetch-pumpkins.js            # writes pumpkins/<kind>/<frame>.webp and pumpkins/pumpkins.json
+```
