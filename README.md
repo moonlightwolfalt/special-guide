@@ -129,3 +129,17 @@ Each shop skin is defined in five places, which must agree:
 5. `web/client.js`: a `getAnimalInfo` case with the shop name and image, plus the images under `web/skins/`.
 
 The 73 skins imported from mope.trygames.party also have an `EXTRA_SKINS` entry in `web/client.js`. It gives each one its in-game name. For animals whose drawing code ignores the skin number (fox, rabbit, trout, crab and others), it also points the sprite at the skin's own image.
+
+## Fetch every shop skin texture (Python)
+
+`tools/fetch_shop_skin_assets.py` downloads every texture the shop skins use: bodies, heads, wings, tails, animation frames and ability icons. The site doesn't list its folders and its client builds texture paths at run time. So the script opens the site in headless Chromium and makes the site's own client draw each skin in many states, recording every texture it asks for. A second pass tries names that other skins of the same animal use, and follows numbered runs like `tongue0`…`tongue12`.
+
+```
+pip install playwright
+playwright install chromium          # or pass --browser /path/to/chrome
+python tools/fetch_shop_skin_assets.py                       # all skins from mope.trygames.party
+python tools/fetch_shop_skin_assets.py --names-from web/skins    # also learn names from this repo's skins
+python tools/fetch_shop_skin_assets.py --only skin_kaijuRex,gold_trex --source both
+```
+
+It writes the textures to `shop-skin-assets/` in the site's own folder layout, plus `shop-skin-assets/skins.json`, which lists each skin's files. By default it saves the full-size `skins/…` originals, falling back to the smaller `assets/s/0/…` copies the game loads. `--source game` saves only the game copies, and `--source both` keeps both.
