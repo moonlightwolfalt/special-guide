@@ -25297,7 +25297,8 @@ PumpkinBall.prototype.customDraw = function (batchDrawOutline) {
     //console.log("fire: " + imNum);
     //var theImg = this.getSkinImageObj(imNum == 1 ? "img/fire.png" : "img/fire2.png");
     // var pumpkinType = this.pumpkinType ? "1" : "0";
-    var theImg = this.getSkinImageObj("img/pumpkin/" + this.pumpkinType + "/" + this.frameNumber + ".png");
+    // web/img/pumpkin/<kind>/<frame>.png holds every kind (the season folder only had kinds 0-2)
+    var theImg = _0x2f22f9("img/pumpkin/" + this.pumpkinType + "/" + this.frameNumber + ".png");
     if (theImg) {
         var imX = 0,
             imY = this.rad;

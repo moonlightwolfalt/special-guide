@@ -60,6 +60,15 @@ public class Room extends Thread {
     public ArrayList<Meteor> meteoriteList = new ArrayList<>();
 
     public ArrayList<GameClient> clients = new ArrayList<>();
+
+    // Tells every player a pumpkin spawned, and which kind.
+    public void announcePumpkin(io.mopesbox.Objects.ETC.PumpkinType kind) {
+        String text = kind.spawnMessage();
+        // one message each: a MsgWriter's data can only be taken once
+        for (GameClient c : new ArrayList<>(this.clients)) {
+            if (c != null) c.send(Networking.popup(text, "pumpkin", 5));
+        }
+    }
     public ArrayList<GameClient> aiClients = new ArrayList<>();
     public ArrayList<GameClient> aiClientsToRemove = new ArrayList<>();
     public ArrayList<GameClient> clients_to_add = new ArrayList<GameClient>();

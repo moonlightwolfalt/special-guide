@@ -324,6 +324,7 @@ public class Biome extends Rectangle {
             this.room.pumpDots.add(pump);
 
             this.room.addObj(pump);
+            this.room.announcePumpkin(kind);
         }
 
         pumpkinCounts[kind.id] += amount;
