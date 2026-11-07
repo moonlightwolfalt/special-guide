@@ -1,0 +1,718 @@
+/* Modern menu style, loaded after main.css. Only looks change here: sizes and positions the
+   client relies on (the shop's 638x345 panel and its sliding pages, the menu column) stay. */
+
+:root {
+	--ui-font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+	--panel: rgba(9, 32, 18, .62);
+	--panel-strong: rgba(7, 26, 15, .82);
+	--panel-border: rgba(255, 255, 255, .14);
+	--panel-shadow: 0 12px 32px rgba(0, 0, 0, .28);
+	--text: #f3fff6;
+	--muted: rgba(226, 255, 234, .68);
+	--accent: #34d36a;
+	--accent-deep: #149a42;
+	--gold: #f7b928;
+	--gold-deep: #c98600;
+	--radius: 16px;
+	--radius-sm: 10px;
+}
+
+/* ---- menu backdrop ----------------------------------------------------------------- */
+#startMenuWrapper {
+	background: radial-gradient(ellipse at 50% 35%, rgba(0, 0, 0, 0) 45%, rgba(0, 20, 8, .28) 100%);
+	font-family: var(--ui-font);
+}
+
+#mopeMenu {
+	max-width: 340px;
+	padding: 16px 18px 14px;
+	background: var(--panel);
+	border: 1px solid var(--panel-border);
+	border-radius: var(--radius);
+	box-shadow: var(--panel-shadow);
+	-webkit-backdrop-filter: blur(8px);
+	backdrop-filter: blur(8px);
+}
+
+#startMenu {
+	top: 18px;
+	max-width: 340px;
+}
+
+/* the play panel holds the settings popup, so it must stack over the status panel below */
+#startMenu > #mopeMenu:first-child {
+	position: relative;
+	z-index: 5;
+}
+
+#logo {
+	display: block;
+	margin: -6px auto 4px;
+	max-width: 100%;
+	height: auto;
+	filter: drop-shadow(0 6px 10px rgba(0, 0, 0, .3));
+}
+
+/* ---- play panel -------------------------------------------------------------------- */
+#onconnectDiv {
+	margin-top: 0;
+	min-height: 0;
+}
+
+#onconnectDiv > br {
+	display: none;
+}
+
+#onPlayReadyWrap {
+	position: relative;
+}
+
+#serverSelect {
+	width: 100%;
+	height: 42px;
+	padding: 0 38px 0 14px;
+	font: 600 14px var(--ui-font);
+	color: var(--text);
+	background: rgba(255, 255, 255, .1) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23e2ffea' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 14px center;
+	border: 1px solid var(--panel-border);
+	border-radius: var(--radius-sm);
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	cursor: pointer;
+}
+
+#serverSelect:hover,
+#serverSelect:focus {
+	border-color: rgba(255, 255, 255, .32);
+	outline: none;
+}
+
+#serverSelect option {
+	color: #12301c;
+	background: #fff;
+}
+
+#nickInputContainer {
+	width: 100%;
+	margin-top: 10px;
+}
+
+#nickInput {
+	height: 48px !important;
+	line-height: normal !important;
+	padding: 0 52px 0 16px;
+	margin: 0;
+	font: 700 20px var(--ui-font);
+	color: #12301c;
+	text-align: left;
+	background: rgba(255, 255, 255, .95);
+	border: 2px solid transparent;
+	border-radius: 12px;
+	box-shadow: inset 0 1px 2px rgba(0, 0, 0, .12);
+	transition: border-color .15s, box-shadow .15s;
+}
+
+#nickInput::placeholder {
+	color: rgba(18, 48, 28, .45);
+	font-weight: 600;
+}
+
+#nickInput:focus {
+	border-color: var(--accent);
+	box-shadow: 0 0 0 4px rgba(52, 211, 106, .25);
+}
+
+/* the settings gear sits inside the name field, on the right */
+.optionsBtn {
+	position: absolute;
+	right: 6px;
+	top: 52px;
+	margin: 0;
+	float: none;
+	z-index: 2;
+}
+
+#settingsButton {
+	width: 38px;
+	height: 38px;
+	margin: 0;
+	padding: 4px;
+	border: 0 !important;
+	border-radius: 10px;
+	opacity: .75;
+	transition: opacity .15s, background-color .15s;
+}
+
+#settingsButton:hover {
+	opacity: 1;
+	background-color: rgba(18, 48, 28, .08) !important;
+}
+
+#settingsButton img {
+	display: none;
+}
+
+#settingsButton {
+	background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2312301c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3Cpath d='M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z'/%3E%3C/svg%3E") no-repeat center / 22px 22px !important;
+}
+
+/* Shop and Play side by side, Spectate under them */
+#onPlayReadyWrap > a {
+	display: block;
+}
+
+#onPlayReadyWrap > a:nth-of-type(1),
+#onPlayReadyWrap > a:nth-of-type(2) {
+	float: left;
+	width: calc(50% - 5px);
+}
+
+#onPlayReadyWrap > a:nth-of-type(2) {
+	float: right;
+}
+
+#onPlayReadyWrap > a:nth-of-type(3) {
+	clear: both;
+	padding-top: 2px;
+}
+
+#onPlayReadyWrap::after {
+	content: "";
+	display: block;
+	clear: both;
+}
+
+#startButton,
+#shopbutton,
+#btnSpectate {
+	width: 100%;
+	margin: 12px 0 0;
+	font-family: var(--ui-font);
+	font-weight: 800;
+	letter-spacing: .02em;
+	text-shadow: 0 1px 1px rgba(0, 0, 0, .25);
+	border: 0;
+	border-radius: 14px;
+	cursor: pointer;
+	transition: transform .08s ease, filter .15s ease, box-shadow .15s ease;
+}
+
+#startButton {
+	height: 54px;
+	font-size: 24px;
+	color: #fff;
+	background: linear-gradient(180deg, #45e27a 0%, #1fb34e 100%);
+	box-shadow: 0 4px 0 #11823a, 0 8px 18px rgba(18, 160, 70, .35);
+}
+
+#shopbutton {
+	height: 54px;
+	font-size: 22px;
+	color: #fff;
+	background: linear-gradient(180deg, #ffd04f 0%, #f0a400 100%);
+	box-shadow: 0 4px 0 var(--gold-deep), 0 8px 18px rgba(240, 164, 0, .3);
+}
+
+#btnSpectate {
+	height: 42px;
+	margin-top: 10px;
+	font-size: 15px;
+	font-weight: 700;
+	color: var(--text);
+	background: rgba(255, 255, 255, .06);
+	box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, .28);
+}
+
+#startButton:hover,
+#shopbutton:hover {
+	filter: brightness(1.06);
+	transform: translateY(-1px);
+}
+
+#btnSpectate:hover {
+	background: rgba(255, 255, 255, .12);
+}
+
+#startButton:active,
+#shopbutton:active {
+	transform: translateY(3px);
+	box-shadow: 0 1px 0 rgba(0, 0, 0, .25);
+	top: 0;
+}
+
+#startButton:active,
+#startButton:hover {
+	top: 0;
+	background: linear-gradient(180deg, #45e27a 0%, #1fb34e 100%);
+}
+
+#startButton:focus-visible,
+#shopbutton:focus-visible,
+#btnSpectate:focus-visible {
+	outline: 3px solid rgba(255, 255, 255, .7);
+	outline-offset: 2px;
+}
+
+#spawnXpLabel,
+#serverResponse {
+	font-family: var(--ui-font);
+	font-size: 16px;
+	font-weight: 700;
+	color: var(--gold);
+	text-shadow: 0 1px 2px rgba(0, 0, 0, .5);
+}
+
+#plusCoins {
+	font-family: var(--ui-font);
+}
+
+/* ---- connecting -------------------------------------------------------------------- */
+#connecting {
+	width: 100%;
+	height: auto;
+	min-height: 140px;
+	margin: 8px 0 4px;
+	flex-direction: column;
+	gap: 6px;
+	background: var(--panel-strong);
+	border: 1px solid var(--panel-border);
+	border-radius: 14px;
+}
+
+#connecting p {
+	font: 700 20px var(--ui-font);
+	color: var(--text);
+}
+
+#connecting #txtServer {
+	font-weight: 500;
+	color: var(--muted);
+}
+
+/* ---- network status (the second panel in the column) -------------------------------- */
+#mopeMenu h1 {
+	margin: 0 0 6px !important;
+	font: 700 11px var(--ui-font) !important;
+	letter-spacing: .12em;
+	text-transform: uppercase;
+	color: var(--muted) !important;
+	text-shadow: none !important;
+}
+
+#serversDiv {
+	min-height: 0;
+	max-height: 120px;
+	padding: 4px 2px;
+	overflow-y: auto;
+	background: transparent;
+	border-radius: 0;
+}
+
+#serversDiv p,
+#serversDiv li {
+	font: 500 13px var(--ui-font);
+	color: var(--text);
+	text-shadow: none;
+}
+
+#serversDiv h2 {
+	font: 700 13px var(--ui-font);
+	color: var(--gold);
+	text-shadow: none;
+}
+
+/* ---- settings ---------------------------------------------------------------------- */
+#optionsDiv {
+	width: 340px;
+	margin-left: -18px;
+	padding: 16px 18px 18px;
+	box-sizing: border-box;
+	font-family: var(--ui-font);
+	font-size: 13px;
+	color: var(--text);
+	background: #0f2c1a;
+	border: 1px solid var(--panel-border);
+	border-radius: var(--radius);
+	box-shadow: var(--panel-shadow);
+}
+
+#optionsDiv h3 {
+	font: 700 12px var(--ui-font);
+	letter-spacing: .1em;
+	text-transform: uppercase;
+	color: var(--muted);
+}
+
+#optionsDiv p {
+	color: var(--text);
+}
+
+#optionsDiv button:not(#closeBut):not(#button_mute) {
+	padding: 8px 12px;
+	font: 700 13px var(--ui-font);
+	color: #fff;
+	background: rgba(255, 255, 255, .1);
+	border: 0;
+	border-radius: 10px;
+	box-shadow: inset 0 0 0 1px var(--panel-border);
+}
+
+#optionsDiv button:not(#closeBut):not(#button_mute):hover {
+	background: rgba(255, 255, 255, .18);
+}
+
+#optionsDiv #closeBut {
+	left: auto;
+	right: 8px;
+	top: 8px;
+	margin: 0;
+	padding: 0;
+	opacity: .8;
+}
+
+#optionsDiv #closeBut:hover {
+	opacity: 1;
+}
+
+#optionsDiv #closeBut img {
+	width: 28px;
+	height: 28px;
+}
+
+#optionsDiv #optionsContainer label,
+#optionsDiv #optionsContainer {
+	font-family: var(--ui-font);
+	color: var(--text);
+}
+
+#optionsDiv input[type="checkbox"] {
+	accent-color: var(--accent);
+	margin-right: 4px;
+}
+
+/* ---- left column: updates ----------------------------------------------------------- */
+#updates {
+	width: 230px;
+	margin: 18px 0 0 18px;
+	overflow: hidden;
+	background: var(--panel);
+	border: 1px solid var(--panel-border);
+	border-radius: var(--radius);
+	box-shadow: var(--panel-shadow);
+	-webkit-backdrop-filter: blur(8px);
+	backdrop-filter: blur(8px);
+	font-family: var(--ui-font);
+}
+
+#updatesDiv {
+	width: auto;
+	min-height: 0;
+	max-height: calc(100vh - 150px);
+	padding: 16px 16px 8px;
+	overflow-y: auto;
+	background: transparent;
+	border-radius: 0;
+	scrollbar-width: thin;
+	scrollbar-color: rgba(255, 255, 255, .25) transparent;
+}
+
+#updatesDiv::before {
+	content: "What's new";
+	display: block;
+	margin-bottom: 10px;
+	font: 800 15px var(--ui-font);
+	color: var(--text);
+}
+
+#updates h2 {
+	margin: 12px 0 4px;
+	font: 700 11px var(--ui-font);
+	letter-spacing: .08em;
+	text-transform: uppercase;
+	color: var(--accent);
+	text-shadow: none;
+}
+
+#updates ul {
+	margin: 0;
+	padding-left: 16px;
+}
+
+#updates p,
+#updates li {
+	margin: 2px 0;
+	font: 500 12.5px/1.4 var(--ui-font);
+	color: var(--text);
+	text-shadow: none;
+}
+
+#updates li a:hover {
+	text-decoration: underline;
+}
+
+#updates img {
+	display: block;
+	margin: 6px 0;
+	border-radius: 8px;
+}
+
+#ytDiv {
+	width: auto;
+	padding: 10px 16px 12px;
+	background: rgba(0, 0, 0, .12);
+	border-top: 1px solid var(--panel-border);
+	border-radius: 0;
+}
+
+#ytDiv hr {
+	display: none;
+}
+
+#ytDiv .wrapper-buttons button {
+	margin: 0;
+	padding: 6px 10px;
+	border: 0;
+	border-radius: 10px;
+	background: #5865f2;
+	box-shadow: none;
+}
+
+/* ---- right column: account and credits ---------------------------------------------- */
+#rightSide {
+	width: 200px;
+	top: 18px;
+	right: 18px;
+	font-family: var(--ui-font);
+}
+
+#rightSide > div {
+	float: none !important;
+	box-sizing: border-box;
+	width: auto !important;
+	height: auto !important;
+	margin: 0 0 12px !important;
+	padding: 14px !important;
+	background: var(--panel) !important;
+	border: 1px solid var(--panel-border) !important;
+	border-radius: var(--radius) !important;
+	box-shadow: var(--panel-shadow);
+	-webkit-backdrop-filter: blur(8px);
+	backdrop-filter: blur(8px);
+}
+
+#notLoggedInTxt {
+	margin: 0 0 10px;
+	font: 700 15px/1.35 var(--ui-font) !important;
+	color: var(--text) !important;
+	text-shadow: none !important;
+}
+
+#loggedInNameTxt {
+	font: 700 15px var(--ui-font) !important;
+	color: var(--text) !important;
+}
+
+#loggedInUserImg {
+	border-radius: 50%;
+}
+
+#rightSide #ytButton {
+	margin: 0 !important;
+}
+
+#rightSide .devhead {
+	width: auto !important;
+	height: auto !important;
+	margin: 0 0 8px !important;
+	padding: 0 !important;
+	font: 700 11px var(--ui-font) !important;
+	letter-spacing: .12em;
+	text-transform: uppercase;
+	text-align: left;
+	color: var(--muted) !important;
+	background: none !important;
+}
+
+#rightSide .devhead::before {
+	content: "";
+	display: inline-block;
+	width: 8px;
+	height: 8px;
+	margin-right: 7px;
+	border-radius: 50%;
+	background: var(--accent);
+	vertical-align: 1px;
+}
+
+#rightSide #ytButton h2 {
+	margin: 4px 0 2px !important;
+	font: 700 14px var(--ui-font);
+	text-align: left;
+	text-shadow: none;
+	color: var(--text);
+}
+
+/* ---- shop -------------------------------------------------------------------------- */
+#shop.shop,
+.shop {
+	background: rgba(4, 18, 9, .55);
+	-webkit-backdrop-filter: blur(4px);
+	backdrop-filter: blur(4px);
+}
+
+#shop_div {
+	border: 1px solid var(--panel-border);
+	border-radius: 18px;
+	background: linear-gradient(180deg, #17733a 0%, #10592c 100%);
+	box-shadow: 0 20px 50px rgba(0, 0, 0, .45);
+	font-family: var(--ui-font);
+}
+
+#shop_div ul li,
+#shop_div ul li.title {
+	font-family: var(--ui-font);
+}
+
+#shop_div ul li.title {
+	margin-top: 6px;
+	margin-right: 4px;
+	padding: 5px 14px 0;
+	height: 26px;
+	font-size: 13px;
+	font-weight: 800;
+	letter-spacing: .04em;
+	border-radius: 999px;
+}
+
+#shop_div ul li.title.notselected {
+	height: 26px;
+	margin-top: 6px;
+	padding-top: 5px;
+	color: rgba(255, 255, 255, .78);
+}
+
+#shop_div ul li.title.notselected:hover {
+	background: rgba(255, 255, 255, .12);
+	border-radius: 999px;
+}
+
+#shop_div ul li.title.selected {
+	height: 26px;
+	color: #0f3d1f;
+	background: #fff;
+	border: 0;
+	border-radius: 999px;
+}
+
+#shop_div .tab.selected {
+	background: rgba(0, 0, 0, .16);
+	border: 1px solid rgba(255, 255, 255, .1);
+	border-radius: 14px;
+}
+
+#shop_div .tab.tab-bp {
+	background: rgba(0, 0, 0, .16);
+}
+
+.shop .item {
+	background: rgba(255, 255, 255, .1);
+	border: 1px solid rgba(255, 255, 255, .14);
+	border-radius: 14px;
+}
+
+.shop .item .image {
+	border-radius: 10px;
+	overflow: hidden;
+}
+
+.shop .item .price {
+	padding: 5px 2px 0;
+	background: transparent;
+	color: var(--text);
+	font-family: var(--ui-font);
+	font-weight: 700;
+	text-shadow: 0 1px 2px rgba(0, 0, 0, .4);
+}
+
+#shop_div ul li.coins-balance {
+	padding: 4px 12px;
+	margin-top: 4px;
+	border-radius: 999px;
+	background: rgba(0, 0, 0, .28);
+	font-family: var(--ui-font);
+}
+
+.shop .buyItem:hover {
+	border: 1px solid #ffe066;
+	box-shadow: 0 0 0 3px rgba(255, 224, 102, .25), 0 8px 18px rgba(0, 0, 0, .25);
+}
+
+#shop button.buybutton,
+#shop div.buybutton,
+#shop div.owned {
+	border: 0;
+	border-radius: 999px;
+	background: var(--accent);
+	font-family: var(--ui-font);
+}
+
+#shop div.buybutton:hover,
+#shop button.buybutton:hover {
+	background: #5ff08f;
+	color: #0f3d1f;
+}
+
+#shop_div div.content-items-pages {
+	position: absolute;
+	left: 20px;
+	bottom: 12px;
+	top: auto;
+	height: auto;
+	margin: 0;
+	width: auto;
+	font-size: 13px;
+	color: var(--muted);
+}
+
+#shop_div .buy-all-row {
+	font-family: var(--ui-font);
+	font-weight: 700;
+}
+
+#shop_div .buy-all-button {
+	border: 0;
+	border-radius: 999px;
+	padding: 6px 14px;
+	background: linear-gradient(180deg, #ffd04f 0%, #f0a400 100%);
+	color: #4a3000;
+	font-family: var(--ui-font);
+	font-weight: 800;
+}
+
+div.content-items-pages,
+div.content-items-pages-bppage,
+.bp-stats,
+#shop div.nopurchases {
+	font-family: var(--ui-font);
+}
+
+/* ---- phones ------------------------------------------------------------------------ */
+@media (max-width: 700px) {
+	#startMenu {
+		top: 10px;
+		max-width: none;
+		left: 12px;
+		right: 12px;
+	}
+
+	#mopeMenu {
+		max-width: none;
+		padding: 14px;
+	}
+
+	#startButton,
+	#shopbutton {
+		height: 52px;
+	}
+}

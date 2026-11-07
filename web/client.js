@@ -3086,8 +3086,8 @@ function wardrobeDrawPicker(alpha) {
     var size = Math.min(110 * interfS, canvasW / 7), gap = 1.15 * size, perRow = Math.min(6, list.length);
     var rows = Math.ceil(list.length / perRow);
     ctx.save();
-    ctx.globalAlpha = 0.6 * alpha;
-    ctx.fillStyle = 'black';
+    ctx.globalAlpha = 0.62 * alpha;
+    ctx.fillStyle = '#04120a';
     ctx.fillRect(0, 0, canvasW, canvasH);
     ctx.globalAlpha = alpha;
     var top = canvasH / 2 - rows * gap / 2 + gap / 2;
@@ -3103,10 +3103,10 @@ function wardrobeDrawPicker(alpha) {
     ctx.fillStyle = 'white';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.font = 0x19 * interfS + 'px Arial';
+    ctx.font = '700 ' + 0x18 * interfS + 'px ' + UI_FONT;
     0x2 != _0x14fca5 && (ctx.shadowOffsetX = 0x1, ctx.shadowOffsetY = 0x1, ctx.shadowColor = 'black');
     ctx.fillText('Pick a skin' + (wardrobePicker.title ? ' for ' + wardrobePicker.title : '') + ':', canvasW / 2, top - gap / 2 - 25 * pixelRat);
-    ctx.font = 0x10 * interfS + 'px Arial';
+    ctx.font = '600 ' + 0xf * interfS + 'px ' + UI_FONT;
     ctx.fillText('Click outside or press Esc to go back. Equip skins in the shop\'s Wardrobe.', canvasW / 2, top + (rows - 0.5) * gap + 25 * pixelRat);
     ctx.restore();
 }
@@ -4861,6 +4861,19 @@ function _0x120450(_0x3e61fc, _0x4bc55e) {
 }
 window.CachedText = _0x120450;
 
+// Path of a rectangle with rounded corners, for the menu cards.
+function uiRoundRect(x, y, w, h, r) {
+    ctx.beginPath();
+    if (ctx.roundRect) { ctx.roundRect(x, y, w, h, r); return; }
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+}
+var UI_FONT = 'system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif';
+
 function aniChoiceButton(_0x509c4c, _0xaaa697, _0x1e79a7, _0x95b420, aniTT, biomeNum, species, subSpecies, premiumSkinType) {
     this.x = _0x509c4c;
     this.y = _0xaaa697;
@@ -4935,8 +4948,31 @@ function aniChoiceButton(_0x509c4c, _0xaaa697, _0x1e79a7, _0x95b420, aniTT, biom
             case 0x4:
                 ctx.fillStyle = '#9F8641';
         }
-        ctx.fillRect(0 - this.w / 0x2, 0 - this.h / 0x2, this.w, this.h);
-        this.isHighLighted && (ctx.strokeStyle = 'white', ctx.fillStyle = 'white', ctx.globalAlpha = 0.2 * _0x21ad18, ctx.fillRect(0 - this.w / 0x2, 0 - this.h / 0x2, this.w, this.h), ctx.globalAlpha = 1, ctx.strokeRect(0 - this.w / 0x2, 0 - this.h / 0x2, this.w, this.h), ctx.globalAlpha = 0.2 * _0x21ad18);
+        // a rounded card in the biome colour, with a soft edge; hovering adds a white ring
+        var cardR = Math.min(16, 0.14 * this.w);
+        uiRoundRect(-this.w / 0x2, -this.h / 0x2, this.w, this.h, cardR);
+        var biomeFill = ctx.fillStyle;
+        ctx.save();
+        ctx.globalAlpha = 0.45 * _0x21ad18;
+        ctx.fillStyle = '#06200f';
+        0x2 != _0x14fca5 && (ctx.shadowColor = 'rgba(0,0,0,0.35)', ctx.shadowBlur = 10, ctx.shadowOffsetY = 3);
+        ctx.fill();
+        ctx.restore();
+        ctx.fillStyle = biomeFill;
+        ctx.globalAlpha = 0.5 * _0x21ad18;
+        ctx.fill();
+        ctx.globalAlpha = 0.22 * _0x21ad18;
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = 'white';
+        ctx.stroke();
+        if (this.isHighLighted) {
+            ctx.globalAlpha = 0.16 * _0x21ad18;
+            ctx.fillStyle = 'white';
+            ctx.fill();
+            ctx.globalAlpha = _0x21ad18;
+            ctx.lineWidth = 3;
+            ctx.stroke();
+        }
         ctx.globalAlpha = _0x21ad18;
         _0x21ad18 = 0.225 * this.w;
         this.drawnAniObj.nRad = this.drawnAniObj.rad = _0x21ad18;
@@ -7300,8 +7336,8 @@ function _0x30b270() {
         0 != _0x4aa6df && 0x8 > _0x4aa6df && (_0x4c6604 = 0.7 + 0.3 * Math.sin(0x2 * Math.PI / 1.2 * (_0x1534e0 / 0x3e8)));
         ctx.save();
         ctx.globalAlpha = _0x3bc188 * _0x4c6604;
-        ctx.fillStyle = 0 != _0x4aa6df && 0x8 > _0x4aa6df ? 'red' : 'white';
-        ctx.font = 0x19 * interfS + 'px Arial';
+        ctx.fillStyle = 0 != _0x4aa6df && 0x8 > _0x4aa6df ? '#ff6b6b' : 'white';
+        ctx.font = '700 ' + 0x18 * interfS + 'px ' + UI_FONT;
         ctx.lineWidth = 0x1;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -7323,7 +7359,8 @@ function _0x30b270() {
             lowest = Math.max(lowest, _0x2a3b6d[i].y + _0x2a3b6d[i].h / 2);
         }
         if (anyMore && !wardrobePicker) {
-            ctx.font = 0x10 * interfS + 'px Arial';
+            ctx.font = '600 ' + 0xf * interfS + 'px ' + UI_FONT;
+            ctx.globalAlpha *= 0.85;
             ctx.fillText('Right-click or hold a choice to see all your skins for it', canvasW / 0x2, lowest + 22 * pixelRat);
         }
         ctx.restore();
