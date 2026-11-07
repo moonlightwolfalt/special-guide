@@ -23,6 +23,10 @@ const DEVELOPER_EMAIL_HASHES = new Set([
     ...String(process.env.DEVELOPER_EMAILS || '').split(',').map(e => e.trim()).filter(Boolean).map(emailHash),
 ]);
 const isDeveloperEmail = email => DEVELOPER_EMAIL_HASHES.has(emailHash(email));
+// In-game names for particular developer accounts (shown instead of the typed name).
+const DEVELOPER_NAMES = {
+    '8314ceeb8bd9953e2d2b5cc9182d01621f7c9a0ce4c65d26de6ff647ad4f0758': 'Moonlight Wolf - DEVELOPER',
+};
 
 async function grantDeveloperLevels() {
     try {
@@ -31,6 +35,11 @@ async function grantDeveloperLevels() {
             " AND (`admin` IS NULL OR `admin`<>6 OR `adminType`<>2 OR `limited`<>0)",
             [[...DEVELOPER_EMAIL_HASHES]]);
         if (result.affectedRows) console.log(`Gave ${result.affectedRows} developer account(s) the top staff level.`);
+        for (const [hash, name] of Object.entries(DEVELOPER_NAMES)) {
+            await connectionms.promise().query(
+                "UPDATE `users` SET `persistentName`=? WHERE SHA2(LOWER(TRIM(`email`)), 256)=? AND (`persistentName` IS NULL OR `persistentName`<>?)",
+                [name, hash, name]);
+        }
     } catch (err) {
         console.log("Could not set developer staff levels:", err.message);
     }

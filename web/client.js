@@ -381,6 +381,42 @@ var a_mouse = 1,
     a_whiteGiraffe = 111,
     a_poop = 112;
 
+// Outer space, along the right edge of the map (server: Objects/Biome/Space.java).
+var o_biome_space = 160;
+var spacePattern = null;
+
+// A 512x512 starfield tile, made once and repeated across the space biome.
+function getSpacePattern(c) {
+    if (spacePattern) return spacePattern;
+    var tile = document.createElement('canvas');
+    tile.width = tile.height = 512;
+    var g = tile.getContext('2d'), seed = 20240707;
+    var rnd = function () { seed = seed * 16807 % 2147483647; return seed / 2147483647; };
+    g.fillStyle = '#0a0c22';
+    g.fillRect(0, 0, 512, 512);
+    // faint nebula clouds
+    var clouds = [['rgba(120,70,200,0.20)', 120, 140, 170], ['rgba(40,110,210,0.16)', 380, 330, 190], ['rgba(200,60,140,0.10)', 300, 90, 120]];
+    clouds.forEach(function (n) {
+        var grad = g.createRadialGradient(n[1], n[2], 0, n[1], n[2], n[3]);
+        grad.addColorStop(0, n[0]);
+        grad.addColorStop(1, 'rgba(0,0,0,0)');
+        g.fillStyle = grad;
+        g.fillRect(0, 0, 512, 512);
+    });
+    var colors = ['#ffffff', '#ffffff', '#cfe0ff', '#fff2c8', '#ffd1e8'];
+    for (var i = 0; i < 230; i++) {
+        var x = rnd() * 512, y = rnd() * 512, r = 0.4 + rnd() * rnd() * 2.2;
+        g.globalAlpha = 0.45 + rnd() * 0.55;
+        g.fillStyle = colors[Math.floor(rnd() * colors.length)];
+        g.beginPath();
+        g.arc(x, y, r, 0, 2 * Math.PI);
+        g.fill();
+    }
+    g.globalAlpha = 1;
+    spacePattern = c.createPattern(tile, 'repeat');
+    return spacePattern;
+}
+
 var o_biome_land = 1,
     o_player = 2,
     o_hill = 3,
@@ -4925,24 +4961,31 @@ function generateMinimap(msg) {
     desertH = msg.readUInt16();
     landW = msg.readUInt16();
     landH = msg.readUInt16();
+    // The arctic spans the classic map; anything wider is outer space on the right.
+    var classicW = arcticW > 0 && arcticW < gameW ? arcticW : gameW;
+    if (classicW < gameW) {
+        _0x325e3a.fillStyle = '#1b1747';
+        _0x325e3a.globalAlpha = 0.75;
+        _0x325e3a.fillRect(classicW * (minimapW / gameW), 0, (gameW - classicW) * (minimapW / gameW), minimapH);
+    }
     for (var _0x23281c = 0; 0x2 > _0x23281c; _0x23281c++) {
         _0x325e3a.fillStyle = _0x2f824d;
         _0x325e3a.globalAlpha = 0.5;
         var _0x50516f = minimapW / gameW;
-        0 == _0x23281c ? _0x325e3a.fillRect(0 * _0x50516f, arcticH * _0x50516f, oceanWid * _0x50516f, oceanH * _0x50516f) : _0x325e3a.fillRect((gameW - oceanWid) * _0x50516f, arcticH * _0x50516f, oceanWid * _0x50516f, oceanH * _0x50516f);
+        0 == _0x23281c ? _0x325e3a.fillRect(0 * _0x50516f, arcticH * _0x50516f, oceanWid * _0x50516f, oceanH * _0x50516f) : _0x325e3a.fillRect((classicW - oceanWid) * _0x50516f, arcticH * _0x50516f, oceanWid * _0x50516f, oceanH * _0x50516f);
     }
     _0x325e3a.fillStyle = 'white';
     _0x325e3a.globalAlpha = 0.5;
     _0x50516f = minimapW / gameW;
-    _0x325e3a.fillRect((gameW / 0x2 - arcticW / 0x2) * _0x50516f, 0 * _0x50516f, arcticW * _0x50516f, arcticH * _0x50516f);
+    _0x325e3a.fillRect((classicW / 0x2 - arcticW / 0x2) * _0x50516f, 0 * _0x50516f, arcticW * _0x50516f, arcticH * _0x50516f);
     _0x325e3a.fillStyle = '#c8b745';
     _0x325e3a.globalAlpha = 0.5;
     _0x50516f = minimapW / gameW;
-    _0x325e3a.fillRect((gameW / 0x2 - desertW / 0x2) * _0x50516f, (gameH - desertH) * _0x50516f, desertW * _0x50516f, desertH * _0x50516f);
+    _0x325e3a.fillRect((classicW / 0x2 - desertW / 0x2) * _0x50516f, (gameH - desertH) * _0x50516f, desertW * _0x50516f, desertH * _0x50516f);
     _0x325e3a.fillStyle = '#26A73A';
     _0x325e3a.globalAlpha = 0.5;
     _0x50516f = minimapW / gameW;
-    _0x325e3a.fillRect((gameW / 0x2 - landW / 0x2) * _0x50516f, arcticH * _0x50516f, landW * _0x50516f, landH * _0x50516f);
+    _0x325e3a.fillRect((classicW / 0x2 - landW / 0x2) * _0x50516f, arcticH * _0x50516f, landW * _0x50516f, landH * _0x50516f);
     _0x50516f = msg.readUInt16();
     _0x325e3a.fillStyle = _0x2f824d;
     _0x325e3a.globalAlpha = 0.5;
@@ -7204,6 +7247,16 @@ GameObj.prototype.customDraw = function (_0x519d3f) {
             ctx.fill();
             if (_0x350a05 = _0x2f22f9('img/riverCurrent' + this.riverSpecT + '.png'))
                 for (_0x519d3f = -this.rectW / 0x2, i = 0; 0x28 > i; i++) _0x2d663d = 0x64 / 0x78 * this.riverFlowSpeedX * 0x3e8, _0x2d663d = (_0x1534e0 - this.spawnTime) % _0x2d663d / _0x2d663d, ctx.drawImage(_0x350a05, _0x519d3f + 0x64 * _0x2d663d, -this.rectH / 0x2, 0x64, this.rectH), _0x519d3f += 0x64;
+            break;
+        case o_biome_space:
+            ctx.fillStyle = getSpacePattern(ctx);
+            ctx.fillRect(-this.rectW / 0x2, -this.rectH / 0x2, this.rectW, this.rectH);
+            // soft glow where space meets the ocean
+            var spaceEdge = ctx.createLinearGradient(-this.rectW / 0x2, 0, -this.rectW / 0x2 + 140, 0);
+            spaceEdge.addColorStop(0, 'rgba(70,120,255,0.45)');
+            spaceEdge.addColorStop(1, 'rgba(70,120,255,0)');
+            ctx.fillStyle = spaceEdge;
+            ctx.fillRect(-this.rectW / 0x2, -this.rectH / 0x2, 140, this.rectH);
             break;
         case o_biome_land:
             ctx.fillStyle = _0x557a1b;

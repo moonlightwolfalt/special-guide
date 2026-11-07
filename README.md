@@ -199,8 +199,12 @@ It writes the textures to `shop-skin-assets/` in the site's own folder layout, p
 
 The menu's update panel lists the repository's commits, grouped by date and linked to GitHub, above the older hand-written notes. `server.js` serves them at `/changelog.json`. They come from `git log` when the folder has its `.git` history. In Docker images, which leave `.git` out, they come from GitHub's API for `CHANGELOG_REPO`, cached for 10 minutes (`CHANGELOG_CACHE_MINUTES`). That works without a key while the repository is public.
 
+## Outer space
+
+The map is 11,000 × 7,500: the classic 8,500-wide map, plus a 2,500-wide strip of outer space along its right edge, past the right ocean. The client draws space as a starfield, and the minimap shows it as a dark strip on the right. For gameplay, space counts as land. Set `spaceWidth` in `backup_server/server/config.txt` to change its width (0 removes it). Developers can jump there with the chat command `goto:space`.
+
 ## Turning speed
 
-Animals turn on the game server, at most a set number of degrees per tick (`calculateAngle` in `Animal.java`). The client then eases its drawn angle toward the server's the same way v1.mope.io does: 10% of the gap per 1/120 s, at any frame rate.
+Animals turn on the game server, at most a set number of degrees per tick (`calculateAngle` in `Animal.java`). `turnSpeedPerTier` in `backup_server/server/config.txt` sets the limit for tiers 1 to 17, as degrees per tick (the server runs 20 ticks a second). The defaults are what the old formula gave, which is close to instant: 1,190° per tick for a mouse, down to 28° for tier 17. The client then eases its drawn angle toward the server's the same way v1.mope.io does: 10% of the gap per 1/120 s, at any frame rate.
 
 To match v1's server turning speed, measure it with `tools/measure-v1-turn-speed.js`. The steps are at the top of that file: paste it into the browser console on v1.mope.io, play, and it prints how many degrees per update the server turns each animal.

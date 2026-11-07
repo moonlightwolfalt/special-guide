@@ -2790,6 +2790,13 @@ public class GameClient {
                         this.player.setY(this.getRoom().forest.getY());
 
                         break;
+                    case "space":
+                    case "s":
+                        if (this.getRoom().space == null)
+                            return false;
+                        this.player.setX(this.getRoom().space.getX());
+                        this.player.setY(this.getRoom().space.getY());
+                        break;
                     case "a":
                     case "arc":
                     case "arctic": // 4041 936

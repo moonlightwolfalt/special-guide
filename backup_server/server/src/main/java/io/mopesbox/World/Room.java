@@ -131,6 +131,7 @@ public class Room extends Thread {
     public Ocean oleft;
     public Ocean oright;
     public Desert desert;
+    public Space space;
     public Arctic arctic;
     public VolcanoBiome volcanoBiome;
     public VolcanoBiome volcanoBiome2;
@@ -418,7 +419,7 @@ public class Room extends Thread {
 
             this.land = new Land(this.getID(), 4250, 3750, Constants.LANDW, Constants.LANDH, this);
             this.addObj(land);
-            this.volcanoBiome = new VolcanoBiome(this.getID(), Constants.WIDTH / 2, Constants.HEIGHT / 2, 420, this,
+            this.volcanoBiome = new VolcanoBiome(this.getID(), Constants.CLASSICWIDTH / 2, Constants.HEIGHT / 2, 420, this,
                     land.getId());
             this.oright = new Ocean(this.getID(), 7725, 3750, Constants.OCEANW, Constants.OCEANH, this);
             this.arctic = new Arctic(this.getID(), 4250, 675, Constants.ARCTICW, Constants.ARCTICH, this);
@@ -510,7 +511,7 @@ public class Room extends Thread {
                 for (var y = 1; y < Yam; y++) {
                     if (x == Xam && y == 1) {
                         var OBEW = new Extraocean(this.getID(), 0, 0, (int) (Math.floor(OceanBallSize * 0.6)), 0, this);
-                        OBEW.setX(Constants.WIDTH - (Constants.OCEANW + OceanBallSizeW * 0.55));
+                        OBEW.setX(Constants.CLASSICWIDTH - (Constants.OCEANW + OceanBallSizeW * 0.55));
                         OBEW.setY(Constants.OCEANH + OceanBallSizeH * 0.75);
                         this.addObj(OBEW);
                         continue;
@@ -519,7 +520,7 @@ public class Room extends Thread {
                     if (x != 4 && y != 1)
                         continue;
                     var OBEW = new Extraocean(this.getID(), 0, 0, (int) (Math.floor(OceanBallSize * 0.9)), 0, this);
-                    OBEW.setX(Constants.WIDTH - (OceanBallSizeW * (x)) + OceanBallSizeW * (y <= 1 ? 0.3 : 0.9));
+                    OBEW.setX(Constants.CLASSICWIDTH - (OceanBallSizeW * (x)) + OceanBallSizeW * (y <= 1 ? 0.3 : 0.9));
                     OBEW.setY(Constants.ARCTICH
                             + (OceanBallSizeH * (y) - (y > 1 ? OceanBallSizeH * 0.3 : -OceanBallSizeH * 0.1)));
                     this.addObj(OBEW);
@@ -540,21 +541,28 @@ public class Room extends Thread {
             desert.spawnFlytraps(15);
             desert.spawnOasis(3);
 
+            // outer space along the right edge of the map
+            if (Constants.SPACEW > 0) {
+                this.space = new Space(this.getID(), Constants.CLASSICWIDTH + Constants.SPACEW / 2.0, Constants.HEIGHT / 2.0,
+                        Constants.SPACEW, Constants.HEIGHT, this);
+                this.addObj(space);
+            }
+
             // desert beach left
             this.addObj(new Rectangle(this.getID(), 850, 6205, 1700, 150, ObjectTypes.Beach.getType()));
             // desert beach right
             this.addObj(new Rectangle(this.getID(), 7650, 6205, 1700, 150, ObjectTypes.Beach.getType()));
         }else if(Constants.MAP == 1 ){
-            this.land = new Land(this.getID(), 6350, 2000, Constants.WIDTH/2, Constants.HEIGHT/2, this);
+            this.land = new Land(this.getID(), 6350, 2000, Constants.CLASSICWIDTH/2, Constants.HEIGHT/2, this);
             this.addObj(land);
-            this.volcanoBiome = new VolcanoBiome(this.getID(), Constants.WIDTH / 2, Constants.HEIGHT / 2, 420, this,
+            this.volcanoBiome = new VolcanoBiome(this.getID(), Constants.CLASSICWIDTH / 2, Constants.HEIGHT / 2, 420, this,
                     land.getId());
             this.volcanoBiome2 = new VolcanoBiome(this.getID(), 2125, 1881, 420, this, land.getId());
             this.volcanoBiome3 = new VolcanoBiome(this.getID(), 2125, 5650, 420, this, land.getId());
-            this.oright = new Ocean(this.getID(), 2125, 5650, Constants.WIDTH/2, Constants.HEIGHT/2, this);
-            this.oleft = new Ocean(this.getID(), 2125, 5650, Constants.WIDTH/2, Constants.HEIGHT/2, this);
+            this.oright = new Ocean(this.getID(), 2125, 5650, Constants.CLASSICWIDTH/2, Constants.HEIGHT/2, this);
+            this.oleft = new Ocean(this.getID(), 2125, 5650, Constants.CLASSICWIDTH/2, Constants.HEIGHT/2, this);
 
-            this.arctic = new Arctic(this.getID(), 2125, 1875, Constants.WIDTH/2, Constants.HEIGHT/2, this);
+            this.arctic = new Arctic(this.getID(), 2125, 1875, Constants.CLASSICWIDTH/2, Constants.HEIGHT/2, this);
             // this.arctic.spawnVolcano();
 
             this.addObj(volcanoBiome);
@@ -610,7 +618,7 @@ public class Room extends Thread {
         
 
             // desert
-            this.desert = new Desert(this.getID(), 6375, 5650, Constants.WIDTH/2, Constants.HEIGHT/2, this);
+            this.desert = new Desert(this.getID(), 6375, 5650, Constants.CLASSICWIDTH/2, Constants.HEIGHT/2, this);
             this.addObj(desert);
             desert.spawnHills(40);
             desert.spawnHoles(10);
