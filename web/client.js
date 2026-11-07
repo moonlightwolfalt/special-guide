@@ -504,6 +504,338 @@ var o_biome_land = 1,
     o_meteor = 154;
 
 var isCoinsShowing = true;
+// Imported shop skins, keyed by "<animal type>_<skin number>". Every entry
+// names the skin in game. Entries with a sprite are animals whose drawing code
+// ignores the skin number: their image path is swapped for the skin's own.
+var EXTRA_SKINS = {
+    "68_200": {
+        "name": "Astral Phoenix"
+    },
+    "68_201": {
+        "name": "Bonfire Phoenix"
+    },
+    "14_9": {
+        "name": "Modern Dragon"
+    },
+    "14_22": {
+        "name": "Boss Dragon"
+    },
+    "14_202": {
+        "name": "Ghoul Dragon"
+    },
+    "14_224": {
+        "name": "Astral Dragon"
+    },
+    "21_200": {
+        "name": "Leather Back Turtle",
+        "base": "ocean/turtle/turtle",
+        "sprite": "ocean/turtle/200/turtle",
+        "variants": [
+            "",
+            "1",
+            "2"
+        ]
+    },
+    "50_200": {
+        "name": "Celestial Cobra"
+    },
+    "34_200": {
+        "name": "Brazen Bull",
+        "base": "arctic/muskox/muskox",
+        "sprite": "arctic/muskox/200/muskox",
+        "variants": [
+            "",
+            "2"
+        ]
+    },
+    "70_200": {
+        "name": "Luckycharm Monster"
+    },
+    "75_200": {
+        "name": "Ice Toucan"
+    },
+    "8_200": {
+        "name": "Clowoud Lion"
+    },
+    "8_201": {
+        "name": "Sunset Clowoud Lion"
+    },
+    "8_202": {
+        "name": "Storm Clowoud Lion"
+    },
+    "53_200": {
+        "name": "Kaiju Rex"
+    },
+    "89_200": {
+        "name": "WarT. Hog"
+    },
+    "83_200": {
+        "name": "Velvet Chipmunk",
+        "base": "desert/chipmunk/chipmunk",
+        "sprite": "desert/chipmunk/200/chipmunk",
+        "variants": [
+            "",
+            "1"
+        ]
+    },
+    "68_202": {
+        "name": "Aqua Phoenix"
+    },
+    "68_203": {
+        "name": "Ice Phoenix"
+    },
+    "68_204": {
+        "name": "Ash Phoenix"
+    },
+    "68_205": {
+        "name": "Red Giant Phoenix"
+    },
+    "68_4": {
+        "name": "Copper Phoenix"
+    },
+    "14_200": {
+        "name": "Goofy Dragon"
+    },
+    "14_201": {
+        "name": "Desert Dragon"
+    },
+    "14_203": {
+        "name": "Forge Dragon"
+    },
+    "14_204": {
+        "name": "Mythical Serpent"
+    },
+    "14_205": {
+        "name": "Firey Dragon"
+    },
+    "47_200": {
+        "name": "Techno Sabertooth"
+    },
+    "41_200": {
+        "name": "Ice Fox",
+        "base": "arctic/arcticfox",
+        "sprite": "arctic/arcticfox/200/arcticfox",
+        "variants": [
+            ""
+        ]
+    },
+    "14_225": {
+        "name": "Rose Dragon"
+    },
+    "14_226": {
+        "name": "Purple Haze"
+    },
+    "16_200": {
+        "name": "Clownfish",
+        "base": "trout",
+        "sprite": "ocean/trout/200/trout",
+        "variants": [
+            ""
+        ]
+    },
+    "22_200": {
+        "name": "Tully Monster",
+        "base": "seahorse",
+        "sprite": "ocean/seahorse/200/seahorse",
+        "variants": [
+            ""
+        ]
+    },
+    "29_200": {
+        "name": "Vampire Squid",
+        "base": "ocean/octopus/octopus",
+        "sprite": "ocean/octopus/200/octopus",
+        "variants": [
+            ""
+        ]
+    },
+    "18_200": {
+        "name": "Cuttle Fish",
+        "base": "ocean/squid/squid",
+        "sprite": "ocean/squid/200/squid",
+        "variants": [
+            ""
+        ]
+    },
+    "15_200": {
+        "name": "Deluxe Shrimp",
+        "base": "shrimp",
+        "sprite": "ocean/shrimp/200/shrimp",
+        "variants": [
+            ""
+        ]
+    },
+    "2_200": {
+        "name": "Monochrome Rabbit",
+        "base": "rabbit",
+        "sprite": "land/rabbit/200/rabbit",
+        "variants": [
+            ""
+        ]
+    },
+    "4_200": {
+        "name": "Thief of The Night",
+        "base": "fox",
+        "sprite": "land/fox/200/fox",
+        "variants": [
+            ""
+        ]
+    },
+    "81_200": {
+        "name": "Plague Raptor",
+        "base": "peacock/peacock",
+        "sprite": "land/peacock/200/peacock",
+        "variants": [
+            ""
+        ]
+    },
+    "93_200": {
+        "name": "Titan Bison",
+        "base": "desert/bison/bison",
+        "sprite": "desert/bison/200/bison",
+        "variants": [
+            "",
+            "1"
+        ]
+    },
+    "94_200": {
+        "name": "Dowager Varande"
+    },
+    "94_201": {
+        "name": "Emperor Varande"
+    },
+    "73_200": {
+        "name": "Ruby Devil"
+    },
+    "17_200": {
+        "name": "Metallic Crab",
+        "base": "ocean/crab/crab",
+        "sprite": "ocean/crab/200/crab",
+        "variants": [
+            "",
+            "2"
+        ]
+    },
+    "100_200": {
+        "name": "Queen Flame"
+    },
+    "50_100": {
+        "name": "Wyrmous"
+    },
+    "44_100": {
+        "name": "Equusthulhu"
+    },
+    "38_100": {
+        "name": "Frostaline"
+    },
+    "25_100": {
+        "name": "Puffermace"
+    },
+    "96_100": {
+        "name": "Carnageodactyl"
+    },
+    "53_100": {
+        "name": "Mr. Dollar"
+    },
+    "5_100": {
+        "name": "The Wendigo"
+    },
+    "82_100": {
+        "name": "Cacti Rat"
+    },
+    "13_100": {
+        "name": "Swampster"
+    },
+    "84_100": {
+        "name": "Puumpkat"
+    },
+    "88_100": {
+        "name": "The Doomedarius"
+    },
+    "1_100": {
+        "name": "Robo Mouse"
+    },
+    "11_100": {
+        "name": "Uncle Sam"
+    },
+    "6_100": {
+        "name": "Zombie Mole"
+    },
+    "85_100": {
+        "name": "Flammy Hart"
+    },
+    "91_100": {
+        "name": "Gummy Viper"
+    },
+    "28_100": {
+        "name": "Grim Reaper"
+    },
+    "9_100": {
+        "name": "Big Cookie"
+    },
+    "14_100": {
+        "name": "The Gargon"
+    },
+    "39_100": {
+        "name": "Candy Rus"
+    },
+    "8_100": {
+        "name": "The Mantilian"
+    },
+    "20_100": {
+        "name": "Phantom Ray"
+    },
+    "75_100": {
+        "name": "The Dapper"
+    },
+    "92_100": {
+        "name": "The Vulgeist"
+    },
+    "89_100": {
+        "name": "The Burlone"
+    },
+    "7_100": {
+        "name": "Unicornze",
+        "base": "land/zebra/zebra",
+        "sprite": "land/zebra/100/zebra",
+        "variants": [
+            ""
+        ]
+    },
+    "101_2": {
+        "name": "The Snowgirl",
+        "base": "arctic/snowman/snowman",
+        "sprite": "arctic/snowman/2/snowman",
+        "variants": [
+            ""
+        ]
+    },
+    "96_12": {
+        "name": "Blue Pterodactyl"
+    }
+};
+
+function addExtraSkinSupport(obj) {
+    var baseAnimalInfo = obj.animalInfo;
+    var baseGetSkinName = obj.getSkinName;
+    if (typeof baseAnimalInfo !== 'function' || typeof baseGetSkinName !== 'function') return;
+    obj.animalInfo = function () {
+        var info = baseAnimalInfo.apply(this, arguments);
+        var extra = EXTRA_SKINS[this.animalType + '_' + this.animalSpecies];
+        if (!extra || !info) return info;
+        info.aniName = extra.name;
+        if (!info.upgradeText || /null|undefined/.test(info.upgradeText)) info.upgradeText = 'UPGRADED to ' + extra.name + '!';
+        return info;
+    };
+    obj.getSkinName = function () {
+        var name = baseGetSkinName.apply(this, arguments);
+        var extra = EXTRA_SKINS[this.animalType + '_' + this.animalSpecies];
+        if (!extra || !extra.sprite || typeof name !== 'string' || name.indexOf(extra.base) !== 0) return name;
+        var suffix = name.slice(extra.base.length);
+        return extra.variants.indexOf(suffix) >= 0 ? extra.sprite + suffix : extra.sprite;
+    };
+}
+
 var GameObjType = {
     'customClassesForOType': {},
     'setClassForAnimalType': function (_0x377456, _0x177ea4) {
@@ -538,7 +870,9 @@ var GameObjType = {
         return newObj;
     },
     'createGameObjOfOType': function (_0x457691, _0x20c34c) {
-        return new (this.getClassForGameObjType(_0x457691, _0x20c34c))(_0x457691, _0x20c34c);
+        var obj = new (this.getClassForGameObjType(_0x457691, _0x20c34c))(_0x457691, _0x20c34c);
+        if (_0x457691 == o_player) addExtraSkinSupport(obj);
+        return obj;
     },
     'onClassSet': function (_0x3cd1e8) { }
 };
@@ -14524,6 +14858,153 @@ mopeShopObject.prototype.items = [];
 mopeShopObject.prototype.datatab = [];
 mopeShopObject.prototype.getAnimalInfo = function (_0x58287b) {
     switch (_0x58287b) {
+        // Shop skins imported from mope.trygames.party: [animal type, skin number, name, image]
+        case 'astralPhoenix':
+            return [68, 200, 'Astral Phoenix', 'volcano/phoenix/200/phoenix'];
+        case 'bonfire_phoenix':
+            return [68, 201, 'Bonfire Phoenix', 'volcano/phoenix/201/phoenix'];
+        case 'skin_dragon_3_3':
+            return [14, 9, 'Modern Dragon', 'land/dragon/9/dragon'];
+        case 'skin_dragon_3_9':
+            return [14, 22, 'Boss Dragon', 'land/dragon/22/dragon'];
+        case 'skin_dragon_202_0':
+            return [14, 202, 'Ghoul Dragon', 'land/dragon/202/dragon'];
+        case 'skin_dragon_224_0':
+            return [14, 224, 'Astral Dragon', 'land/dragon/224/dragon'];
+        case 'skin_leatherBackTurtle':
+            return [21, 200, 'Leather Back\nTurtle', 'ocean/turtle/200/turtle'];
+        case 'skin_celestialCobra':
+            return [50, 200, 'Celestial Cobra', 'land/cobra/200/cobra'];
+        case 'skin_brazenBull':
+            return [34, 200, 'Brazen Bull', 'arctic/muskox/200/muskox'];
+        case 'skin_luckyCharmMonster':
+            return [70, 200, 'Luckycharm Monster', 'ocean/seamonster/200/seamonster'];
+        case 'skin_iceToucan':
+            return [75, 200, 'Ice Toucan', 'toucan/200/toucan'];
+        case 'skin_clowoudLion':
+            return [8, 200, 'Clowoud Lion', 'land/lion/200/lion'];
+        case 'skin_sunsetClowoudLion':
+            return [8, 201, 'Sunset\nClowoud Lion', 'land/lion/201/lion'];
+        case 'skin_stormClowoudLion':
+            return [8, 202, 'Storm\nClowoud Lion', 'land/lion/202/lion'];
+        case 'skin_kaijuRex':
+            return [53, 200, 'Kaiju Rex', 'land/trex/200/trex'];
+        case 'skin_warTHog':
+            return [89, 200, 'WarT. Hog', 'desert/warthog/200/warthog'];
+        case 'skin_velvetChimp':
+            return [83, 200, 'Velvet\nChipmunk', 'desert/chipmunk/200/chipmunk'];
+        case 'skin_aquaPhoenix':
+            return [68, 202, 'Aqua Phoenix', 'volcano/phoenix/202/phoenix'];
+        case 'skin_icePhoenix':
+            return [68, 203, 'Ice Phoenix', 'volcano/phoenix/203/phoenix'];
+        case 'skin_ashPhoenix':
+            return [68, 204, 'Ash Phoenix', 'volcano/phoenix/204/phoenix'];
+        case 'skin_redGiantPhoenix':
+            return [68, 205, 'Red Giant\nPhoenix', 'volcano/phoenix/205/phoenix'];
+        case 'skin_copperPhoenix':
+            return [68, 4, 'Copper\nPhoenix', 'volcano/phoenix/4/phoenix'];
+        case 'skin_goofyDragon':
+            return [14, 200, 'Goofy Dragon', 'land/dragon/200/dragon'];
+        case 'skin_desertDragon':
+            return [14, 201, 'Desert Dragon', 'land/dragon/201/dragon'];
+        case 'skin_forgeDragon':
+            return [14, 203, 'Forge Dragon', 'land/dragon/203/dragon'];
+        case 'skin_mythicalSerpent':
+            return [14, 204, 'Mythical Serpent', 'land/dragon/204/dragon'];
+        case 'skin_fireyDragon':
+            return [14, 205, 'Firey Dragon', 'land/dragon/205/dragon'];
+        case 'skin_technoSaber':
+            return [47, 200, 'Techno\nSabertooth', 'arctic/sabertooth/200/sabertooth'];
+        case 'skin_iceFox':
+            return [41, 200, 'Ice Fox', 'arctic/arcticfox/200/arcticfox'];
+        case 'skin_roseDragon':
+            return [14, 225, 'Rose Dragon', 'land/dragon/225/dragon'];
+        case 'skin_purpleHaze':
+            return [14, 226, 'Purple Haze', 'land/dragon/226/dragon'];
+        case 'skin_clownfish':
+            return [16, 200, 'Clownfish', 'ocean/trout/200/trout'];
+        case 'skin_tullyMonster':
+            return [22, 200, 'Tully\nMonster', 'ocean/seahorse/200/seahorse'];
+        case 'skin_vampireSquid':
+            return [29, 200, 'Vampire\nSquid', 'ocean/octopus/200/octopus'];
+        case 'skin_cuttlefish':
+            return [18, 200, 'Cuttle Fish', 'ocean/squid/200/squid'];
+        case 'skin_deluxeShrimp':
+            return [15, 200, 'Deluxe\nShrimp', 'ocean/shrimp/200/shrimp'];
+        case 'skin_monochromeRabbit':
+            return [2, 200, 'Monochrome\nRabbit', 'land/rabbit/200/rabbit'];
+        case 'skin_nightFox':
+            return [4, 200, 'Thief of\nThe Night', 'land/fox/200/fox'];
+        case 'skin_plagueRaptor':
+            return [81, 200, 'Plague\nRaptor', 'land/peacock/200/peacock'];
+        case 'skin_titanBison':
+            return [93, 200, 'Titan Bison', 'desert/bison/200/bison'];
+        case 'skin_dowagerVarande':
+            return [94, 200, 'Dowager Varande', 'desert/komododragon/200/komodo'];
+        case 'skin_emeprorVarande':
+            return [94, 201, 'Emperor Varande', 'desert/komododragon/201/komodo'];
+        case 'skin_rubyDevil':
+            return [73, 200, 'Ruby Devil', 'land/dinomonster/200/dinomonster'];
+        case 'skin_metalicCrab':
+            return [17, 200, 'Metallic Crab', 'ocean/crab/200/crab'];
+        case 'skin_queenFlame':
+            return [100, 200, 'Queen Flame', 'volcano/kingdragon/200/kingdragon'];
+        case 'halloween_wyrmous':
+            return [50, 100, 'Wyrmous', 'land/cobra/100/cobra'];
+        case 'halloween_equusthulhu':
+            return [44, 100, 'Equusthulhu', 'land/donkey/100/donkey'];
+        case 'halloween_frostaline':
+            return [38, 100, 'Frostaline', 'arctic/snowleopard/100/snowleopard'];
+        case 'halloween_pufferMace':
+            return [25, 100, 'Puffermace', 'ocean/pufferfish/100/pufferfish.ui'];
+        case 'halloween_carnageodactyl':
+            return [96, 100, 'Carnageodactyl', 'desert/pterodactyl/100/pterodactyl_ability'];
+        case 'halloween_mrDollar':
+            return [53, 100, 'Mr. Dollar', 'land/trex/100/trex'];
+        case 'halloween_wendigoDeer':
+            return [5, 100, 'The Wendigo', 'land/deer/100/deer'];
+        case 'halloween_cactiRat':
+            return [82, 100, 'Cacti Rat', 'desert/kangaroorat/100/kangaroorat'];
+        case 'halloween_hiPower':
+            return [13, 100, 'Swampster', 'land/hippo/100/hippo'];
+        case 'halloween_puumpkat':
+            return [84, 100, 'Puumpkat', 'desert/meerkat/100/meerkat'];
+        case 'halloween_doomedarius':
+            return [88, 100, 'The Doomedarius', 'desert/camel/100/camel'];
+        case 'halloween_roboMouse':
+            return [1, 100, 'Robo Mouse', 'land/mouse/100/mouse'];
+        case 'halloween_uncleSam':
+            return [11, 100, 'Uncle Sam', 'land/croc/100/croc'];
+        case 'halloween_zombieMole':
+            return [6, 100, 'Zombie Mole', 'land/mole/100/mole'];
+        case 'halloween_flammyHart':
+            return [85, 100, 'Flammy Hart', 'desert/gazelle/100/gazelle'];
+        case 'halloween_gummyViper':
+            return [91, 100, 'Gummy Viper', 'desert/rattlesnake/100/rattlesnake'];
+        case 'halloween_grimRipper':
+            return [28, 100, 'Grim Reaper', 'land/gorilla/100/gorilla'];
+        case 'halloween_bigCookie':
+            return [9, 100, 'Big Cookie', 'land/bigcat/100/bigcat'];
+        case 'halloween_gargolgon':
+            return [14, 100, 'The Gargon', 'land/dragon/100/dragon'];
+        case 'halloween_candyRus':
+            return [39, 100, 'Candy Rus', 'arctic/walrus/100/walrus'];
+        case 'halloween_mantilian':
+            return [8, 100, 'The Mantilian', 'land/lion/100/lion'];
+        case 'halloween_phantomRay':
+            return [20, 100, 'Phantom Ray', 'ocean/stingray/100/stingray.ui'];
+        case 'halloween_suitedToucan':
+            return [75, 100, 'The Dapper', 'toucan/100/toucan'];
+        case 'halloween_vulgeist':
+            return [92, 100, 'The Vulgeist', 'desert/vulture/100/vulture'];
+        case 'halloween_burlone':
+            return [89, 100, 'The Burlone', 'desert/warthog/100/warthog'];
+        case 'halloween_unicornze':
+            return [7, 100, 'Unicornze', 'land/zebra/100/zebra'];
+        case 'skin_snowgirl':
+            return [101, 2, 'The\nSnowgirl', 'arctic/snowman/2/snowgirl'];
+        case 'skin_pterodactyl_blue':
+            return [96, 12, 'Blue\nPterodactyl', 'desert/pterodactyl/12/pterodactyl_ability'];
         case 'gold_blackDragon':
             return [_0x1da4d1, 0x1, `Golden\nBlack Dragon`, 'volcano/blackdragon/1/blackdragon'];
         case 'gold_kingDragon':

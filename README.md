@@ -107,10 +107,25 @@ Pumpkins spawn in the land biome when `pumpEnabled` is on. Each kind's spawn rat
 | Id | Kind | Rarity | Spawns every | Goal reward |
 |----|------|--------|--------------|-------------|
 | 0 | Normal | common | 30 s (up to 2) | 150 coins, 50 EXP |
-| 1 | Golden | uncommon | 100 s | 150 coins, 50 EXP |
+| 1 | Golden | common+ | 100 s | 150 coins, 50 EXP |
+| 6 | Emerald (green) | uncommon | 3 min | 200 coins, 65 EXP |
 | 2 | Sapphire (blue) | rare | 5 min | 250 coins, 80 EXP |
 | 3 | Amethyst (purple) | epic | 10 min | 400 coins, 120 EXP |
 | 4 | Amber (orange) | legendary | 20 min | 600 coins, 180 EXP |
-| 5 | Black Hole | mythic | 45 min | 1000 coins, 300 EXP |
+| 7 | Ruby (red) | mythic | 30 min | 750 coins, 220 EXP |
+| 8 | Diamond | mythic+ | 40 min | 875 coins, 260 EXP |
+| 5 | Black Hole | rarest | 60 min | 1000 coins, 300 EXP |
 
 Admins can spawn one with the `pump <id>` command.
+
+## Shop skins
+
+Each shop skin is defined in five places, which must agree:
+
+1. `AnimalSkins.java`: `<id>_skin`, the animal, tier, ability and skin number.
+2. `Account.java`: an `int <id>` field (1 = owned). `getSkins()` reads every field that matches a skin.
+3. `users_structure.sql`: a `<id>` column. On startup the account server adds a column for any shop item missing from an existing `users` table.
+4. `backup_account/accountserver/index.js`: the `shopitems` entry with price and tab (`gold`, `locked`, `halloween` or `community`).
+5. `web/client.js`: a `getAnimalInfo` case with the shop name and image, plus the images under `web/skins/`.
+
+The 73 skins imported from mope.trygames.party also have an `EXTRA_SKINS` entry in `web/client.js`. It gives each one its in-game name. For animals whose drawing code ignores the skin number (fox, rabbit, trout, crab and others), it also points the sprite at the skin's own image.

@@ -149,6 +149,81 @@ public class AnimalSkins {
     // case 'skin_kingGolder':
     //     return [_0x4e99c5, 0, `King\nGolder`, 'volcano/kingdragon/12/kingdragon'];
 
+    // Shop skins imported from mope.trygames.party (see tools/fetch-shop-skins.js).
+    public static AnimalInfo astralPhoenix_skin = new AnimalInfo(AnimalType.PHOENIX, BiomeType.VOLCANO, 15, 61, 200); // Astral Phoenix
+    public static AnimalInfo bonfire_phoenix_skin = new AnimalInfo(AnimalType.PHOENIX, BiomeType.VOLCANO, 15, 61, 201); // Bonfire Phoenix
+    public static AnimalInfo skin_dragon_3_3_skin = new AnimalInfo(AnimalType.DRAGON, BiomeType.LAND, 15, 19, 9); // Modern Dragon
+    public static AnimalInfo skin_dragon_3_9_skin = new AnimalInfo(AnimalType.DRAGON, BiomeType.LAND, 15, 19, 22); // Boss Dragon
+    public static AnimalInfo skin_dragon_202_0_skin = new AnimalInfo(AnimalType.DRAGON, BiomeType.LAND, 15, 19, 202); // Ghoul Dragon
+    public static AnimalInfo skin_dragon_224_0_skin = new AnimalInfo(AnimalType.DRAGON, BiomeType.LAND, 15, 19, 224); // Astral Dragon
+    public static AnimalInfo skin_leatherBackTurtle_skin = new AnimalInfo(AnimalType.TURTLE, BiomeType.OCEAN, 7, 2, 200); // Leather Back Turtle
+    public static AnimalInfo skin_celestialCobra_skin = new AnimalInfo(AnimalType.COBRA, BiomeType.LAND, 8, 34, 200); // Celestial Cobra
+    public static AnimalInfo skin_brazenBull_skin = new AnimalInfo(AnimalType.MUSKOX, BiomeType.ARCTIC, 7, 9, 200); // Brazen Bull
+    public static AnimalInfo skin_luckyCharmMonster_skin = new AnimalInfo(AnimalType.SEAMONSTER, BiomeType.OCEAN, 16, 63, 200); // Luckycharm Monster
+    public static AnimalInfo skin_iceToucan_skin = new AnimalInfo(AnimalType.TOUCAN, BiomeType.LAND, 9, 65, 200); // Ice Toucan
+    public static AnimalInfo skin_clowoudLion_skin = new AnimalInfo(AnimalType.LION, BiomeType.LAND, 11, 18, 200); // Clowoud Lion
+    public static AnimalInfo skin_sunsetClowoudLion_skin = new AnimalInfo(AnimalType.LION, BiomeType.LAND, 11, 18, 201); // Sunset Clowoud Lion
+    public static AnimalInfo skin_stormClowoudLion_skin = new AnimalInfo(AnimalType.LION, BiomeType.LAND, 11, 18, 202); // Storm Clowoud Lion
+    public static AnimalInfo skin_kaijuRex_skin = new AnimalInfo(AnimalType.TREX, BiomeType.LAND, 15, 37, 200); // Kaiju Rex
+    public static AnimalInfo skin_warTHog_skin = new AnimalInfo(AnimalType.WARTHOG, BiomeType.DESERT, 7, 9, 200); // WarT. Hog
+    public static AnimalInfo skin_velvetChimp_skin = new AnimalInfo(AnimalType.DESERTCHIPMUNK, BiomeType.DESERT, 2, 79, 200); // Velvet Chipmunk
+    public static AnimalInfo skin_aquaPhoenix_skin = new AnimalInfo(AnimalType.PHOENIX, BiomeType.VOLCANO, 15, 61, 202); // Aqua Phoenix
+    public static AnimalInfo skin_icePhoenix_skin = new AnimalInfo(AnimalType.PHOENIX, BiomeType.VOLCANO, 15, 61, 203); // Ice Phoenix
+    public static AnimalInfo skin_ashPhoenix_skin = new AnimalInfo(AnimalType.PHOENIX, BiomeType.VOLCANO, 15, 61, 204); // Ash Phoenix
+    public static AnimalInfo skin_redGiantPhoenix_skin = new AnimalInfo(AnimalType.PHOENIX, BiomeType.VOLCANO, 15, 61, 205); // Red Giant Phoenix
+    public static AnimalInfo skin_copperPhoenix_skin = new AnimalInfo(AnimalType.PHOENIX, BiomeType.VOLCANO, 15, 61, 4); // Copper Phoenix
+    public static AnimalInfo skin_goofyDragon_skin = new AnimalInfo(AnimalType.DRAGON, BiomeType.LAND, 15, 19, 200); // Goofy Dragon
+    public static AnimalInfo skin_desertDragon_skin = new AnimalInfo(AnimalType.DRAGON, BiomeType.LAND, 15, 19, 201); // Desert Dragon
+    public static AnimalInfo skin_forgeDragon_skin = new AnimalInfo(AnimalType.DRAGON, BiomeType.LAND, 15, 19, 203); // Forge Dragon
+    public static AnimalInfo skin_mythicalSerpent_skin = new AnimalInfo(AnimalType.DRAGON, BiomeType.LAND, 15, 19, 204); // Mythical Serpent
+    public static AnimalInfo skin_fireyDragon_skin = new AnimalInfo(AnimalType.DRAGON, BiomeType.LAND, 15, 19, 205); // Firey Dragon
+    public static AnimalInfo skin_technoSaber_skin = new AnimalInfo(AnimalType.SABERTOOTHTIGER, BiomeType.ARCTIC, 13, 33, 200); // Techno Sabertooth
+    public static AnimalInfo skin_iceFox_skin = new AnimalInfo(AnimalType.ARCTICFOX, BiomeType.ARCTIC, 6, 23, 200); // Ice Fox
+    public static AnimalInfo skin_roseDragon_skin = new AnimalInfo(AnimalType.DRAGON, BiomeType.LAND, 15, 19, 225); // Rose Dragon
+    public static AnimalInfo skin_purpleHaze_skin = new AnimalInfo(AnimalType.DRAGON, BiomeType.LAND, 15, 19, 226); // Purple Haze
+    public static AnimalInfo skin_clownfish_skin = new AnimalInfo(AnimalType.TROUT, BiomeType.OCEAN, 2, 15, 200); // Clownfish
+    public static AnimalInfo skin_tullyMonster_skin = new AnimalInfo(AnimalType.SEAHORSE, BiomeType.OCEAN, 4, 15, 200); // Tully Monster
+    public static AnimalInfo skin_vampireSquid_skin = new AnimalInfo(AnimalType.OCTOPUS, BiomeType.OCEAN, 11, 7, 200); // Vampire Squid
+    public static AnimalInfo skin_cuttlefish_skin = new AnimalInfo(AnimalType.SQUID, BiomeType.OCEAN, 5, 0, 200); // Cuttle Fish
+    public static AnimalInfo skin_deluxeShrimp_skin = new AnimalInfo(AnimalType.SHRIMP, BiomeType.OCEAN, 1, 0, 200); // Deluxe Shrimp
+    public static AnimalInfo skin_monochromeRabbit_skin = new AnimalInfo(AnimalType.RABBIT, BiomeType.LAND, 2, 0, 200); // Monochrome Rabbit
+    public static AnimalInfo skin_nightFox_skin = new AnimalInfo(AnimalType.FOX, BiomeType.LAND, 6, 23, 200); // Thief of The Night
+    public static AnimalInfo skin_plagueRaptor_skin = new AnimalInfo(AnimalType.PEACOCK, BiomeType.LAND, 6, 76, 200); // Plague Raptor
+    public static AnimalInfo skin_titanBison_skin = new AnimalInfo(AnimalType.BISON, BiomeType.DESERT, 12, 70, 200); // Titan Bison
+    public static AnimalInfo skin_dowagerVarande_skin = new AnimalInfo(AnimalType.KOMODODRAGON, BiomeType.DESERT, 13, 0, 200); // Dowager Varande
+    public static AnimalInfo skin_emeprorVarande_skin = new AnimalInfo(AnimalType.KOMODODRAGON, BiomeType.DESERT, 13, 0, 201); // Emperor Varande
+    public static AnimalInfo skin_rubyDevil_skin = new AnimalInfo(AnimalType.DINOMONSTER, BiomeType.LAND, 16, 70, 200); // Ruby Devil
+    public static AnimalInfo skin_metalicCrab_skin = new AnimalInfo(AnimalType.CRAB, BiomeType.OCEAN, 3, 2, 200); // Metallic Crab
+    public static AnimalInfo skin_queenFlame_skin = new AnimalInfo(AnimalType.KINGDRAGON, BiomeType.VOLCANO, 17, 99, 200, Rares.KingDragon.animal); // Queen Flame
+    public static AnimalInfo halloween_wyrmous_skin = new AnimalInfo(AnimalType.COBRA, BiomeType.LAND, 8, 34, 100); // Wyrmous
+    public static AnimalInfo halloween_equusthulhu_skin = new AnimalInfo(AnimalType.DONKEY, BiomeType.LAND, 7, 20, 100); // Equusthulhu
+    public static AnimalInfo halloween_frostaline_skin = new AnimalInfo(AnimalType.SNOWLEOPARD, BiomeType.ARCTIC, 9, 15, 100); // Frostaline
+    public static AnimalInfo halloween_pufferMace_skin = new AnimalInfo(AnimalType.PUFFERFISH, BiomeType.OCEAN, 9, 10, 100); // Puffermace
+    public static AnimalInfo halloween_carnageodactyl_skin = new AnimalInfo(AnimalType.PTERODACTYL, BiomeType.DESERT, 15, 93, 100); // Carnageodactyl
+    public static AnimalInfo halloween_mrDollar_skin = new AnimalInfo(AnimalType.TREX, BiomeType.LAND, 15, 37, 100); // Mr. Dollar
+    public static AnimalInfo halloween_wendigoDeer_skin = new AnimalInfo(AnimalType.DEER, BiomeType.LAND, 5, 25, 100); // The Wendigo
+    public static AnimalInfo halloween_cactiRat_skin = new AnimalInfo(AnimalType.KANGAROORAT, BiomeType.DESERT, 1, 0, 100); // Cacti Rat
+    public static AnimalInfo halloween_hiPower_skin = new AnimalInfo(AnimalType.HIPPO, BiomeType.LAND, 13, 18, 100); // Swampster
+    public static AnimalInfo halloween_puumpkat_skin = new AnimalInfo(AnimalType.MEERKAT, BiomeType.DESERT, 3, 0, 100); // Puumpkat
+    public static AnimalInfo halloween_doomedarius_skin = new AnimalInfo(AnimalType.CAMEL, BiomeType.DESERT, 8, 83, 100); // The Doomedarius
+    public static AnimalInfo halloween_roboMouse_skin = new AnimalInfo(AnimalType.MOUSE, BiomeType.LAND, 1, 0, 100); // Robo Mouse
+    public static AnimalInfo halloween_uncleSam_skin = new AnimalInfo(AnimalType.CROC, BiomeType.LAND, 11, 21, 100); // Uncle Sam
+    public static AnimalInfo halloween_zombieMole_skin = new AnimalInfo(AnimalType.MOLE, BiomeType.LAND, 3, 1, 100); // Zombie Mole
+    public static AnimalInfo halloween_flammyHart_skin = new AnimalInfo(AnimalType.GAZELLE, BiomeType.DESERT, 5, 77, 100); // Flammy Hart
+    public static AnimalInfo halloween_gummyViper_skin = new AnimalInfo(AnimalType.RATTLESNAKE, BiomeType.DESERT, 9, 0, 100); // Gummy Viper
+    public static AnimalInfo halloween_grimRipper_skin = new AnimalInfo(AnimalType.GORILLA, BiomeType.LAND, 9, 24, 100); // Grim Reaper
+    public static AnimalInfo halloween_bigCookie_skin = new AnimalInfo(AnimalType.BIGCAT, BiomeType.LAND, 9, 15, 100); // Big Cookie
+    public static AnimalInfo halloween_gargolgon_skin = new AnimalInfo(AnimalType.DRAGON, BiomeType.LAND, 15, 19, 100); // The Gargon
+    public static AnimalInfo halloween_candyRus_skin = new AnimalInfo(AnimalType.WALRUS, BiomeType.ARCTIC, 8, 0, 100); // Candy Rus
+    public static AnimalInfo halloween_mantilian_skin = new AnimalInfo(AnimalType.LION, BiomeType.LAND, 11, 18, 100); // The Mantilian
+    public static AnimalInfo halloween_phantomRay_skin = new AnimalInfo(AnimalType.STINGRAY, BiomeType.OCEAN, 8, 9, 100); // Phantom Ray
+    public static AnimalInfo halloween_suitedToucan_skin = new AnimalInfo(AnimalType.TOUCAN, BiomeType.LAND, 9, 65, 100); // The Dapper
+    public static AnimalInfo halloween_vulgeist_skin = new AnimalInfo(AnimalType.VULTURE, BiomeType.DESERT, 11, 47, 100); // The Vulgeist
+    public static AnimalInfo halloween_burlone_skin = new AnimalInfo(AnimalType.WARTHOG, BiomeType.DESERT, 7, 9, 100); // The Burlone
+    public static AnimalInfo halloween_unicornze_skin = new AnimalInfo(AnimalType.ZEBRA, BiomeType.LAND, 7, 43, 100); // Unicornze
+    public static AnimalInfo skin_snowgirl_skin = new AnimalInfo(AnimalType.SNOWMAN, BiomeType.ARCTIC, 15, 11, 2, true); // The Snowgirl
+    public static AnimalInfo skin_pterodactyl_blue_skin = new AnimalInfo(AnimalType.PTERODACTYL, BiomeType.DESERT, 15, 93, 12); // Blue Pterodactyl
+
     // very dangerous shenanigans
     public static AnimalInfo byName(String name) {
         try {
