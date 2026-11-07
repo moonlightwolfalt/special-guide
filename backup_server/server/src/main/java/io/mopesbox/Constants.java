@@ -61,6 +61,9 @@ public class Constants {
         // Site hostname reCAPTCHA must report; empty accepts any hostname.
         public static final String CAPTCHA_HOSTNAME = System.getenv("CAPTCHA_HOSTNAME") != null
                 ? System.getenv("CAPTCHA_HOSTNAME") : conf.GetProp("captchaHostname", "");
+        // reCAPTCHA v3 score (0.0 bot to 1.0 human) below which a player is kicked.
+        public static final double CAPTCHA_MIN_SCORE = Utils.toDouble(System.getenv("CAPTCHA_MIN_SCORE") != null
+                ? System.getenv("CAPTCHA_MIN_SCORE") : conf.GetProp("captchaMinScore", "0.5"));
         public static final boolean ENABLEPACKETLOGGING = Utils.toBool(conf.GetProp("enabledPacketLogging", "false"));
         // 0 - FFA
         // 3 - Team

@@ -59,6 +59,9 @@ Run only one instance of the app, because all players share the one game server 
 | `ENABLE_CAPTCHA` | game server: kick players who don't pass reCAPTCHA v3 within 60 s | off |
 | `RECAPTCHA_SITE_KEY`, `RECAPTCHA_SECRET` | web client and account server: your reCAPTCHA v3 keys (needed when `ENABLE_CAPTCHA` is on) | empty |
 | `CAPTCHA_HOSTNAME` | game server: the site hostname reCAPTCHA must report | any |
+| `CAPTCHA_MIN_SCORE` | game server: reCAPTCHA v3 score (0.0 bot to 1.0 human) below which players are kicked | `0.5` |
+| `ADSENSE_CLIENT` | web client: your Google AdSense publisher ID (`ca-pub-…`); turns on ads and `/ads.txt` | off |
+| `ADSENSE_SLOT_RECT`, `ADSENSE_SLOT_BANNER` | web client: AdSense ad unit IDs for the 300×250 menu rectangle and the 728×90 bottom banner | empty |
 | `JAVA_OPTS` | game server JVM flags | `-XX:MaxRAMPercentage=50` |
 | `FORCE_HTTPS` | set to `0` to stop redirecting `http://` visits (seen via `X-Forwarded-Proto`) to `https://` | on |
 | `MASTER_KEY`, `GAME_SERVER_NAME`, `GAME_SERVER_KEY` | master server (`GAME_SERVER_NAME` must match the game server's host) | placeholders, `localhost` |
@@ -77,6 +80,39 @@ Run only one instance of the app, because all players share the one game server 
 Without `GOOGLE_CLIENT_ID` the login button is hidden and the account server refuses Google logins.
 
 The client uses Google Identity Services. The account server checks each Google ID token with Google, accepts it only if it was issued for `GOOGLE_CLIENT_ID` to a verified email, and then gives the player a random session token. If you host `web/` with a different web server, put the client ID in `web/config.js`.
+
+Google login needs the database (`DB_URL` or the `DB_*` settings): that's where accounts, coins and skins are kept. On the Google Cloud **OAuth consent screen**, set the app name, support email and your site's domain, then **publish** the app. While it's in testing, only the test users you list can sign in.
+
+## reCAPTCHA (anti-bot check)
+
+With it on, the game server asks each player's browser for a reCAPTCHA v3 token and kicks players who don't pass within 60 seconds, or whose score is below `CAPTCHA_MIN_SCORE`.
+
+1. At [Google reCAPTCHA admin](https://www.google.com/recaptcha/admin/create), create a site with type **Score based (v3)**. Add your domain, for example `your-domain.com`, plus `localhost` for testing.
+2. Set the two keys and switch the check on:
+
+   ```
+   RECAPTCHA_SITE_KEY=6Lc...site RECAPTCHA_SECRET=6Lc...secret ENABLE_CAPTCHA=true node server.js
+   ```
+
+3. Optional: set `CAPTCHA_HOSTNAME=your-domain.com` so tokens made on other sites are refused.
+
+Only turn on `ENABLE_CAPTCHA` once both keys are set. Without them every player is kicked, and `server.js` warns about this at startup.
+
+## Google AdSense
+
+Ads appear in the two ad slots on the start menu: a 300×250 rectangle and a 728×90 banner along the bottom. The banner is skipped on screens narrower than 760 px. The start menu also shows on the death screen and is hidden while playing, so ads never cover the game. Each slot is filled once per page load, because AdSense doesn't allow reloading ads.
+
+1. Sign up at [Google AdSense](https://adsense.google.com/) and add your site. AdSense must approve the site before ads show.
+2. Under **Ads → By ad unit**, create two **Display** ad units with fixed sizes, 300×250 and 728×90, and note each unit's ID (the `data-ad-slot` number).
+3. Set your publisher ID and the two unit IDs:
+
+   ```
+   ADSENSE_CLIENT=ca-pub-1234567890123456 ADSENSE_SLOT_RECT=1111111111 ADSENSE_SLOT_BANNER=2222222222 node server.js
+   ```
+
+`server.js` then also serves `/ads.txt`, which AdSense requires. If you host `web/` with a different web server, put the IDs in `web/config.js` and publish `ads.txt` yourself: `google.com, pub-1234567890123456, DIRECT, f08c47fec0942fa0`.
+
+In AdSense, turn off **Auto ads** for this site, or at least anchor and vignette ads. These float over the page and would cover the game. For visitors in the EEA, UK and Switzerland, set up a consent message under **Privacy & messaging**. Ads on `localhost` run in AdSense test mode, so local testing doesn't count as real impressions.
 
 Discord login, account linking and the Discord bot were removed.
 

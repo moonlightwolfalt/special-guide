@@ -3360,6 +3360,48 @@ var getScript = function (src, callback, onerror) {
     headElm.appendChild(script);
 };
 
+// Google AdSense (config.js: adsenseClient, adsenseSlotRect, adsenseSlotBanner).
+// The two ad slots sit in the start menu, which also shows on the death screen and
+// is hidden while playing, so ads never cover the game. AdSense does not allow
+// reloading ads, so each slot is filled once per page load.
+(function setupAdSense() {
+    var cfg = window.MOPE_CONFIG || {};
+    var client = String(cfg.adsenseClient || '');
+    if (!/^ca-pub-\d{10,20}$/.test(client)) return;
+    var units = [
+        { id: 'mope-io_300x250', slot: cfg.adsenseSlotRect, width: 300, height: 250 },
+        { id: 'mope-io_728x90', slot: cfg.adsenseSlotBanner, width: 728, height: 90, minScreen: 760 }
+    ].filter(function (u) {
+        return /^\d{1,20}$/.test(String(u.slot || '')) && document.getElementById(u.id) &&
+            !(u.minScreen && window.innerWidth < u.minScreen);
+    });
+    if (!units.length) return;
+    var script = document.createElement('script');
+    script.async = true;
+    script.crossOrigin = 'anonymous';
+    script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' + encodeURIComponent(client);
+    document.head.appendChild(script);
+    units.forEach(function (u) {
+        var box = document.getElementById(u.id);
+        box.innerHTML = '';
+        var ins = document.createElement('ins');
+        ins.className = 'adsbygoogle';
+        ins.style.display = 'inline-block';
+        ins.style.width = u.width + 'px';
+        ins.style.height = u.height + 'px';
+        ins.setAttribute('data-ad-client', client);
+        ins.setAttribute('data-ad-slot', String(u.slot));
+        // Test ads on a local copy, so development doesn't count as real impressions.
+        if (/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) ins.setAttribute('data-adtest', 'on');
+        box.appendChild(ins);
+        try {
+            (window.adsbygoogle = window.adsbygoogle || []).push({});
+        } catch (e) {
+            console.log('AdSense: could not fill ' + u.id + ': ' + e);
+        }
+    });
+})();
+
 var _0x102742 = !0;
 
 function _0x345651(_0x596e0d) { }

@@ -13,6 +13,7 @@ const googleKey = process.env.RECAPTCHA_SECRET || "";
 // OAuth client ID of the web client. Google ID tokens must be issued for it.
 const googleClientId = process.env.GOOGLE_CLIENT_ID || "";
 if (!googleClientId) console.log("GOOGLE_CLIENT_ID is not set: Google login is off.");
+if (!googleKey) console.log("RECAPTCHA_SECRET is not set: reCAPTCHA checks will fail, so leave the game server's ENABLE_CAPTCHA off.");
 var season = 0;
 
 
@@ -1862,16 +1863,25 @@ app.get('/getReward', async function(request, response) {
     response.end(JSON.stringify(resp));
 })
 
-const handleSend = (req, res) => {
-    let token = req.body.token;
-    let url = `https://www.google.com/recaptcha/api/siteverify?secret=${googleKey}&response=${token}`;
-
-    fetch(url, {
-        method: 'post'
-    })
-        .then(response => response.json())
-        .then(google_response => res.json({ google_response }))
-        .catch(error => res.json({ error }));
+// Checks a reCAPTCHA v3 token with Google for the game server. Always answers with a
+// google_response object, so the game server can read the result even when the check fails.
+const handleSend = async (req, res) => {
+    const token = req.body && typeof req.body.token === 'string' ? req.body.token : '';
+    if (!googleKey) {
+        return res.json({ google_response: { success: false, 'error-codes': ['missing-input-secret'] } });
+    }
+    try {
+        const response = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({ secret: googleKey, response: token }),
+        });
+        const google_response = await response.json();
+        res.json({ google_response });
+    } catch (err) {
+        console.log("reCAPTCHA check failed:", err.message);
+        res.json({ google_response: { success: false, 'error-codes': ['siteverify-unreachable'] } });
+    }
 };
 app.post('/verifykey', jsonParser, handleSend);
 
