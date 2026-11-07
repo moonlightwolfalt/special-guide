@@ -6139,13 +6139,49 @@ function _0x27737e(_0x3c3fef, _0x2d8cb6) {//49397
         crossDomain: true,
         'success': function (_0x5f03ed) {
             console.log('reposnse is ' + _0x5f03ed);
-            _0x5f03ed = JSON.parse(_0x5f03ed);
-            _0x5f03ed.success && onUserLoginSuccess(_0x5f03ed.login_userId, _0x5f03ed.login_passwordToken, _0x5f03ed.login_name, _0x5f03ed.login_profilePicURL, _0x2d8cb6);
+            try { _0x5f03ed = JSON.parse(_0x5f03ed); } catch (e) { _0x5f03ed = { success: false }; }
+            if (_0x5f03ed.success) onUserLoginSuccess(_0x5f03ed.login_userId, _0x5f03ed.login_passwordToken, _0x5f03ed.login_name, _0x5f03ed.login_profilePicURL, _0x2d8cb6);
+            else showLoginFailed(_0x5f03ed.reason);
         },
         'error': function (_0x1d7c91, _0xceb9aa, _0x4a86f0) {
             console.log('URL error: ' + _0x4a86f0);
+            showLoginFailed('account_server_unreachable');
         }
     });
+}
+
+// Tells the player why signing in failed, instead of silently staying logged out.
+function showLoginFailed(reason) {
+    var messages = {
+        login_off: 'Google login is turned off on this server (GOOGLE_CLIENT_ID is not set).',
+        invalid_token: 'Google sign-in was not accepted. Please try again.',
+        wrong_client_id: "Google sign-in was made for a different app: the server's GOOGLE_CLIENT_ID does not match this page's.",
+        email_not_verified: 'Your Google account email is not verified.',
+        google_unreachable: "The account server couldn't reach Google to check your sign-in. Please try again.",
+        database: "The account server couldn't save your account (database problem). Check DB_URL on the server.",
+        account_server_unreachable: "Can't connect to the account server."
+    };
+    var text = messages[reason] || 'Sign-in failed. Please try again.';
+    console.log('Login failed: ' + (reason || 'unknown') + ': ' + text);
+    // Its own box: the shared shop popup is closed by other popups' timers.
+    var old = document.getElementById('loginFailedMsg');
+    old && old.parentNode.removeChild(old);
+    var box = document.createElement('div');
+    box.id = 'loginFailedMsg';
+    box.setAttribute('role', 'alert');
+    box.style.cssText = 'position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:2147483000;' +
+        'max-width:min(480px,calc(100vw - 32px));box-sizing:border-box;padding:12px 40px 12px 16px;' +
+        'background:#c0392b;color:#fff;font:14px/1.4 sans-serif;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.35);';
+    box.textContent = text;
+    var close = document.createElement('button');
+    close.type = 'button';
+    close.textContent = '×';
+    close.setAttribute('aria-label', 'Close');
+    close.style.cssText = 'position:absolute;top:6px;right:8px;background:none;border:0;color:#fff;font-size:20px;cursor:pointer;';
+    close.onclick = function () { box.parentNode && box.parentNode.removeChild(box); };
+    box.appendChild(close);
+    document.body.appendChild(box);
+    setTimeout(function () { box.parentNode && box.parentNode.removeChild(box); }, 15000);
 }
 
 function onUserLoginSuccess(_0x5455f9, _0x38efec, _0x4f55b6, _0x224232, _0x49be4c) {

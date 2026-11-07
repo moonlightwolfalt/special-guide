@@ -53,14 +53,39 @@ function dbSettings() {
             if (url.username) settings.user = decodeURIComponent(url.username);
             if (url.password) settings.password = decodeURIComponent(url.password);
             if (url.pathname.length > 1) settings.database = decodeURIComponent(url.pathname.slice(1));
+            // Hosted MySQL usually requires TLS; providers write it in several ways.
+            const q = url.searchParams;
+            const mode = String(q.get('ssl') || q.get('ssl-mode') || q.get('sslmode') || q.get('tls') || '').toLowerCase();
+            if (mode) settings._ssl = mode;
         } catch (err) {
             console.log("DB_URL is not a valid URL:", err.message);
         }
+    }
+    // DB_SSL wins over DB_URL. true/required: encrypted, with the server's certificate checked.
+    // skip-verify: encrypted without checking (only for providers with self-signed certificates).
+    const mode = String(env.DB_SSL || settings._ssl || '').toLowerCase();
+    delete settings._ssl;
+    if (/^(1|true|on|yes|require|required|verify_ca|verify_identity|verify-ca|verify-full|preferred)$/.test(mode)) {
+        settings.ssl = { rejectUnauthorized: true, minVersion: 'TLSv1.2' };
+    } else if (/^(skip-verify|insecure|no-verify)$/.test(mode)) {
+        settings.ssl = { rejectUnauthorized: false, minVersion: 'TLSv1.2' };
+    }
+    if (settings.ssl && env.DB_SSL_CA) {
+        // the provider's CA certificate: the PEM text itself, or a path to the file
+        const ca = env.DB_SSL_CA.includes('-----BEGIN') ? env.DB_SSL_CA : (() => {
+            try { return fs.readFileSync(env.DB_SSL_CA, 'utf8'); } catch (err) {
+                console.log("DB_SSL_CA could not be read:", err.message);
+                return null;
+            }
+        })();
+        if (ca) settings.ssl.ca = ca;
     }
     return settings;
 }
 
 var dbConfig = dbSettings();
+if (!process.env.DB_URL && !process.env.DB_HOST)
+    console.log("DB_URL is not set: logins (including Google), coins and skins need a MySQL database. See the README.");
 var connectionms = mysql.createPool({
   ...dbConfig,
   multipleStatements: false
@@ -68,6 +93,26 @@ var connectionms = mysql.createPool({
 
 var encode_utf8 = function(s) {
     return unescape(encodeURIComponent(s));
+}
+
+// What to change when the database can't be reached, for the usual causes.
+function dbErrorHint(error) {
+    const code = error.code || '';
+    const msg = String(error.message || '');
+    if (code === 'ECONNREFUSED' && /^(127\.0\.0\.1|localhost)$/.test(dbConfig.host))
+        return "  No database on this machine: set DB_URL to your MySQL database, e.g. mysql://user:password@host:3306/dbname";
+    if (code === 'ENOTFOUND' || code === 'EAI_AGAIN') return "  The database host name doesn't resolve: check the host in DB_URL.";
+    if (code === 'ETIMEDOUT' || code === 'ECONNREFUSED')
+        return "  The database didn't answer: check the host and port in DB_URL, and that the database allows connections from this server.";
+    if (code === 'ER_ACCESS_DENIED_ERROR') return "  Wrong database user or password in DB_URL (special characters in the password must be URL-encoded, e.g. @ as %40)." +
+        (dbConfig.ssl ? "" : " If your provider requires TLS, also add ?ssl=true to DB_URL.");
+    if (code === 'ER_BAD_DB_ERROR') return "  That database name doesn't exist: create it, or fix the name at the end of DB_URL.";
+    if (code === 'HANDSHAKE_NO_SSL_SUPPORT') return "  This database doesn't support TLS: remove ssl from DB_URL / DB_SSL.";
+    if (/insecure transport|SSL connection is required|require_secure_transport|ER_SECURE_TRANSPORT_REQUIRED/i.test(msg + code))
+        return "  This database requires TLS: add ?ssl=true to the end of DB_URL (or set DB_SSL=true).";
+    if (/self[- ]signed|unable to verify|certificate/i.test(msg))
+        return "  The database's TLS certificate isn't trusted: set DB_SSL_CA to your provider's CA certificate.";
+    return null;
 }
 
 // Create the users table if it is missing, retrying until the database is reachable.
@@ -78,7 +123,9 @@ function ensureSchema(attempt = 1) {
         conn.end(() => {});
         if (error) {
             const wait = Math.min(30, attempt * 2);
-            console.log(`Database not ready (${error.code || error.message}) at ${dbConfig.host}:${dbConfig.port}/${dbConfig.database}; retrying in ${wait}s`);
+            console.log(`Database not ready (${error.code || error.message}) at ${dbConfig.host}:${dbConfig.port}/${dbConfig.database}${dbConfig.ssl ? ' over TLS' : ''}; retrying in ${wait}s`);
+            const hint = dbErrorHint(error);
+            if (hint && attempt <= 3) console.log(hint);
             setTimeout(() => ensureSchema(attempt + 1), wait * 1000);
         } else {
             fixSeasonDataColumn();
@@ -145,12 +192,14 @@ function parseSeasons() {
 async function registerUser(token, social, code) {
     // console.log(code)
     var out = {
-        success: false
+        success: false,
+        reason: 'database'
     };
     let email, email_ver, name, picture, given_name, family_name, locale = null;
     let query1, query1add = null;
     if(social == "google") {
-        if(!googleClientId || !token) return out;
+        if(!googleClientId) return { success: false, reason: 'login_off' };
+        if(!token) return { success: false, reason: 'invalid_token' };
         // Google checks the token's signature and expiry; we check it was issued for this game.
         let data;
         try {
@@ -158,15 +207,15 @@ async function registerUser(token, social, code) {
             data = await response.json();
         } catch (err) {
             console.log("Google token check failed:", err.message);
-            return out;
+            return { success: false, reason: 'google_unreachable' };
         }
-        if(!data || data.error_description || data.error) return out;
+        if(!data || data.error_description || data.error) return { success: false, reason: 'invalid_token' };
         if(data.aud !== googleClientId) {
             console.log("Rejected Google token issued for another app:", data.aud);
-            return out;
+            return { success: false, reason: 'wrong_client_id' };
         }
-        if(data.iss !== "accounts.google.com" && data.iss !== "https://accounts.google.com") return out;
-        if(String(data.email_verified) !== "true" || !data.email) return out;
+        if(data.iss !== "accounts.google.com" && data.iss !== "https://accounts.google.com") return { success: false, reason: 'invalid_token' };
+        if(String(data.email_verified) !== "true" || !data.email) return { success: false, reason: 'email_not_verified' };
         // The ID token only proves who the player is; the session uses its own random token.
         token = crypto.randomBytes(32).toString('hex');
 
@@ -205,7 +254,8 @@ async function registerUser(token, social, code) {
                     console.log(err);
                     console.log("errr");
                     out = {
-                        success: false
+                        success: false,
+                        reason: 'database'
                     }
                     return out;
                 });
@@ -214,7 +264,8 @@ async function registerUser(token, social, code) {
                 console.log(err);
                 console.log("errr");
                 out = {
-                    success: false
+                    success: false,
+                    reason: 'database'
                 }
                 return out;
             });
@@ -243,7 +294,8 @@ async function registerUser(token, social, code) {
                 console.log(err);
                 console.log("errr");
                 out = {
-                    success: false
+                    success: false,
+                    reason: 'database'
                 }
                 return out;
             });
@@ -253,7 +305,8 @@ async function registerUser(token, social, code) {
         console.log(err);
         console.log("errr");
         out = {
-            success: false
+            success: false,
+            reason: 'database'
         }
         return out;
     });
@@ -1816,6 +1869,7 @@ app.get('/reglog', async ({ query }, response) => {
     response.header("Access-Control-Allow-Origin", "*");
     response.header("Access-Control-Allow-Headers", "X-Requested-With");
     let resp = await registerUser(encode_utf8(query.accessToken), encode_utf8(query.socialNetwork));
+    if(!resp.success) console.log(`Google sign-in failed: ${resp.reason || 'unknown'}`);
     response.writeHead(200, {'Content-Type': 'text/html'});
     response.end(JSON.stringify(resp));
 })

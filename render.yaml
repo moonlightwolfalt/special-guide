@@ -15,8 +15,9 @@ services:
     autoDeploy: true
     envVars:
       # MySQL for logins, coins and skins (Render has no managed MySQL; use an
-      # external one), e.g. mysql://user:password@host:3306/dbname. Leave empty to
-      # run without accounts.
+      # external one), e.g. mysql://user:password@host:3306/dbname. Add ?ssl=true
+      # when the provider requires TLS (most do). Leave empty to run without
+      # accounts; Google login needs it.
       - key: DB_URL
         sync: false
       # OAuth client ID for Google login. Add https://<your-service>.onrender.com
