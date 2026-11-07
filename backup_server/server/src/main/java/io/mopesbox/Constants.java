@@ -13,11 +13,9 @@ public class Constants {
         public static final int WIDTH1 = 2125; //8500
         public static final int HEIGHT1 = 1875;
 
-        // The classic map is CLASSICWIDTH wide; outer space (SPACEW wide, "spaceWidth" in
-        // config.txt, 0 for none) is added along its right edge, past the right ocean.
-        public static final int CLASSICWIDTH = 8500;
-        public static final int SPACEW = Math.max(0, Math.min(8000, Utils.toInt(conf.GetProp("spaceWidth", "2500"))));
-        public static final int WIDTH = CLASSICWIDTH + SPACEW;
+        // Outer space surrounds the map on every side; the client draws it beyond these
+        // edges, which animals can't cross.
+        public static final int WIDTH = 8500; //8500
         public static final int HEIGHT = 7500; //7500
         public static final int LANDW = 5400;//5400
         public static final int LANDH = 4800;//4800

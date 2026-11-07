@@ -201,7 +201,16 @@ The menu's update panel lists the repository's commits, grouped by date and link
 
 ## Outer space
 
-The map is 11,000 × 7,500: the classic 8,500-wide map, plus a 2,500-wide strip of outer space along its right edge, past the right ocean. The client draws space as a starfield, and the minimap shows it as a dark strip on the right. For gameplay, space counts as land. Set `spaceWidth` in `backup_server/server/config.txt` to change its width (0 removes it). Developers can jump there with the chat command `goto:space`.
+Outer space surrounds the map on all four sides and is its edge: animals can't go past it. The client draws a starfield beyond every edge, with a soft glow along the border. Planets, stars, star systems, black holes, quasars, galaxies, galaxy clusters, superclusters, cluster filaments and the observable universe are scattered round all four sides. The bigger, more distant ones drift slowly with the camera, so they look further away. You see space whenever you're near an edge.
+
+The pictures are in `web/img/space/`, drawn in the game's flat cartoon style. To change them, edit `tools/space-art/make_space_art.py`, then rebuild them:
+
+```
+python3 tools/space-art/make_space_art.py /tmp/space-svg
+node tools/space-art/render.js /tmp/space-svg web/img/space 512
+```
+
+`SPACE_ART` in `web/client.js` sets how many of each appear, their sizes and how far out they sit.
 
 ## Turning speed
 

@@ -381,8 +381,7 @@ var a_mouse = 1,
     a_whiteGiraffe = 111,
     a_poop = 112;
 
-// Outer space, along the right edge of the map (server: Objects/Biome/Space.java).
-var o_biome_space = 160;
+// Outer space surrounds the map on every side, drawn beyond its edges (a barrier).
 var spacePattern = null;
 
 // A 512x512 starfield tile, made once and repeated across the space biome.
@@ -870,6 +869,89 @@ function addExtraSkinSupport(obj) {
         var suffix = name.slice(extra.base.length);
         return extra.variants.indexOf(suffix) >= 0 ? extra.sprite + suffix : extra.sprite;
     };
+}
+
+// --- outer space beyond the map edges ---------------------------------------------
+// Objects drawn in space, from web/img/space/ (made by tools/space-art/). depth is the
+// parallax: 0 stays put, larger values drift with the camera so they look further away.
+var SPACE_ART = [
+    { img: 'planet_rocky', count: 14, size: [130, 220], dist: [180, 650], depth: 0 },
+    { img: 'planet_ocean', count: 14, size: [150, 240], dist: [180, 650], depth: 0 },
+    { img: 'planet_ringed', count: 12, size: [200, 320], dist: [220, 700], depth: 0 },
+    { img: 'star', count: 12, size: [260, 360], dist: [300, 800], depth: 0.1 },
+    { img: 'star_system', count: 7, size: [520, 700], dist: [400, 900], depth: 0.15 },
+    { img: 'black_hole', count: 5, size: [420, 560], dist: [400, 900], depth: 0.15 },
+    { img: 'quasar', count: 5, size: [460, 600], dist: [450, 1000], depth: 0.2 },
+    { img: 'galaxy', count: 9, size: [750, 1000], dist: [900, 1700], depth: 0.35 },
+    { img: 'galaxy_cluster', count: 6, size: [1100, 1400], dist: [1300, 2200], depth: 0.45 },
+    { img: 'supercluster', count: 4, size: [1500, 1800], dist: [1800, 2800], depth: 0.55 },
+    { img: 'cluster_filaments', count: 4, size: [1700, 2000], dist: [2000, 3000], depth: 0.6 },
+    { img: 'observable_universe', count: 2, size: [2600, 2600], dist: [2600, 2600], depth: 0.65 }
+];
+var spaceObjects = null, spaceObjectsFor = '';
+
+// Places the objects once per map size, spread round all four edges.
+function getSpaceObjects() {
+    var key = gameW + 'x' + gameH;
+    if (spaceObjects && spaceObjectsFor == key) return spaceObjects;
+    var seed = 7741, rnd = function () { seed = seed * 16807 % 2147483647; return seed / 2147483647; };
+    var perimeter = 2 * (gameW + gameH);
+    spaceObjects = [];
+    SPACE_ART.forEach(function (kind) {
+        for (var i = 0; i < kind.count; i++) {
+            var along = (i + rnd()) / kind.count * perimeter,
+                d = kind.dist[0] + rnd() * (kind.dist[1] - kind.dist[0]),
+                x, y;
+            if (along < gameW) { x = along; y = -d; }
+            else if (along < gameW + gameH) { x = gameW + d; y = along - gameW; }
+            else if (along < 2 * gameW + gameH) { x = 2 * gameW + gameH - along; y = gameH + d; }
+            else { x = -d; y = perimeter - along; }
+            spaceObjects.push({ img: 'img/space/' + kind.img + '.png', x: x, y: y, depth: kind.depth,
+                size: kind.size[0] + rnd() * (kind.size[1] - kind.size[0]), rot: (rnd() - 0.5) * 0.6 });
+        }
+    });
+    // far things first, so nearer ones draw over them
+    spaceObjects.sort(function (a, b) { return b.depth - a.depth; });
+    spaceObjectsFor = key;
+    return spaceObjects;
+}
+
+function drawOuterSpace() {
+    if (!(gameW > 0 && gameH > 0)) return;
+    var x0 = gameXForScreenX(0), y0 = gameYForScreenY(0), x1 = gameXForScreenX(canvasW), y1 = gameYForScreenY(canvasH);
+    if (x0 >= 0 && y0 >= 0 && x1 <= gameW && y1 <= gameH) return; // the view is all map
+    ctx.save();
+    // everything in view except the map itself
+    ctx.beginPath();
+    ctx.rect(x0, y0, x1 - x0, y1 - y0);
+    ctx.rect(0, 0, gameW, gameH);
+    ctx.clip('evenodd');
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = getSpacePattern(ctx);
+    ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
+    var cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, margin = 1600;
+    getSpaceObjects().forEach(function (o) {
+        var x = o.x + (cx - o.x) * o.depth, y = o.y + (cy - o.y) * o.depth, r = o.size / 2;
+        if (x + r < x0 - margin || x - r > x1 + margin || y + r < y0 - margin || y - r > y1 + margin) return;
+        var im = _0x2f22f9(o.img);
+        if (!im) return;
+        ctx.save();
+        ctx.globalAlpha = 1 - o.depth * 0.5;
+        ctx.translate(x, y);
+        ctx.rotate(o.rot);
+        ctx.drawImage(im, -r, -r, o.size, o.size);
+        ctx.restore();
+    });
+    // a soft glow along the map's edge
+    ctx.globalAlpha = 0.3;
+    ctx.strokeStyle = '#4f7dff';
+    ctx.lineWidth = 50;
+    ctx.strokeRect(0, 0, gameW, gameH);
+    ctx.globalAlpha = 0.65;
+    ctx.strokeStyle = '#9fc0ff';
+    ctx.lineWidth = 10;
+    ctx.strokeRect(0, 0, gameW, gameH);
+    ctx.restore();
 }
 
 var GameObjType = {
@@ -4963,11 +5045,6 @@ function generateMinimap(msg) {
     landH = msg.readUInt16();
     // The arctic spans the classic map; anything wider is outer space on the right.
     var classicW = arcticW > 0 && arcticW < gameW ? arcticW : gameW;
-    if (classicW < gameW) {
-        _0x325e3a.fillStyle = '#1b1747';
-        _0x325e3a.globalAlpha = 0.75;
-        _0x325e3a.fillRect(classicW * (minimapW / gameW), 0, (gameW - classicW) * (minimapW / gameW), minimapH);
-    }
     for (var _0x23281c = 0; 0x2 > _0x23281c; _0x23281c++) {
         _0x325e3a.fillStyle = _0x2f824d;
         _0x325e3a.globalAlpha = 0.5;
@@ -7247,16 +7324,6 @@ GameObj.prototype.customDraw = function (_0x519d3f) {
             ctx.fill();
             if (_0x350a05 = _0x2f22f9('img/riverCurrent' + this.riverSpecT + '.png'))
                 for (_0x519d3f = -this.rectW / 0x2, i = 0; 0x28 > i; i++) _0x2d663d = 0x64 / 0x78 * this.riverFlowSpeedX * 0x3e8, _0x2d663d = (_0x1534e0 - this.spawnTime) % _0x2d663d / _0x2d663d, ctx.drawImage(_0x350a05, _0x519d3f + 0x64 * _0x2d663d, -this.rectH / 0x2, 0x64, this.rectH), _0x519d3f += 0x64;
-            break;
-        case o_biome_space:
-            ctx.fillStyle = getSpacePattern(ctx);
-            ctx.fillRect(-this.rectW / 0x2, -this.rectH / 0x2, this.rectW, this.rectH);
-            // soft glow where space meets the ocean
-            var spaceEdge = ctx.createLinearGradient(-this.rectW / 0x2, 0, -this.rectW / 0x2 + 140, 0);
-            spaceEdge.addColorStop(0, 'rgba(70,120,255,0.45)');
-            spaceEdge.addColorStop(1, 'rgba(70,120,255,0)');
-            ctx.fillStyle = spaceEdge;
-            ctx.fillRect(-this.rectW / 0x2, -this.rectH / 0x2, 140, this.rectH);
             break;
         case o_biome_land:
             ctx.fillStyle = _0x557a1b;
@@ -24923,7 +24990,9 @@ function _0x4e9f22(_0x3e55b0) {
     ctx.translate(_0x3e55b0 * (0x1 - camzoom) + (_0x3e55b0 - camx - 0) * camzoom, _0x5d9200 * (0x1 - camzoom) + (_0x5d9200 - camy - 0) * camzoom);
     ctx.scale(camzoom, camzoom);
     ctx.save();
-    _0x127dda ? (ctx.globalAlpha = 0x1, ctx.fillStyle = _0x44bd8a, ctx.fillRect(0, -0x258, gameW, 0x258), ctx.fillRect(0, gameH, gameW, 0x258), ctx.fillRect(-0x258, -0x258, 0x258, gameH + 0x4b0), ctx.fillRect(gameW, -0x258, 0x258, gameH + 0x4b0)) : _0x394a6d(gameXForScreenX(0), gameYForScreenY(0), gameXForScreenX(canvasW), gameYForScreenY(canvasH), 0, 0);
+    drawOuterSpace();
+    // the grid behind the menu, kept inside the map
+    _0x127dda || (ctx.beginPath(), ctx.rect(0, 0, gameW, gameH), ctx.clip(), _0x394a6d(gameXForScreenX(0), gameYForScreenY(0), gameXForScreenX(canvasW), gameYForScreenY(canvasH), 0, 0));
     ctx.restore();
     _0x7b4cf4();
     ctx.restore();
