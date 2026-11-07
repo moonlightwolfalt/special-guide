@@ -93,9 +93,9 @@ public class Constants {
 
         public static final int MIN_START_PLAYER = 4;
         // Most degrees an animal turns per server tick, for tiers 1 to 17 ("turnSpeedPerTier"
-        // in config.txt, comma-separated). The defaults are the speeds the old formula gave.
+        // in config.txt, comma-separated). 360 turns instantly, since no turn is over 180.
         public static final double[] TURN_SPEED_PER_TIER = parseTurnSpeeds(conf.GetProp("turnSpeedPerTier",
-                        "1190,238,158.67,119,95.2,79.33,68,59.5,52.89,47.6,43.27,39.67,36.62,34,31.73,29.75,28"));
+                        "360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360"));
 
         private static double[] parseTurnSpeeds(String list) {
                 double[] speeds = new double[18];
@@ -109,8 +109,8 @@ public class Constants {
                                         v = -1;
                                 }
                         }
-                        // missing or bad entries fall back to the old formula
-                        speeds[tier] = v > 0 ? v : (tier == 1 ? 1190.0 : 476.0 / tier);
+                        // missing or bad entries turn instantly
+                        speeds[tier] = v > 0 ? v : 360.0;
                 }
                 speeds[0] = speeds[1];
                 return speeds;
