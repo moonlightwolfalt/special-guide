@@ -7461,7 +7461,9 @@ GameObj.prototype.moveUpdate = function () {
     this.y = _0x280d70 * (this.ny - this.oy) + this.oy;
     this.rad += 0.1 * (this.nRad - this.rad);
     if (void 0 != this.angle) {
-        var _0x127d14 = 0.1 * this.angleDelta;
+        // As on v1.mope.io: close 10% of the gap to the server's angle per 1/120 s,
+        // so turning looks the same at any frame rate (20% per frame at 60 fps).
+        var _0x127d14 = this.angleDelta * Math.min(0.1 * frameDeltaMs / (1000 / 120), 1);
         this.angleDelta -= _0x127d14;
         this.angle += _0x127d14;
     }
@@ -24846,8 +24848,13 @@ function _0x7b4cf4() {
 function _0x18b040(_0x219ba0) { }
 var _0x229299 = +new Date();
 
+// Milliseconds since the previous frame, for frame-rate-independent easing.
+var frameDeltaMs = 1000 / 60, lastFrameT = 0;
+
 function _0x4e9f22(_0x3e55b0) {
     _0x1534e0 = +new Date();
+    frameDeltaMs = lastFrameT ? Math.min(250, Math.max(0, _0x1534e0 - lastFrameT)) : 1000 / 60;
+    lastFrameT = _0x1534e0;
     window.requestAnimationFrame(_0x4e9f22);
     0x1 != ctx.globalAlpha && (ctx.setTransform(0x1, 0, 0, 0x1, 0, 0), ctx.globalAlpha = 0x1);
     ctx.clearRect(0, 0, canvasW, canvasH);

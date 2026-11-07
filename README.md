@@ -63,6 +63,8 @@ Run only one instance of the app, because all players share the one game server 
 | `RECAPTCHA_SITE_KEY`, `RECAPTCHA_SECRET` | web client and account server: your reCAPTCHA v3 keys (needed when `ENABLE_CAPTCHA` is on) | empty |
 | `CAPTCHA_HOSTNAME` | game server: the site hostname reCAPTCHA must report | any |
 | `CAPTCHA_MIN_SCORE` | game server: reCAPTCHA v3 score (0.0 bot to 1.0 human) below which players are kicked | `0.5` |
+| `DEVELOPER_EMAILS` | account server: comma-separated Google account emails that always get the top staff level (super developer). One developer account is built in, stored only as a SHA-256 hash because the repo is public | none |
+| `CHANGELOG_REPO`, `CHANGELOG_BRANCH` | web server: the GitHub repository and branch whose commits the menu's changelog shows when there's no local `.git` (Docker images) | `moonlightwolfalt/special-guide`, `main` |
 | `ADSENSE_CLIENT` | web client: your Google AdSense publisher ID (`ca-pub-…`); turns on ads and `/ads.txt` | off |
 | `ADSENSE_SLOT_RECT`, `ADSENSE_SLOT_BANNER` | web client: AdSense ad unit IDs for the 300×250 menu rectangle and the 728×90 bottom banner | empty |
 | `JAVA_OPTS` | game server JVM flags | `-XX:MaxRAMPercentage=50` |
@@ -192,3 +194,13 @@ python tools/fetch_shop_skin_assets.py --only skin_kaijuRex,gold_trex --source b
 ```
 
 It writes the textures to `shop-skin-assets/` in the site's own folder layout, plus `shop-skin-assets/skins.json`, which lists each skin's files. By default it saves the full-size `skins/…` originals, falling back to the smaller `assets/s/0/…` copies the game loads. `--source game` saves only the game copies, and `--source both` keeps both.
+
+## Changelog
+
+The menu's update panel lists the repository's commits, grouped by date and linked to GitHub, above the older hand-written notes. `server.js` serves them at `/changelog.json`. They come from `git log` when the folder has its `.git` history. In Docker images, which leave `.git` out, they come from GitHub's API for `CHANGELOG_REPO`, cached for 10 minutes (`CHANGELOG_CACHE_MINUTES`). That works without a key while the repository is public.
+
+## Turning speed
+
+Animals turn on the game server, at most a set number of degrees per tick (`calculateAngle` in `Animal.java`). The client then eases its drawn angle toward the server's the same way v1.mope.io does: 10% of the gap per 1/120 s, at any frame rate.
+
+To match v1's server turning speed, measure it with `tools/measure-v1-turn-speed.js`. The steps are at the top of that file: paste it into the browser console on v1.mope.io, play, and it prints how many degrees per update the server turns each animal.

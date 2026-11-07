@@ -116,6 +116,47 @@
 					<li>Project 'Mope2020' started!</li>
 				</ul>
 			</div>
+			<script>
+				// Show the repository's commits (from /changelog.json) above the hand-written notes.
+				(function () {
+					var box = document.getElementById('updatesDiv');
+					if (!box || !window.fetch) return;
+					fetch('changelog.json', { cache: 'no-cache' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (data) {
+						if (!data || !data.commits || !data.commits.length) return;
+						var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+						var day = function (iso) {
+							var d = new Date(iso);
+							return isNaN(d) ? '' : pad(d.getDate()) + '/' + pad(d.getMonth() + 1) + '/' + String(d.getFullYear()).slice(2);
+						};
+						var frag = document.createDocumentFragment(), list = null, last = null;
+						data.commits.forEach(function (c) {
+							var d = day(c.date);
+							if (d !== last) {
+								var h = document.createElement('h2');
+								h.textContent = d;
+								frag.appendChild(h);
+								list = document.createElement('ul');
+								frag.appendChild(list);
+								last = d;
+							}
+							var li = document.createElement('li'), a = document.createElement('a');
+							a.href = 'https://github.com/' + data.repo + '/commit/' + encodeURIComponent(c.sha);
+							a.target = '_blank';
+							a.rel = 'noopener';
+							a.textContent = c.subject;
+							a.title = (c.author ? c.author + ', ' : '') + String(c.sha).slice(0, 7);
+							a.style.color = 'inherit';
+							li.appendChild(a);
+							list.appendChild(li);
+						});
+						var earlier = document.createElement('h2');
+						earlier.textContent = 'Earlier updates';
+						earlier.style.marginTop = '12px';
+						frag.appendChild(earlier);
+						box.insertBefore(frag, box.firstChild);
+					}).catch(function () { });
+				})();
+			</script>
 			<div id="ytDiv">
 				<hr />
 				<div class="wrapper-buttons" style="width: 200px;

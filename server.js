@@ -89,6 +89,64 @@ const MIME = {
     '.woff': 'font/woff', '.woff2': 'font/woff2', '.ttf': 'font/ttf',
 };
 
+// --- changelog: the repository's commits ---------------------------------------
+// From the local git history when there is one; otherwise (Docker images leave out
+// .git) from GitHub's API for CHANGELOG_REPO, cached for CHANGELOG_CACHE_MINUTES.
+const CHANGELOG_REPO = /^[\w.-]+\/[\w.-]+$/.test(process.env.CHANGELOG_REPO || '')
+    ? process.env.CHANGELOG_REPO : 'moonlightwolfalt/special-guide';
+const CHANGELOG_BRANCH = /^[\w./-]+$/.test(process.env.CHANGELOG_BRANCH || '') ? process.env.CHANGELOG_BRANCH : 'main';
+const CHANGELOG_LIMIT = 60;
+const CHANGELOG_TTL = (Number(process.env.CHANGELOG_CACHE_MINUTES) || 10) * 60 * 1000;
+let changelogCache = { at: 0, body: null };
+
+function commitsFromGit() {
+    if (!fs.existsSync(path.join(ROOT, '.git'))) return null;
+    // unit separator between fields, record separator between commits
+    const r = spawnSync('git', ['log', '--no-merges', `-n${CHANGELOG_LIMIT}`, '--format=%H%x1f%cI%x1f%an%x1f%s%x1e'],
+        { cwd: ROOT, encoding: 'utf8', timeout: 10000 });
+    if (r.status !== 0 || !r.stdout) return null;
+    return r.stdout.split('\x1e').map(x => x.trim()).filter(Boolean).map(line => {
+        const [sha, date, author, subject] = line.split('\x1f');
+        return { sha, date, author, subject };
+    });
+}
+
+async function commitsFromGitHub() {
+    const url = `https://api.github.com/repos/${CHANGELOG_REPO}/commits?sha=${encodeURIComponent(CHANGELOG_BRANCH)}&per_page=100`;
+    const res = await fetch(url, {
+        headers: { 'Accept': 'application/vnd.github+json', 'User-Agent': 'mope2020-changelog' },
+        signal: AbortSignal.timeout(10000),
+    });
+    if (!res.ok) throw new Error(`GitHub answered ${res.status}`);
+    const list = await res.json();
+    return list
+        .filter(c => !(c.parents && c.parents.length > 1)) // leave out merge commits
+        .slice(0, CHANGELOG_LIMIT)
+        .map(c => ({
+            sha: c.sha,
+            date: c.commit && c.commit.committer && c.commit.committer.date,
+            author: c.commit && c.commit.author && c.commit.author.name,
+            subject: String((c.commit && c.commit.message) || '').split('\n')[0],
+        }));
+}
+
+async function changelogJson() {
+    if (changelogCache.body && Date.now() - changelogCache.at < CHANGELOG_TTL) return changelogCache.body;
+    let commits = null, source = 'git';
+    try {
+        commits = commitsFromGit();
+        if (!commits) { source = 'github'; commits = await commitsFromGitHub(); }
+    } catch (err) {
+        log('web', `changelog: could not load commits (${err.message})`);
+        // keep serving the last good list rather than nothing
+        if (changelogCache.body) return changelogCache.body;
+        commits = [];
+    }
+    const body = JSON.stringify({ repo: CHANGELOG_REPO, source, commits });
+    if (commits.length) changelogCache = { at: Date.now(), body };
+    return body;
+}
+
 // ADSENSE_CLIENT as "ca-pub-<digits>" (also accepts "pub-<digits>"), or '' when unset or malformed.
 function adsenseClient() {
     const raw = String(process.env.ADSENSE_CLIENT || '').trim();
@@ -237,6 +295,13 @@ function startWebServer() {
             // AdSense asks every site that shows its ads to publish this line.
             res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
             res.end(`google.com, ${adsenseClient().replace(/^ca-/, '')}, DIRECT, f08c47fec0942fa0\n`);
+            return;
+        }
+        if (urlPath === '/changelog.json') {
+            changelogJson().then(body => {
+                res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'public, max-age=300' });
+                res.end(body);
+            });
             return;
         }
         if (urlPath === '/config.js') {
