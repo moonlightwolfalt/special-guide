@@ -389,6 +389,12 @@
 		link.href = 'main.css?x=' + (+new Date());
 		link.media = 'all';
 		head.appendChild(link);
+		// modern menu style, after main.css so it wins
+		var modern = document.createElement('link');
+		modern.id = 'modernCss';
+		modern.rel = 'stylesheet';
+		modern.href = 'modern.css?x=' + (+new Date());
+		head.appendChild(modern);
 	</script>
 
 	<div id="cdm-zone-end"></div>
