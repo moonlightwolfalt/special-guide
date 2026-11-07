@@ -86,7 +86,7 @@ public class Networking {
         Collections.sort(plrs, new Comparator<GameClient>() {
             @Override
             public int compare(GameClient o1, GameClient o2) {
-                return Integer.valueOf(o2.getXP()).compareTo(o1.getXP());
+                return Long.compare(o2.getXPLong(), o1.getXPLong());
             }
         });
         int a = -1;
@@ -115,8 +115,8 @@ public class Networking {
                 player.stat.topRank = (short) ownrank;
             player.stat.rank = (short) ownrank;
 
-            if (player.stat.maxXP < player.getXP())
-                player.stat.maxXP = player.getXP();
+            if (player.stat.maxXP < player.getXPLong())
+                player.stat.maxXP = player.getXPLong();
 
         }
         for (GameClient pl : plrs) {
@@ -126,7 +126,7 @@ public class Networking {
             if (pl.getPlayer() != null)
                 name = pl.getPlayer().getPlayerName();
             writer.writeString(name);
-            writer.writeUInt32(pl.getXP());
+            writer.writeUInt32((int) pl.getXPLong()); // unsigned 32-bit
             writer.writeString("white");
         }
         room.topplayer = plrs.size() > 0 ? plrs.get(0) : null;

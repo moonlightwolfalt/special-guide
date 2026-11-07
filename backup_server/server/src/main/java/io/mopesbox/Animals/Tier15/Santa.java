@@ -86,7 +86,7 @@ public class Santa extends Animal {
         super.update();
         if(this.health <= 0) {
             if(this.killer != null && this.killer.getClient() != null)
-                this.killer.getClient().addXp(this.getClient().getXP());
+                this.killer.getClient().addXp(this.getClient().getXPLong());
         }
         abilityRecharge();
         if (this.running) {

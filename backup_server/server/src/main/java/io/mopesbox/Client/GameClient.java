@@ -726,8 +726,16 @@ public class GameClient {
 
     private List<AnimalInfo> selectionList;
 
+    // Most XP a player can have: the largest number the client's XP field (unsigned 32-bit) holds.
+    public static final long MAX_XP = 4294967295L;
+
+    // XP for gameplay maths that works in ints; at most Integer.MAX_VALUE. Use getXPLong() to show it.
     public int getXP() {
-        return xp;
+        return (int) Math.min(this.xp, Integer.MAX_VALUE);
+    }
+
+    public long getXPLong() {
+        return this.xp;
     }
 
     public int getNextXP() {
@@ -759,20 +767,20 @@ public class GameClient {
     }
 
     public void setXp(long xp) {
-        this.xp = (int) (Math.max(0, Math.min(2000000000, xp)));
+        this.xp = Math.max(0, Math.min(MAX_XP, xp));
     }
 
     public void addXp(long xp) {
         if (!this.isNoXPEnabled())
-            this.setXp(this.getXP() + Math.max(0, Math.min(2000000000, xp)));
+            this.setXp(this.xp + Math.max(0, Math.min(MAX_XP, xp)));
     }
 
     public void takeXp(long xp) {
         if (!this.isNoXPEnabled())
-            this.setXp(this.getXP() - Math.max(0, Math.min(2000000000, xp)));
+            this.setXp(this.xp - Math.max(0, Math.min(MAX_XP, xp)));
     }
 
-    private int xp = 0;
+    private long xp = 0;
     private boolean isDeveloper;
     private boolean isArtist;
     private boolean isHelper;
@@ -923,11 +931,11 @@ public class GameClient {
 
             this.room.removeObj(this.getPlayer(), killer);
                if (killer != null && killer instanceof Animal)
-                ((Animal) killer).getClient().addXp(this.getXP() / (int) 1.9);
+                ((Animal) killer).getClient().addXp(this.getXPLong() / (int) 1.9);
             this.getPlayer().onDeath();
            this.player = null;
             this.spectating = true;
-            this.setXp(this.getXP() / 2);
+            this.setXp(this.getXPLong() / 2);
             this.send(Networking.deathPacket(reason, this.coins + "", this.getXP()));
             if (this.account != null && this.exp > 0 && this.coinsState != 1) {
                 this.room.accountConnector.addExp(String.valueOf(this.account.id), this.account.password_token,
@@ -3255,8 +3263,14 @@ public class GameClient {
                     return false;
 
                 if (Utils.isNumeric(args[0])) {
-                    this.setXp(Integer.parseInt(args[0]));
-                    this.send(Networking.personalGameEvent(255, "New XP: " + this.getXP()));
+                    long wanted;
+                    try {
+                        wanted = Long.parseLong(args[0].trim());
+                    } catch (NumberFormatException e) {
+                        wanted = MAX_XP; // too long to read: take the most there is
+                    }
+                    this.setXp(wanted);
+                    this.send(Networking.personalGameEvent(255, "New XP: " + this.getXPLong()));
                     return true;
                 } else
                     this.send(Networking.personalGameEvent(255, "BAD COMMAND USAGE"));
@@ -4550,7 +4564,7 @@ public class GameClient {
 
                             // c.spectating = false;
 
-                            c.setXp(c.getXP());
+                            c.setXp(c.getXPLong());
                             c.setCamzoom(c.getCamzoom());
                             c.inUpgrade = false;
                             c.spectating = false;

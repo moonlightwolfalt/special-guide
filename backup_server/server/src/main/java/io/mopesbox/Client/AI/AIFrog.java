@@ -93,8 +93,8 @@ public class AIFrog extends GameClient {
             if(this.spawnedFrom != null) spawnedFrom.snails--;
             this.room.removeObj(this.getPlayer(), killer);
             this.player = null;
-            this.setXp(this.getXP()/2);
-            if(killer != null && killer instanceof Animal) ((Animal)killer).getClient().addXp(this.getXP() * (int) 2.3);
+            this.setXp(this.getXPLong()/2);
+            if(killer != null && killer instanceof Animal) ((Animal)killer).getClient().addXp(this.getXPLong() * (int) 2.3);
             
             this.shouldRemove(true);
         }

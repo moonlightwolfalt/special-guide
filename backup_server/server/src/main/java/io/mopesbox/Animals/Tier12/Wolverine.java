@@ -33,7 +33,7 @@ public class Wolverine extends Animal {
         this.setSpecies(!groanTimer.isDone() ? 1 : 0);
         if(this.health <= 0) {
             if(this.killer != null && this.killer.getClient() != null)
-                this.killer.getClient().addXp(this.getClient().getXP());
+                this.killer.getClient().addXp(this.getClient().getXPLong());
         }
     }
 

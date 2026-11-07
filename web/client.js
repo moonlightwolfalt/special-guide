@@ -22324,8 +22324,14 @@ SpaceFood.superClass = GameObj;
 SpaceFood.prototype = Object.create(GameObj.prototype);
 SpaceFood.prototype.constructor = SpaceFood;
 SpaceFood.prototype.updateZ = function () { this.z = 5; };
-SpaceFood.prototype.readCustomData_onNewlyVisible = function (msg) { this.kind = msg.readUInt8(); };
-SpaceFood.prototype.readCustomData_onUpdate = function (msg) { this.kind = msg.readUInt8(); };
+// kind, touches left, touches in all (atoms take one touch, bigger things several)
+SpaceFood.prototype.readState = function (msg) {
+    this.kind = msg.readUInt8();
+    this.touchesLeft = msg.readUInt8();
+    this.touchesTotal = Math.max(1, msg.readUInt8());
+};
+SpaceFood.prototype.readCustomData_onNewlyVisible = function (msg) { this.readState(msg); };
+SpaceFood.prototype.readCustomData_onUpdate = function (msg) { this.readState(msg); };
 SpaceFood.prototype.customDraw = function () {
     var img = _0x2f22f9(SPACE_FOODS[this.kind] || SPACE_FOODS[0]);
     var t = _0x1534e0 / 1000, r = this.rad;
@@ -22337,8 +22343,23 @@ SpaceFood.prototype.customDraw = function () {
     ctx.arc(0, 0, r * 1.15, 0, 2 * Math.PI);
     ctx.fill();
     ctx.restore();
+    // things that take several touches shrink a little with each one, and show what's left
+    var total = this.touchesTotal || 1, left = this.touchesLeft == null ? total : this.touchesLeft;
+    if (total > 1) {
+        ctx.save();
+        ctx.lineWidth = Math.max(4, r * 0.08);
+        ctx.lineCap = 'round';
+        for (var i = 0; i < total; i++) {
+            var a0 = -Math.PI / 2 + i / total * 2 * Math.PI + 0.06, a1 = -Math.PI / 2 + (i + 1) / total * 2 * Math.PI - 0.06;
+            ctx.strokeStyle = i < left ? 'rgba(255,214,10,0.9)' : 'rgba(255,255,255,0.18)';
+            ctx.beginPath();
+            ctx.arc(0, 0, r * 1.22, a0, a1);
+            ctx.stroke();
+        }
+        ctx.restore();
+    }
     if (!img) return;
-    var size = r * 2.3;
+    var size = r * 2.3 * (0.7 + 0.3 * left / total);
     ctx.save();
     ctx.translate(0, Math.sin(t * 1.5 + this.spin) * r * 0.06);
     ctx.rotate(Math.sin(t * 0.6 + this.spin) * 0.25);

@@ -210,11 +210,16 @@ The menu's update panel lists the repository's commits, grouped by date and link
 - Settings in `backup_server/server/config.txt`: `spaceWidth` (0 removes the biome), `spaceOpenEverySeconds` and `spaceOpenForSeconds`.
 
 **Space food.** Space is full of food that any animal can eat: planets, stars, star systems, black holes, quasars, galaxies, galaxy clusters, superclusters, cluster filaments, the observable universe, asteroids, moons, satellites, the light spectrum from radio waves to gamma rays, and all 118 chemical elements. That's 148 kinds, about 230 at a time, and eaten food grows back after a while.
-- Each bite gives a fixed amount plus a share of your current XP.
+- Atoms (the 118 elements) are eaten on the first touch. Everything else takes several separate touches: 2 for light and asteroids, up to 12 for the observable universe. Staying on it counts once, so move off and touch it again. Each touch shrinks it a little, and a ring of gold segments shows the touches left. The XP comes with the last touch.
+- Eating one gives a fixed amount plus a share of your current XP.
 - The best pumpkin goal gives a fifth of your XP, so every share is bigger than that: from 21% for light and 22% for elements, up to 100% (double your XP) for the observable universe.
 - The list of foods, with each one's size, XP and how many float around, is in `tools/space-art/space_foods.py`. After changing it, run `python3 tools/space-art/space_foods.py`. That regenerates the server's `SpaceFoodKind.java`, the client's `SPACE_FOODS` list and the pictures in `web/img/space/food/`.
 
 **Beyond the edge.** Outside the whole map, on every side, the client also draws space with the bigger cosmic objects drifting in it. That part can't be entered: the map's edge is a barrier.
+
+## XP limit
+
+A player's XP goes up to 4,294,967,295, the most the client's XP field can hold. It used to stop at 2,000,000,000. The server keeps XP as a 64-bit number, and sends the full value for your XP, the leaderboard and end-of-game stats. Developers can set it with `xp:<amount>`.
 
 ## Turning speed
 

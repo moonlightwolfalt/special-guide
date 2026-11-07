@@ -131,7 +131,7 @@ public class PumpkinBall extends GameObject {
 
                 this.room.land.pumpkinRemoved(kind);
                 this.owner.getClient().addCoins(kind.goalCoins);
-                this.owner.getClient().addXp(this.owner.getClient().getXP() / 5);
+                this.owner.getClient().addXp(this.owner.getClient().getXPLong() / 5);
                 this.owner.getClient().addEXP(kind.goalExp);
                 this.room.pumpDots.remove(this);
                 this.room.removeObj(this, o);
