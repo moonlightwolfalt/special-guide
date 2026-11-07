@@ -79,3 +79,15 @@ Without `GOOGLE_CLIENT_ID` the login button is hidden and the account server ref
 The client uses Google Identity Services. The account server checks each Google ID token with Google, accepts it only if it was issued for `GOOGLE_CLIENT_ID` to a verified email, and then gives the player a random session token. If you host `web/` with a different web server, put the client ID in `web/config.js`.
 
 Discord login, account linking and the Discord bot were removed.
+
+## Fetch the shop skins
+
+`tools/fetch-shop-skins.js` downloads the shop skin list (id, name, image) and every skin image from a running site. It reads the names and image paths from the site's `client.js`, so it needs no login.
+
+```
+node tools/fetch-shop-skins.js                       # from https://mope.trygames.party
+node tools/fetch-shop-skins.js --site http://localhost:8000 --out my-skins
+node tools/fetch-shop-skins.js --no-images           # only write the list
+```
+
+It writes `shop-skins/skins.json` and the images under `shop-skins/images/`, in the same folders as the site's `skins/`. Prices, categories and ownership come from the account server and need a logged-in player: set `MOPE_USER_ID` and `MOPE_PASSWORD_TOKEN` to add them.
