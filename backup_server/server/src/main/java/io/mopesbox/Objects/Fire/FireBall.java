@@ -18,10 +18,14 @@ public class FireBall extends GameObject {
     private GameClient owner;
     private int damage;
     private boolean isDamaged = false;
+    // which fire frames the client draws (web/img/fireball/<style>); the species still decides damage
+    private int style;
 
     public FireBall(int id, double x, double y, int radius, int type, double angle, double speed, int spawnFrom, Room room, GameClient owner, int damage) {
         super(id, x, y, radius, 18);
         this.setSpecies(type);
+        this.style = type;
+        if (owner != null && owner.getPlayer() != null) this.style = FireStyles.of(owner.getPlayer().getInfo(), type);
         this.owner = owner;
         this.damage = damage;
         this.mainAngle = angle;
@@ -90,6 +94,7 @@ public class FireBall extends GameObject {
         }else{
                         if(this.owner != null){
             Fire newFire = new Fire(this.room.getID(), this.getX(), this.getY(), this.getRadius()+4, this.getSpecies(), this.room, this.owner, damage, isDamaged);
+            newFire.setStyle(this.style);
             this.room.addObj(newFire);
             this.room.removeObj(this, newFire);
             return;
@@ -112,6 +117,6 @@ public class FireBall extends GameObject {
     @Override
     public void writeCustomData_onAdd(MsgWriter writer){
         super.writeCustomData_onAdd(writer);
-        writer.writeUInt8(this.getSpecies());
+        writer.writeUInt8(this.style);
     }
 }

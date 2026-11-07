@@ -186,6 +186,8 @@ node tools/fetch-fire-frames.js --no-tornado
 
 Each fireball style has `fireball/<style>/dynamic/<n>.webp` (the moving fireball) and `fireball/<style>/static/<n>.webp`, 5 frames each (the king dragon has 6 static ones). `fire-frames.json` lists every style with its frames in order. Files already downloaded are skipped.
 
+The import script also gives skins their exact fire when `fire-frames/` is there (run `tools/fetch-fire-frames.js` first). Each fireball style goes to its shop skin: 26 dragon, black dragon, king dragon, phoenix and lava monster skins, including older shop skins with the same name. Their frames go to `web/img/fireball/<style>/` (the fireball) and `web/img/fire/<style>/` (the fire it leaves), with styles from 100 up kept in `tools/mope_io_fire_styles.json`. The game server picks the style from the generated `Objects/Fire/FireStyles.java`. This changes only the picture: damage still follows the fireball's own number. The phoenix's fire tornado now follows its skin too, and 9 phoenix skins get their mope.io tornado. Left out: the plain fireball and the plain King Dragon fire (already the 2020 ones), and three styles no shop skin uses.
+
 ## Fetch the mope.io pumpkins
 
 `tools/fetch-pumpkins.js` downloads the pumpkin textures from mope.io: 7 kinds (normal, jack, gold, emerald, ruby, diamond, onyx), 5 frames each, as WebP. The files are served from `mope.io/assets/terrain/pumpkin/`, not from s3.mope.io.
