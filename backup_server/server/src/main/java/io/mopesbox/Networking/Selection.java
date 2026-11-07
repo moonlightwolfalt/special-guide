@@ -56,10 +56,14 @@ public class Selection {
                 if(skins != null && skins.size() > 0) {
                     List<AnimalInfo> animalInfoList1 = new ArrayList<>();
                     for(String skin : skins) {
+                        AnimalInfo owned = AnimalSkins.byName(skin);
+                        if (owned == null) continue;
+                        // skip a skin that looks exactly like a choice already offered (e.g. a skin-0 unlock)
+                        if (sameLook(animalInfoList, owned) || sameLook(animalInfoList1, owned)) continue;
                         for(AnimalInfo info : animalInfoList){
-                            if(AnimalSkins.byName(skin) != null && info.getType() == AnimalSkins.byName(skin).getType() && !animalInfoList1.contains(AnimalSkins.byName(skin))) animalInfoList1.add(AnimalSkins.byName(skin));
+                            if(info.getType() == owned.getType() && !sameLook(animalInfoList1, owned)) animalInfoList1.add(owned);
                         }
-                        if(AnimalSkins.byName(skin) != null && AnimalSkins.byName(skin).isAni && AnimalSkins.byName(skin).getTier() == tier && !animalInfoList1.contains(AnimalSkins.byName(skin))) animalInfoList1.add(AnimalSkins.byName(skin));
+                        if(owned.isAni && owned.getTier() == tier && !sameLook(animalInfoList1, owned)) animalInfoList1.add(owned);
                     }
                     animalInfoList.addAll(animalInfoList1);
                 }
@@ -86,5 +90,13 @@ public class Selection {
             client.setInUpgrade(false);
         }
        return writer;
+    }
+
+    // whether the list already has this animal with this skin number
+    private static boolean sameLook(List<AnimalInfo> list, AnimalInfo info) {
+        for (AnimalInfo a : list) {
+            if (a.getType() == info.getType() && a.getAnimalSpecies() == info.getAnimalSpecies()) return true;
+        }
+        return false;
     }
 }

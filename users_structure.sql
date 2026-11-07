@@ -134,6 +134,8 @@ CREATE TABLE IF NOT EXISTS `users` (
   `skin_galaxyPhoenix` int(11) DEFAULT NULL,
   `skin_meltedMonster` int(11) DEFAULT NULL,
   `skin_giftboxKraken` int(11) DEFAULT NULL,
+  `skin_blackdragon` int(11) DEFAULT NULL,
+  `skin_kingdragon` int(11) DEFAULT NULL,
   `astralPhoenix` int(11) DEFAULT NULL,
   `bonfire_phoenix` int(11) DEFAULT NULL,
   `skin_dragon_3_3` int(11) DEFAULT NULL,

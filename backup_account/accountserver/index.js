@@ -1045,6 +1045,16 @@ var shopitems = [
  
     // Imported from mope.trygames.party
     {
+        coinsPrice: 25000,
+        shopCategory: 'locked',
+        itemName: "skin_blackdragon"
+    },
+    {
+        coinsPrice: 25000,
+        shopCategory: 'locked',
+        itemName: "skin_kingdragon"
+    },
+    {
         coinsPrice: 8000,
         shopCategory: 'locked',
         itemName: "astralPhoenix"
