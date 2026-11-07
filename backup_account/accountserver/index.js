@@ -1498,6 +1498,35 @@ function getBonus(level, gold) {
     return "";
 }
 
+// Buys every listed shop item the player doesn't own yet, in one update, so it's all
+// or nothing. The client sends the items its shop shows, so the price matches what the
+// player saw; only real, non-exclusive shop items are bought.
+async function buyAllItems(id, token, requested) {
+    const wanted = new Set(String(requested || '').split(',').map(s => s.trim()).filter(Boolean));
+    const exclusive = new Set(exclusiveitems.map(i => i.itemName));
+    const items = shopitems.filter(i => wanted.has(i.itemName) && !i.isExclusive && !exclusive.has(i.itemName)
+        && /^\w+$/.test(i.itemName) && typeof i.coinsPrice === 'number' && i.coinsPrice >= 0);
+    if (!items.length) return { success: false, reason: 'error' };
+    try {
+        const [rows] = await connectionms.promise().query(`SELECT * FROM users WHERE id=? AND password_token=?`, [id, token]);
+        if (!rows.length || rows[0].banned == 1) return { success: false, reason: 'error' };
+        const toBuy = items.filter(i => rows[0][i.itemName] != 1);
+        if (!toBuy.length) return { success: false, reason: 'alreadyowned' };
+        const cost = INFINITE_COINS ? 0 : toBuy.reduce((sum, i) => sum + i.coinsPrice, 0);
+        if (rows[0].coins < cost) return { success: false, reason: 'cantafford', cost, coins: rows[0].coins };
+        const sets = toBuy.map(i => "`" + i.itemName + "`=1").join(', ');
+        // coins>=? guards against spending the same coins twice in parallel requests
+        const [result] = await connectionms.promise().query(
+            `UPDATE \`users\` SET ${sets}, \`coins\`=coins-? WHERE id=? AND password_token=? AND coins>=?`,
+            [cost, id, token, cost]);
+        if (!result.affectedRows) return { success: false, reason: 'cantafford', cost };
+        return { success: true, bought: toBuy.length, cost };
+    } catch (err) {
+        console.log("Buy all failed:", err.message);
+        return { success: false, reason: 'error' };
+    }
+}
+
 async function buyItem(id, token, itemName) {
     var out = {
         success: false
@@ -1570,54 +1599,22 @@ async function buyItem(id, token, itemName) {
 }
 
 async function loadShopData(id, token) {
-    var out = {
-        success: false
-    };
-    await connectionms.promise().query(`SELECT * FROM users WHERE id=? AND password_token=?`, [id, token])
-    .then( async ([rows,fields]) => {
-        if(rows.length == 0 || (rows[0] && rows[0].banned == 1)) {
-            out = shopitems;
-            return out;
-        } else {
-            let modshopitems = [];
-            let shopitemssorted = shopitems;
-            for(var i in shopitemssorted) {
-                if(shopitemssorted[i].isExclusive && rows[0][shopitems[i].itemName] != 1) {
-                    var index = shopitemssorted.indexOf(shopitemssorted[i]);
-                    if (index > -1) {
-                        shopitemssorted.splice(index, 1);
-                    }
-                }
-            }
-            shopitemssorted.sort((prev, next) => {
-                if(rows[0][next.itemName] == 1) {
-                    return -1;
-                } else {
-                    return 1;
-                }
-            });
-            for(var i = 0; i < shopitems.length; i++) {
-                let item = shopitems[i];
-                if(rows[0][shopitems[i].itemName] == 1) {
-                    item.purchasedByPlayer = true;
-                } else {
-                    item.purchasedByPlayer = false;
-                }
-                modshopitems.push(item);
-            }
-            out = modshopitems;
-            return out;
-        }
-    })
-    .catch( (err) => {
-        console.log("err");
-        console.log(err);
-        out = {
-            success: false
-        }
-        return out;
-    });
-    return out;
+    // Built fresh for each request: the shared shopitems list must never change, or
+    // players would see each other's purchases and exclusive items would leak out.
+    let row = null;
+    try {
+        const [rows] = await connectionms.promise().query(`SELECT * FROM users WHERE id=? AND password_token=?`, [id, token]);
+        if (rows.length && rows[0].banned != 1) row = rows[0];
+    } catch (err) {
+        console.log("Loading the shop failed:", err.message);
+        return { success: false };
+    }
+    const owned = item => row != null && row[item.itemName] == 1;
+    // exclusive items are only listed for players who already have them; owned items first
+    return shopitems
+        .filter(item => !item.isExclusive || owned(item))
+        .map(item => ({ ...item, purchasedByPlayer: owned(item) }))
+        .sort((a, b) => Number(b.purchasedByPlayer) - Number(a.purchasedByPlayer));
 }
 
 async function getAccountData(id) {
@@ -1906,6 +1903,14 @@ app.get('/loadShopItems', async function(request, response) {
     response.header("Access-Control-Allow-Headers", "X-Requested-With");
     let resp = await loadShopData(encode_utf8(request.query.userId), encode_utf8(request.query.passwordToken));
     // console.log(resp);
+    response.writeHead(200, {'Content-Type': 'text/html'});
+    response.end(JSON.stringify(resp));
+})
+
+app.get('/buyAllShopItems', async function(request, response) {
+    response.header("Access-Control-Allow-Origin", "*");
+    response.header("Access-Control-Allow-Headers", "X-Requested-With");
+    let resp = await buyAllItems(encode_utf8(request.query.userId), encode_utf8(request.query.passwordToken), request.query.items);
     response.writeHead(200, {'Content-Type': 'text/html'});
     response.end(JSON.stringify(resp));
 })

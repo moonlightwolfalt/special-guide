@@ -6080,6 +6080,40 @@ function _0x3e4625(_0x5f244b, _0x248383) {//49397
     });
 }
 
+// Buys every listed skin at once; the account server charges the total of their prices.
+function buyAllShopItems(itemNames) {
+    mopeShopObj.blockOverlay();
+    $.ajax({
+        'url': ACCOUNT_SERVER_URL + '/buyAllShopItems?userId=' + encodeURIComponent(login_userId) + '&passwordToken=' +
+            encodeURIComponent(login_passwordToken) + '&items=' + encodeURIComponent(itemNames.join(',')),
+        crossDomain: true,
+        'success': function (res) {
+            try { res = JSON.parse(res); } catch (e) { res = { success: false, reason: 'error' }; }
+            mopeShopObj.removeBlockOverlay();
+            if (res.success) {
+                // tell the game server to reload this player's skins, as a single purchase does
+                var mes = new MsgWriter(1);
+                mes.writeUInt8(71);
+                wsSendMsg(mes);
+                _0x1fed78('Unlocked ' + res.bought + (res.bought == 1 ? ' skin!' : ' skins!'), 'success', 5);
+                _0x201f22(!0);
+                _0x7db050();
+            } else if (res.reason == 'cantafford') {
+                _0x1fed78('Not enough coins: buying them all costs ' + mopeShopObj.coinsFormat(res.cost || 0) + '.', 'cantafford', 15);
+            } else if (res.reason == 'alreadyowned') {
+                _0x1fed78('You already own all of these skins!', 'alreadyowned', 15);
+                _0x201f22(!0);
+            } else {
+                _0x1fed78('AccountServer: something went wrong', 'error', 15);
+            }
+        },
+        'error': function () {
+            mopeShopObj.removeBlockOverlay();
+            _0x1fed78("Can't connect to the account server.", 'error', 15);
+        }
+    });
+}
+
 function getBattlePassReward(level, gold, callback) {//49397
     KTestingExperimental && console.log('Taking a bonus of bp level!');
     var _0x24a81b = ACCOUNT_SERVER_URL + '/getReward?userId=' + login_userId + '&passwordToken=' + login_passwordToken + '&level=' + level + '&gold=' + gold;
@@ -15864,9 +15898,52 @@ mopeShopObject.prototype.skinsInterface = function () {
         _0x2512e5.appendChild(_0x3d3cf3);
     }
     this.showUserExpBarAndCoinsBalance(_0x3a2f1f);
+    this.addBuyAllRow(_0x2512e5);
     _0x2512e5.append(createElem('div', '', 'separator'));
     this.shopDiv.appendChild(_0x2512e5);
     this.showTab(this.selectedTab);
+};
+// Skins in the shop the player doesn't own yet (owned items have coinsPrice -1).
+mopeShopObject.prototype.unownedSkins = function () {
+    var out = [];
+    for (var t = 0; t < this.shop.skins.length; t++)
+        for (var i = 0; i < this.shop.skins[t].items.length; i++) {
+            var item = this.shop.skins[t].items[i];
+            if (item && item.coinsPrice != -1 && out.indexOf(item.id) < 0) out.push({ id: item.id, price: Number(item.coinsPrice) || 0 });
+        }
+    return out;
+};
+mopeShopObject.prototype.addBuyAllRow = function (parent) {
+    var unowned = this.unownedSkins(),
+        total = unowned.reduce(function (sum, i) { return sum + i.price; }, 0),
+        row = createElem('div', 'buyAllRow', 'buy-all-row'),
+        label = createElem('span', 'buyAllLabel', 'buy-all-label'),
+        button = createElem('button', 'buyAllButton', 'buy-all-button');
+    if (!unowned.length) {
+        label.textContent = 'You own every skin in the shop!';
+        row.appendChild(label);
+        parent.appendChild(row);
+        return;
+    }
+    label.textContent = unowned.length + (unowned.length == 1 ? ' skin' : ' skins') + ' left';
+    button.type = 'button';
+    button.textContent = 'Buy all: ' + this.coinsFormat(total);
+    var coin = new Image();
+    coin.src = 'shop/mopecoin.png';
+    coin.className = 'buycoin-img';
+    button.appendChild(coin);
+    var coins = userInfo && typeof userInfo.coins === 'number' ? userInfo.coins : -1;
+    if (coins >= 0 && coins < total) {
+        button.disabled = true;
+        button.title = 'You need ' + this.coinsFormat(total - coins) + ' more coins';
+    }
+    button.onclick = function () {
+        if (!confirm('Buy all ' + unowned.length + ' skins for ' + mopeShopObj.coinsFormat(total) + ' coins?')) return;
+        buyAllShopItems(unowned.map(function (i) { return i.id; }));
+    };
+    row.appendChild(label);
+    row.appendChild(button);
+    parent.appendChild(row);
 };
 mopeShopObject.prototype.props = {
     'hatsColor': '',
