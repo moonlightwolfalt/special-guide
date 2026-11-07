@@ -2939,6 +2939,7 @@ public class GameClient {
                     room.addObj(pump);
                     room.pumpDots.add(pump);
                     room.land.pumpkinAdded(PumpkinType.fromId(type));
+                    room.announcePumpkin(PumpkinType.fromId(type));
                     this.send(Networking.personalGameEvent(255, "COMMAND EXECUTED!"));
                 } else if (args[0].equals("pvpbot")) {
                     // if (this.account.admin < 3)

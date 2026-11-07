@@ -211,7 +211,7 @@ node tools/fetch-pumpkins.js            # writes pumpkins/<kind>/<frame>.webp an
 
 ## Pumpkin kinds
 
-Pumpkins spawn in the land biome when `pumpEnabled` is on. Each kind's spawn rate, cap and rewards are set in `backup_server/server/src/main/java/io/mopesbox/Objects/ETC/PumpkinType.java`. The client draws kind `<id>` from `web/img/pumpkin/<id>/<0-4>.png`.
+Pumpkins spawn in the land biome when `pumpEnabled` is on. Each kind's spawn rate, cap and rewards are set in `backup_server/server/src/main/java/io/mopesbox/Objects/ETC/PumpkinType.java`. The client draws kind `<id>` from `web/img/pumpkin/<id>/<0-4>.png`. Every time one spawns, naturally or with `pump <id>`, all players see a 5-second message naming its kind in its colour, e.g. "A Ruby pumpkin has spawned!".
 
 | Id | Kind | Rarity | Spawns every | Goal reward |
 |----|------|--------|--------------|-------------|

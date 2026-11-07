@@ -42,6 +42,28 @@ public enum PumpkinType {
         this.goalExp = goalExp;
     }
 
+    // Colour of the kind's name in the "pumpkin spawned" message.
+    public String color() {
+        switch (this) {
+            case GOLDEN: return "#ffc21a";
+            case EMERALD: return "#4cd964";
+            case SAPPHIRE: return "#4d7cff";
+            case AMETHYST: return "#b06cff";
+            case AMBER: return "#ff9a1f";
+            case RUBY: return "#ff4d5e";
+            case DIAMOND: return "#5ff0f5";
+            case BLACK_HOLE: return "#c49bff";
+            default: return "#ff9f43";
+        }
+    }
+
+    // "A Ruby pumpkin has spawned!" (HTML, shown in the client's popup)
+    public String spawnMessage() {
+        if (this == NORMAL) return "A <span style=\"color:" + color() + "\">pumpkin</span> has spawned!";
+        String article = "AEIOU".indexOf(displayName.charAt(0)) >= 0 ? "An" : "A";
+        return article + " <span style=\"color:" + color() + "\">" + displayName + "</span> pumpkin has spawned!";
+    }
+
     private static final PumpkinType[] BY_ID = new PumpkinType[values().length];
     static {
         for (PumpkinType t : values()) BY_ID[t.id] = t;
