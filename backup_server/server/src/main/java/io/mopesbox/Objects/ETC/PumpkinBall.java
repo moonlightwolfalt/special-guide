@@ -40,19 +40,16 @@ public class PumpkinBall extends GameObject {
     
 
 
+    public PumpkinType getPumpkinType() {
+        return PumpkinType.fromId(this.getSpecies());
+    }
+
     public void takeBonus() {
         if(bonusTimer.isDone()) {
             if(this.owner != null && this.owner.getClient() != null) {
-                int xp = 5;
-                if (this.getSpecies() == 0) xp = this.owner.getClient().getXP()/500;
-                else if (this.getSpecies() == 1) xp = this.owner.getClient().getXP()/50;
-                else if (this.getSpecies() == 2) xp = this.owner.getClient().getXP()/100;
-                if (xp < 5) xp = 5;
-                int coins = 5;
-                if (this.getSpecies() == 0) coins = 2;
-                else if (this.getSpecies() == 1) coins = 5;
-                else if (this.getSpecies() == 2) coins = 5;
-                if (coins < 5) coins = 5;
+                PumpkinType kind = this.getPumpkinType();
+                int xp = Math.max(5, this.owner.getClient().getXP() / kind.carryXpDivisor);
+                int coins = kind.carryCoins;
                 this.owner.getClient().addXp(xp);
                 this.owner.getClient().addCoins(coins);
                 this.owner.getClient().addEXP(coins);
@@ -127,13 +124,15 @@ public class PumpkinBall extends GameObject {
                                 this.room.goals++;
 
                 this.room.chat(this.owner.getClient(), "You were the goal #" +this.room.goals);
-                                this.room.chat(this.owner.getClient(), "BONUS: 150 Coins and 50Exp!");
+                PumpkinType kind = this.getPumpkinType();
+                if (kind != PumpkinType.NORMAL)
+                    this.room.chat(this.owner.getClient(), kind.displayName + " pumpkin!");
+                this.room.chat(this.owner.getClient(), "BONUS: " + kind.goalCoins + " Coins and " + kind.goalExp + "Exp!");
 
-
-                if(this.getSpecies() == 1){this.room.land.goldenpumking--;}else if(this.getSpecies() == 0){this.room.land.pumking--;}
-                this.owner.getClient().addCoins(150);
+                this.room.land.pumpkinRemoved(kind);
+                this.owner.getClient().addCoins(kind.goalCoins);
                 this.owner.getClient().addXp(this.owner.getClient().getXP() / 5);
-                this.owner.getClient().addEXP(50);
+                this.owner.getClient().addEXP(kind.goalExp);
                 this.room.pumpDots.remove(this);
                 this.room.removeObj(this, o);
                 
@@ -215,15 +214,7 @@ public class PumpkinBall extends GameObject {
             liveTimer.update(Constants.TICKS_PER_SECOND);
             if(liveTimer.isDone()) {
                 this.room.pumpDots.remove(this);
-
-
-                if(this.getSpecies() == 0){
-                this.room.land.pumking--;
-                }else{              
-this.room.land.goldenpumking--;
-
-
-                }
+                this.room.land.pumpkinRemoved(this.getPumpkinType());
                 this.room.removeObj(this, null);
 
        

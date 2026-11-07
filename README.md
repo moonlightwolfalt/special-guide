@@ -99,3 +99,18 @@ It writes `shop-skins/skins.json` and the images under `shop-skins/images/`, in 
 ```
 node tools/fetch-pumpkins.js            # writes pumpkins/<kind>/<frame>.webp and pumpkins/pumpkins.json
 ```
+
+## Pumpkin kinds
+
+Pumpkins spawn in the land biome when `pumpEnabled` is on. Each kind's spawn rate, cap and rewards are set in `backup_server/server/src/main/java/io/mopesbox/Objects/ETC/PumpkinType.java`. The client draws kind `<id>` from `web/img/pumpkin/<id>/<0-4>.png`.
+
+| Id | Kind | Rarity | Spawns every | Goal reward |
+|----|------|--------|--------------|-------------|
+| 0 | Normal | common | 30 s (up to 2) | 150 coins, 50 EXP |
+| 1 | Golden | uncommon | 100 s | 150 coins, 50 EXP |
+| 2 | Sapphire (blue) | rare | 5 min | 250 coins, 80 EXP |
+| 3 | Amethyst (purple) | epic | 10 min | 400 coins, 120 EXP |
+| 4 | Amber (orange) | legendary | 20 min | 600 coins, 180 EXP |
+| 5 | Black Hole | mythic | 45 min | 1000 coins, 300 EXP |
+
+Admins can spawn one with the `pump <id>` command.

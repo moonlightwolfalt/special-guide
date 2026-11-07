@@ -7,6 +7,7 @@ import io.mopesbox.Client.AI.AISnail;
 import io.mopesbox.Objects.GameObject;
 import io.mopesbox.Objects.Rectangle;
 import io.mopesbox.Objects.ETC.PumpkinBall;
+import io.mopesbox.Objects.ETC.PumpkinType;
 import io.mopesbox.Objects.Eatable.AloeVera;
 import io.mopesbox.Objects.Eatable.BeeHive;
 import io.mopesbox.Objects.Eatable.Cactus;
@@ -66,8 +67,8 @@ public class Biome extends Rectangle {
     public int starfishs = 0;
     public int clams = 0;
     public int conchshells = 0;
-    public int pumking = 0;
-    public int goldenpumking = 0;
+    // Pumpkins of each kind alive in this biome, indexed by PumpkinType id.
+    public int[] pumpkinCounts = new int[PumpkinType.values().length];
 
     public Biome(int id, int type, double x, double y, double width, double height, int biome, Room room) {
 
@@ -307,7 +308,7 @@ public class Biome extends Rectangle {
         }
     }
 
-    public void pumking(int amount) {
+    public void spawnPumpkins(PumpkinType kind, int amount) {
         double minX = (this.getX() - this.getWidth() / 2);
         double minY = (this.getY() - this.getHeight() / 2);
 
@@ -319,35 +320,26 @@ public class Biome extends Rectangle {
 
             double x = Utils.randomDouble(minX + rad, maxX - rad);
             double y = Utils.randomDouble(minY + rad, maxY - rad);
-            PumpkinBall pump = new PumpkinBall(this.room.getID(), x, y, 0, this.room);
+            PumpkinBall pump = new PumpkinBall(this.room.getID(), x, y, kind.id, this.room);
             this.room.pumpDots.add(pump);
 
             this.room.addObj(pump);
-
         }
 
-        pumking += amount;
-
+        pumpkinCounts[kind.id] += amount;
     }
 
-    public void golden(int amount) {
-        double minX = (this.getX() - this.getWidth() / 2);
-        double minY = (this.getY() - this.getHeight() / 2);
+    public void pumpkinAdded(PumpkinType kind) {
+        pumpkinCounts[kind.id]++;
+    }
 
-        double maxX = (minX + this.getWidth()) - 20;
-        double maxY = (minY + this.getHeight()) - 20;
-        for (int i = 0; i < amount; i++) {
-            int rad = 80;
+    public void pumpkinRemoved(PumpkinType kind) {
+        if (pumpkinCounts[kind.id] > 0)
+            pumpkinCounts[kind.id]--;
+    }
 
-            double x = Utils.randomDouble(minX + rad, maxX - rad);
-            double y = Utils.randomDouble(minY + rad, maxY - rad);
-            PumpkinBall pump = new PumpkinBall(this.room.getID(), x, y, 1, this.room);
-            this.room.pumpDots.add(pump);
-
-            this.room.addObj(pump);
-        }
-        goldenpumking += amount;
-
+    public void clearPumpkinCounts() {
+        java.util.Arrays.fill(pumpkinCounts, 0);
     }
 
     public void spawnPlanktonBushs(int amount) {

@@ -37,6 +37,7 @@ import io.mopesbox.Objects.Biome.Biome;
 import io.mopesbox.Objects.Dangerous.MopeCoinBox;
 import io.mopesbox.Objects.ETC.Button;
 import io.mopesbox.Objects.ETC.PumpkinBall;
+import io.mopesbox.Objects.ETC.PumpkinType;
 import io.mopesbox.Objects.ETC.ScorpionClaw;
 import io.mopesbox.Objects.ETC.TrexShake;
 import io.mopesbox.Objects.Fun.Amogus;
@@ -2846,8 +2847,7 @@ public class GameClient {
                 for (GameObject obj : this.room.objects) {
                     if (obj.getType() == 131) {
                         this.room.pumpDots.remove(obj);
-                        this.room.land.pumking = 0;
-                        this.room.land.goldenpumking = 0;
+                        this.room.land.clearPumpkinCounts();
 
                         this.room.removeObj(obj, null);
                     }
@@ -2905,10 +2905,13 @@ public class GameClient {
                     if (!Utils.isNumeric(args[1]))
                         return false;
                     int type = Integer.parseInt(args[1]);
+                    if (!PumpkinType.isValidId(type))
+                        return false;
                     PumpkinBall pump = new PumpkinBall(this.room.getID(), this.getPlayer().getX(),
                             this.getPlayer().getY(), type, this.getRoom());
                     room.addObj(pump);
                     room.pumpDots.add(pump);
+                    room.land.pumpkinAdded(PumpkinType.fromId(type));
                     this.send(Networking.personalGameEvent(255, "COMMAND EXECUTED!"));
                 } else if (args[0].equals("pvpbot")) {
                     // if (this.account.admin < 3)

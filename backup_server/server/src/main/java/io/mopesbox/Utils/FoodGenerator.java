@@ -7,6 +7,7 @@ import io.mopesbox.Objects.Biome.Desert;
 import io.mopesbox.Objects.Biome.Land;
 import io.mopesbox.Objects.Biome.Ocean;
 import io.mopesbox.Objects.Biome.VolcanoBiome;
+import io.mopesbox.Objects.ETC.PumpkinType;
 import io.mopesbox.Objects.Eatable.Healstone;
 import io.mopesbox.Objects.Static.LavaLake;
 import io.mopesbox.World.Room;
@@ -29,11 +30,17 @@ public class FoodGenerator extends Thread {
     private Timer spawnLavaLakesTimer = new Timer(10000);
     private Timer spawnMushroomBushsTimer = new Timer(10000);
     private Timer spawnFrogsTimer = new Timer(30000);
-      private Timer PumpTimer = new Timer(30000);
-
-
-    private Timer PumpGoldenTimer = new Timer(100000);
+    // One spawn timer per pumpkin kind, indexed by PumpkinType id.
+    private final Timer[] pumpkinTimers = createPumpkinTimers();
     private boolean isInitialized = false;
+
+    private static Timer[] createPumpkinTimers() {
+        PumpkinType[] kinds = PumpkinType.values();
+        Timer[] timers = new Timer[kinds.length];
+        for (PumpkinType kind : kinds)
+            timers[kind.id] = new Timer(kind.spawnIntervalMs);
+        return timers;
+    }
 
     public FoodGenerator(Room room) {
         this.room = room;
@@ -88,8 +95,8 @@ public class FoodGenerator extends Thread {
             spawnBeehives.update(Constants.TICKS_PER_SECOND);
             spawnSnailsTimer.update(Constants.TICKS_PER_SECOND);
             spawnFrogsTimer.update(Constants.TICKS_PER_SECOND);
-            PumpTimer.update(Constants.TICKS_PER_SECOND);
-            PumpGoldenTimer.update(Constants.TICKS_PER_SECOND);
+            for (Timer t : pumpkinTimers)
+                t.update(Constants.TICKS_PER_SECOND);
 
 
             if (spawnTimer.isDone()) {
@@ -147,17 +154,15 @@ public class FoodGenerator extends Thread {
                     oright.spawnClams(Math.min(5, 30 - oright.clams));
                 spawnClamsTimer.reset();
             }
-            if(Constants.GAMEMODE != 2 && Constants.canSpawnPump){
-                if (PumpTimer.isDone()) {
-                if (land.pumking < 2)
-                    land.pumking(1);
-                PumpTimer.reset();
-            }
-            if (PumpGoldenTimer.isDone() && Constants.canSpawnPump) {
-                if (land.goldenpumking < 1)
-                    land.golden(1);
-                PumpGoldenTimer.reset();
-            }
+            if (Constants.GAMEMODE != 2 && Constants.canSpawnPump) {
+                for (PumpkinType kind : PumpkinType.values()) {
+                    Timer t = pumpkinTimers[kind.id];
+                    if (t.isDone()) {
+                        if (land.pumpkinCounts[kind.id] < kind.maxAlive)
+                            land.spawnPumpkins(kind, 1);
+                        t.reset();
+                    }
+                }
             }
             if (spawnConchShellsTimer.isDone()) {
                 if (oleft.conchshells < 50)
