@@ -145,12 +145,14 @@ function parseSeasons() {
 async function registerUser(token, social, code) {
     // console.log(code)
     var out = {
-        success: false
+        success: false,
+        reason: 'database'
     };
     let email, email_ver, name, picture, given_name, family_name, locale = null;
     let query1, query1add = null;
     if(social == "google") {
-        if(!googleClientId || !token) return out;
+        if(!googleClientId) return { success: false, reason: 'login_off' };
+        if(!token) return { success: false, reason: 'invalid_token' };
         // Google checks the token's signature and expiry; we check it was issued for this game.
         let data;
         try {
@@ -158,15 +160,15 @@ async function registerUser(token, social, code) {
             data = await response.json();
         } catch (err) {
             console.log("Google token check failed:", err.message);
-            return out;
+            return { success: false, reason: 'google_unreachable' };
         }
-        if(!data || data.error_description || data.error) return out;
+        if(!data || data.error_description || data.error) return { success: false, reason: 'invalid_token' };
         if(data.aud !== googleClientId) {
             console.log("Rejected Google token issued for another app:", data.aud);
-            return out;
+            return { success: false, reason: 'wrong_client_id' };
         }
-        if(data.iss !== "accounts.google.com" && data.iss !== "https://accounts.google.com") return out;
-        if(String(data.email_verified) !== "true" || !data.email) return out;
+        if(data.iss !== "accounts.google.com" && data.iss !== "https://accounts.google.com") return { success: false, reason: 'invalid_token' };
+        if(String(data.email_verified) !== "true" || !data.email) return { success: false, reason: 'email_not_verified' };
         // The ID token only proves who the player is; the session uses its own random token.
         token = crypto.randomBytes(32).toString('hex');
 
@@ -205,7 +207,8 @@ async function registerUser(token, social, code) {
                     console.log(err);
                     console.log("errr");
                     out = {
-                        success: false
+                        success: false,
+                        reason: 'database'
                     }
                     return out;
                 });
@@ -214,7 +217,8 @@ async function registerUser(token, social, code) {
                 console.log(err);
                 console.log("errr");
                 out = {
-                    success: false
+                    success: false,
+                    reason: 'database'
                 }
                 return out;
             });
@@ -243,7 +247,8 @@ async function registerUser(token, social, code) {
                 console.log(err);
                 console.log("errr");
                 out = {
-                    success: false
+                    success: false,
+                    reason: 'database'
                 }
                 return out;
             });
@@ -253,7 +258,8 @@ async function registerUser(token, social, code) {
         console.log(err);
         console.log("errr");
         out = {
-            success: false
+            success: false,
+            reason: 'database'
         }
         return out;
     });
@@ -1816,6 +1822,7 @@ app.get('/reglog', async ({ query }, response) => {
     response.header("Access-Control-Allow-Origin", "*");
     response.header("Access-Control-Allow-Headers", "X-Requested-With");
     let resp = await registerUser(encode_utf8(query.accessToken), encode_utf8(query.socialNetwork));
+    if(!resp.success) console.log(`Google sign-in failed: ${resp.reason || 'unknown'}`);
     response.writeHead(200, {'Content-Type': 'text/html'});
     response.end(JSON.stringify(resp));
 })
