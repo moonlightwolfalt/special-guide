@@ -175,6 +175,17 @@ Prices are the mope.io coin prices. Gem prices are ×25 coins, and skins mope.io
 
 `tools/mope_io_animals.json` maps each animal's mope.io texture names to the 2020 ones, found by comparing the default animals pixel by pixel. For about 30 animals the 2020 client only swaps the main sprite for a skin, so their heads, wings and other parts keep the default look. The 2020 client draws the stingray's wings and tail, and the swordfish's nose and tail, as separate parts, while a mope.io skin's body is the whole animal. Their skins are drawn as one image over the area those parts cover (`full` in `EXTRA_SKINS`), so they don't flap or swish. The script skips skins that are already in the shop under the same name, skins that look exactly like the default animal, and skins whose main sprite can't be converted. It also skips the kakapo and turkey, which the 2020 client can't draw.
 
+## Fetch the mope.io fire frames
+
+`tools/fetch-fire-frames.js` downloads every fire frame from s3.mope.io: the fireball animation frames of all 31 styles (the default plus one per dragon, phoenix and lava monster skin), and the phoenix's 9 fire tornado images.
+
+```
+node tools/fetch-fire-frames.js            # writes fire-frames/ and fire-frames/fire-frames.json
+node tools/fetch-fire-frames.js --no-tornado
+```
+
+Each fireball style has `fireball/<style>/dynamic/<n>.webp` (the moving fireball) and `fireball/<style>/static/<n>.webp`, 5 frames each (the king dragon has 6 static ones). `fire-frames.json` lists every style with its frames in order. Files already downloaded are skipped.
+
 ## Fetch the mope.io pumpkins
 
 `tools/fetch-pumpkins.js` downloads the pumpkin textures from mope.io: 7 kinds (normal, jack, gold, emerald, ruby, diamond, onyx), 5 frames each, as WebP. The files are served from `mope.io/assets/terrain/pumpkin/`, not from s3.mope.io.
