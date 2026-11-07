@@ -55,6 +55,8 @@ Run only one instance of the app, because all players share the one game server 
 | `MASTER_SERVER_URL` | web client: where it reads the server list and player count | `/api/master` |
 | `GAME_SERVERS` | web client: JSON list of game servers, e.g. `[{"name":"EU 1","host":"game.example.com","port":443,"ssl":true}]` | 15 locations in USA, South America, Europe, Russia, Asia and Australia (see `GAME_SERVERS` in `web/client.js`), all on this site's `/game` address |
 | `DB_HOST`, `DB_PORT`, `DB_DATABASE` (or `DB_NAME`), `DB_USERNAME` (or `DB_USER`), `DB_PASSWORD`, or one `DB_URL` (`mysql://user:pass@host:3306/db`) | account server | `127.0.0.1`, `3306`, `mope`, `root`, empty |
+| `DB_SSL` | account server: `true` to connect to MySQL over TLS with the certificate checked, `skip-verify` to encrypt without checking. Or add `?ssl=true` to `DB_URL`. | off |
+| `DB_SSL_CA` | account server: your database provider's CA certificate (the PEM text or a file path), when it isn't publicly trusted | none |
 | `SERVER_KEY` | account server (key the game server sends) | placeholder |
 | `INFINITE_COINS` | account server: every account shows 999,999,999 coins and buys shop items for free; set to `0` for normal coin balances | on |
 | `ENABLE_CAPTCHA` | game server: kick players who don't pass reCAPTCHA v3 within 60 s | off |
@@ -67,6 +69,16 @@ Run only one instance of the app, because all players share the one game server 
 | `FORCE_HTTPS` | set to `0` to stop redirecting `http://` visits (seen via `X-Forwarded-Proto`) to `https://` | on |
 | `MASTER_KEY`, `GAME_SERVER_NAME`, `GAME_SERVER_KEY` | master server (`GAME_SERVER_NAME` must match the game server's host) | placeholders, `localhost` |
 | `SSL_KEY`, `SSL_CERT` | account and master servers: file paths that turn on HTTPS (ports 2083 and 2096) | off |
+
+## Database (needed for logins, coins and skins)
+
+Accounts are stored in MySQL (or MariaDB). Without a database, Google sign-in fails with "couldn't save your account (database problem)".
+
+- **Sevalla:** create a MySQL database in the same location as the app. On the database's **Networking** tab, add an internal connection to the app and turn on **Add environment variables to the application**. That sets the `DB_*` variables for you.
+- **Render** has no MySQL, so use a hosted one and set `DB_URL` to the connection string it gives you, for example `mysql://user:password@host:3306/dbname`. Most hosted MySQL services require TLS: add `?ssl=true` to the end. If the provider gives you a CA certificate, put its text in `DB_SSL_CA`.
+- Special characters in the password must be URL-encoded in `DB_URL`, for example `@` as `%40` and `#` as `%23`.
+
+The account server creates the `users` table itself. If it can't connect, its log says why: a wrong password, an unknown host, a database that requires TLS, or an untrusted certificate.
 
 ## Google login
 
