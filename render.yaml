@@ -23,3 +23,19 @@ services:
       # to its authorized JavaScript origins.
       - key: GOOGLE_CLIENT_ID
         sync: false
+      # reCAPTCHA v3 keys (https://www.google.com/recaptcha/admin) for your domain.
+      # Set ENABLE_CAPTCHA to true only once both keys are in.
+      - key: RECAPTCHA_SITE_KEY
+        sync: false
+      - key: RECAPTCHA_SECRET
+        sync: false
+      - key: ENABLE_CAPTCHA
+        value: "false"
+      # Google AdSense: publisher ID (ca-pub-...) and ad unit IDs for the menu
+      # rectangle (300x250) and bottom banner (728x90). Leave empty for no ads.
+      - key: ADSENSE_CLIENT
+        sync: false
+      - key: ADSENSE_SLOT_RECT
+        sync: false
+      - key: ADSENSE_SLOT_BANNER
+        sync: false

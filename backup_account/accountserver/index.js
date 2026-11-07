@@ -13,6 +13,7 @@ const googleKey = process.env.RECAPTCHA_SECRET || "";
 // OAuth client ID of the web client. Google ID tokens must be issued for it.
 const googleClientId = process.env.GOOGLE_CLIENT_ID || "";
 if (!googleClientId) console.log("GOOGLE_CLIENT_ID is not set: Google login is off.");
+if (!googleKey) console.log("RECAPTCHA_SECRET is not set: reCAPTCHA checks will fail, so leave the game server's ENABLE_CAPTCHA off.");
 var season = 0;
 
 
@@ -99,7 +100,33 @@ function fixSeasonDataColumn() {
                     else console.log("Converted users.seasondata to text so battle-pass progress is kept.");
                 });
             }
-            console.log(`Database ready: ${dbConfig.host}:${dbConfig.port}/${dbConfig.database}`);
+            addMissingShopColumns();
+        });
+}
+
+// Each shop item is a users column (1 = owned). users_structure.sql only creates the
+// table when it is missing, so add columns for shop items added since then.
+function addMissingShopColumns() {
+    connectionms.query(
+        "SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users'",
+        (error, rows) => {
+            if (error) {
+                console.log("Could not check the shop item columns:", error.message);
+                console.log(`Database ready: ${dbConfig.host}:${dbConfig.port}/${dbConfig.database}`);
+                return;
+            }
+            const have = new Set(rows.map(r => r.COLUMN_NAME));
+            const missing = shopitems.map(i => i.itemName).filter(n => /^\w+$/.test(n) && !have.has(n));
+            if (!missing.length) {
+                console.log(`Database ready: ${dbConfig.host}:${dbConfig.port}/${dbConfig.database}`);
+                return;
+            }
+            const sql = "ALTER TABLE `users` " + missing.map(n => "ADD COLUMN `" + n + "` int(11) DEFAULT NULL").join(", ");
+            connectionms.query(sql, (err) => {
+                if (err) console.log("Could not add shop item columns:", err.message);
+                else console.log(`Added ${missing.length} shop item column(s) to users.`);
+                console.log(`Database ready: ${dbConfig.host}:${dbConfig.port}/${dbConfig.database}`);
+            });
         });
 }
 
@@ -927,6 +954,372 @@ var shopitems = [
         author: "Myst"
     },
  
+    // Imported from mope.trygames.party
+    {
+        coinsPrice: 8000,
+        shopCategory: 'locked',
+        itemName: "astralPhoenix"
+    },
+    {
+        coinsPrice: 8000,
+        shopCategory: 'locked',
+        itemName: "bonfire_phoenix"
+    },
+    {
+        coinsPrice: 8000,
+        shopCategory: 'locked',
+        itemName: "skin_dragon_3_3"
+    },
+    {
+        coinsPrice: 8000,
+        shopCategory: 'locked',
+        itemName: "skin_dragon_3_9"
+    },
+    {
+        coinsPrice: 8000,
+        shopCategory: 'locked',
+        itemName: "skin_dragon_202_0"
+    },
+    {
+        coinsPrice: 8000,
+        shopCategory: 'locked',
+        itemName: "skin_dragon_224_0"
+    },
+    {
+        coinsPrice: 3000,
+        shopCategory: 'locked',
+        itemName: "skin_leatherBackTurtle"
+    },
+    {
+        coinsPrice: 3000,
+        shopCategory: 'locked',
+        itemName: "skin_celestialCobra"
+    },
+    {
+        coinsPrice: 3000,
+        shopCategory: 'locked',
+        itemName: "skin_brazenBull"
+    },
+    {
+        coinsPrice: 13000,
+        shopCategory: 'locked',
+        itemName: "skin_luckyCharmMonster"
+    },
+    {
+        coinsPrice: 4000,
+        shopCategory: 'locked',
+        itemName: "skin_iceToucan"
+    },
+    {
+        coinsPrice: 4000,
+        shopCategory: 'locked',
+        itemName: "skin_clowoudLion"
+    },
+    {
+        coinsPrice: 4000,
+        shopCategory: 'locked',
+        itemName: "skin_sunsetClowoudLion"
+    },
+    {
+        coinsPrice: 4000,
+        shopCategory: 'locked',
+        itemName: "skin_stormClowoudLion"
+    },
+    {
+        coinsPrice: 8000,
+        shopCategory: 'locked',
+        itemName: "skin_kaijuRex"
+    },
+    {
+        coinsPrice: 3000,
+        shopCategory: 'locked',
+        itemName: "skin_warTHog"
+    },
+    {
+        coinsPrice: 2000,
+        shopCategory: 'locked',
+        itemName: "skin_velvetChimp"
+    },
+    {
+        coinsPrice: 8000,
+        shopCategory: 'locked',
+        itemName: "skin_aquaPhoenix"
+    },
+    {
+        coinsPrice: 8000,
+        shopCategory: 'locked',
+        itemName: "skin_icePhoenix"
+    },
+    {
+        coinsPrice: 8000,
+        shopCategory: 'locked',
+        itemName: "skin_ashPhoenix"
+    },
+    {
+        coinsPrice: 8000,
+        shopCategory: 'locked',
+        itemName: "skin_redGiantPhoenix"
+    },
+    {
+        coinsPrice: 8000,
+        shopCategory: 'locked',
+        itemName: "skin_copperPhoenix"
+    },
+    {
+        coinsPrice: 8000,
+        shopCategory: 'locked',
+        itemName: "skin_goofyDragon"
+    },
+    {
+        coinsPrice: 8000,
+        shopCategory: 'locked',
+        itemName: "skin_desertDragon"
+    },
+    {
+        coinsPrice: 8000,
+        shopCategory: 'locked',
+        itemName: "skin_forgeDragon"
+    },
+    {
+        coinsPrice: 8000,
+        shopCategory: 'locked',
+        itemName: "skin_mythicalSerpent"
+    },
+    {
+        coinsPrice: 8000,
+        shopCategory: 'locked',
+        itemName: "skin_fireyDragon"
+    },
+    {
+        coinsPrice: 5000,
+        shopCategory: 'locked',
+        itemName: "skin_technoSaber"
+    },
+    {
+        coinsPrice: 3000,
+        shopCategory: 'locked',
+        itemName: "skin_iceFox"
+    },
+    {
+        coinsPrice: 8000,
+        shopCategory: 'locked',
+        itemName: "skin_roseDragon"
+    },
+    {
+        coinsPrice: 8000,
+        shopCategory: 'locked',
+        itemName: "skin_purpleHaze"
+    },
+    {
+        coinsPrice: 2000,
+        shopCategory: 'locked',
+        itemName: "skin_clownfish"
+    },
+    {
+        coinsPrice: 2000,
+        shopCategory: 'locked',
+        itemName: "skin_tullyMonster"
+    },
+    {
+        coinsPrice: 4000,
+        shopCategory: 'locked',
+        itemName: "skin_vampireSquid"
+    },
+    {
+        coinsPrice: 3000,
+        shopCategory: 'locked',
+        itemName: "skin_cuttlefish"
+    },
+    {
+        coinsPrice: 2000,
+        shopCategory: 'locked',
+        itemName: "skin_deluxeShrimp"
+    },
+    {
+        coinsPrice: 2000,
+        shopCategory: 'locked',
+        itemName: "skin_monochromeRabbit"
+    },
+    {
+        coinsPrice: 3000,
+        shopCategory: 'locked',
+        itemName: "skin_nightFox"
+    },
+    {
+        coinsPrice: 3000,
+        shopCategory: 'locked',
+        itemName: "skin_plagueRaptor"
+    },
+    {
+        coinsPrice: 5000,
+        shopCategory: 'locked',
+        itemName: "skin_titanBison"
+    },
+    {
+        coinsPrice: 5000,
+        shopCategory: 'locked',
+        itemName: "skin_dowagerVarande"
+    },
+    {
+        coinsPrice: 5000,
+        shopCategory: 'locked',
+        itemName: "skin_emeprorVarande"
+    },
+    {
+        coinsPrice: 13000,
+        shopCategory: 'locked',
+        itemName: "skin_rubyDevil"
+    },
+    {
+        coinsPrice: 2000,
+        shopCategory: 'locked',
+        itemName: "skin_metalicCrab"
+    },
+    {
+        coinsPrice: 25000,
+        shopCategory: 'locked',
+        itemName: "skin_queenFlame"
+    },
+    {
+        coinsPrice: 3000,
+        shopCategory: 'halloween',
+        itemName: "halloween_wyrmous"
+    },
+    {
+        coinsPrice: 3000,
+        shopCategory: 'halloween',
+        itemName: "halloween_equusthulhu"
+    },
+    {
+        coinsPrice: 4000,
+        shopCategory: 'halloween',
+        itemName: "halloween_frostaline"
+    },
+    {
+        coinsPrice: 4000,
+        shopCategory: 'halloween',
+        itemName: "halloween_pufferMace"
+    },
+    {
+        coinsPrice: 8000,
+        shopCategory: 'halloween',
+        itemName: "halloween_carnageodactyl"
+    },
+    {
+        coinsPrice: 8000,
+        shopCategory: 'halloween',
+        itemName: "halloween_mrDollar"
+    },
+    {
+        coinsPrice: 3000,
+        shopCategory: 'halloween',
+        itemName: "halloween_wendigoDeer"
+    },
+    {
+        coinsPrice: 2000,
+        shopCategory: 'halloween',
+        itemName: "halloween_cactiRat"
+    },
+    {
+        coinsPrice: 5000,
+        shopCategory: 'halloween',
+        itemName: "halloween_hiPower"
+    },
+    {
+        coinsPrice: 2000,
+        shopCategory: 'halloween',
+        itemName: "halloween_puumpkat"
+    },
+    {
+        coinsPrice: 3000,
+        shopCategory: 'halloween',
+        itemName: "halloween_doomedarius"
+    },
+    {
+        coinsPrice: 2000,
+        shopCategory: 'halloween',
+        itemName: "halloween_roboMouse"
+    },
+    {
+        coinsPrice: 4000,
+        shopCategory: 'halloween',
+        itemName: "halloween_uncleSam"
+    },
+    {
+        coinsPrice: 2000,
+        shopCategory: 'halloween',
+        itemName: "halloween_zombieMole"
+    },
+    {
+        coinsPrice: 3000,
+        shopCategory: 'halloween',
+        itemName: "halloween_flammyHart"
+    },
+    {
+        coinsPrice: 4000,
+        shopCategory: 'halloween',
+        itemName: "halloween_gummyViper"
+    },
+    {
+        coinsPrice: 4000,
+        shopCategory: 'halloween',
+        itemName: "halloween_grimRipper"
+    },
+    {
+        coinsPrice: 4000,
+        shopCategory: 'halloween',
+        itemName: "halloween_bigCookie"
+    },
+    {
+        coinsPrice: 8000,
+        shopCategory: 'halloween',
+        itemName: "halloween_gargolgon"
+    },
+    {
+        coinsPrice: 3000,
+        shopCategory: 'halloween',
+        itemName: "halloween_candyRus"
+    },
+    {
+        coinsPrice: 4000,
+        shopCategory: 'halloween',
+        itemName: "halloween_mantilian"
+    },
+    {
+        coinsPrice: 3000,
+        shopCategory: 'halloween',
+        itemName: "halloween_phantomRay"
+    },
+    {
+        coinsPrice: 4000,
+        shopCategory: 'halloween',
+        itemName: "halloween_suitedToucan"
+    },
+    {
+        coinsPrice: 4000,
+        shopCategory: 'halloween',
+        itemName: "halloween_vulgeist"
+    },
+    {
+        coinsPrice: 3000,
+        shopCategory: 'halloween',
+        itemName: "halloween_burlone"
+    },
+    {
+        coinsPrice: 3000,
+        shopCategory: 'halloween',
+        itemName: "halloween_unicornze"
+    },
+    {
+        coinsPrice: 8000,
+        shopCategory: 'locked',
+        itemName: "skin_snowgirl"
+    },
+    {
+        coinsPrice: 8000,
+        shopCategory: 'locked',
+        itemName: "skin_pterodactyl_blue"
+    },
 ];
 
 var exclusiveitems = [];
@@ -1481,16 +1874,25 @@ app.get('/getReward', async function(request, response) {
     response.end(JSON.stringify(resp));
 })
 
-const handleSend = (req, res) => {
-    let token = req.body.token;
-    let url = `https://www.google.com/recaptcha/api/siteverify?secret=${googleKey}&response=${token}`;
-
-    fetch(url, {
-        method: 'post'
-    })
-        .then(response => response.json())
-        .then(google_response => res.json({ google_response }))
-        .catch(error => res.json({ error }));
+// Checks a reCAPTCHA v3 token with Google for the game server. Always answers with a
+// google_response object, so the game server can read the result even when the check fails.
+const handleSend = async (req, res) => {
+    const token = req.body && typeof req.body.token === 'string' ? req.body.token : '';
+    if (!googleKey) {
+        return res.json({ google_response: { success: false, 'error-codes': ['missing-input-secret'] } });
+    }
+    try {
+        const response = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({ secret: googleKey, response: token }),
+        });
+        const google_response = await response.json();
+        res.json({ google_response });
+    } catch (err) {
+        console.log("reCAPTCHA check failed:", err.message);
+        res.json({ google_response: { success: false, 'error-codes': ['siteverify-unreachable'] } });
+    }
 };
 app.post('/verifykey', jsonParser, handleSend);
 

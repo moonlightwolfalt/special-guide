@@ -7,6 +7,11 @@ window.MOPE_CONFIG = {
     googleClientId: "",
     // reCAPTCHA v3 site key; only needed when the game server's ENABLE_CAPTCHA is on.
     recaptchaSiteKey: "",
+    // Google AdSense publisher ID ("ca-pub-..."). Leave empty for no ads.
+    adsenseClient: "",
+    // AdSense ad unit IDs (numbers): the 300x250 menu rectangle and the 728x90 bottom banner.
+    adsenseSlotRect: "",
+    adsenseSlotBanner: "",
     // Account server address. Empty means this page's host on port 14002.
     accountServerUrl: ""
 };

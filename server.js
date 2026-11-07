@@ -89,11 +89,40 @@ const MIME = {
     '.woff': 'font/woff', '.woff2': 'font/woff2', '.ttf': 'font/ttf',
 };
 
+// ADSENSE_CLIENT as "ca-pub-<digits>" (also accepts "pub-<digits>"), or '' when unset or malformed.
+function adsenseClient() {
+    const raw = String(process.env.ADSENSE_CLIENT || '').trim();
+    const m = raw.match(/^(?:ca-)?pub-(\d{10,20})$/);
+    return m ? `ca-pub-${m[1]}` : '';
+}
+
+function digitsOnly(value) {
+    const v = String(value || '').trim();
+    return /^\d{1,20}$/.test(v) ? v : '';
+}
+
+// Point out Google settings that are half set up, so they don't fail quietly.
+function checkGoogleSettings() {
+    const on = v => /^(1|true|yes|on)$/i.test(String(v || ''));
+    if (on(process.env.ENABLE_CAPTCHA) && !(process.env.RECAPTCHA_SITE_KEY && process.env.RECAPTCHA_SECRET)) {
+        log('web', 'ENABLE_CAPTCHA is on but RECAPTCHA_SITE_KEY or RECAPTCHA_SECRET is missing: every player will be kicked.');
+    }
+    if (process.env.ADSENSE_CLIENT && !adsenseClient()) {
+        log('web', 'ADSENSE_CLIENT should look like ca-pub-1234567890123456; ads are off.');
+    } else if (adsenseClient() && !digitsOnly(process.env.ADSENSE_SLOT_RECT) && !digitsOnly(process.env.ADSENSE_SLOT_BANNER)) {
+        log('web', 'ADSENSE_CLIENT is set but neither ADSENSE_SLOT_RECT nor ADSENSE_SLOT_BANNER is: no ads will show.');
+    }
+}
+
 // Client settings, built from environment variables so nothing is hardcoded in web/.
 function clientConfig() {
     const config = {
         googleClientId: process.env.GOOGLE_CLIENT_ID || '',
         recaptchaSiteKey: process.env.RECAPTCHA_SITE_KEY || '',
+        // Google AdSense: publisher ID and the two ad units (menu rectangle, bottom banner).
+        adsenseClient: adsenseClient(),
+        adsenseSlotRect: digitsOnly(process.env.ADSENSE_SLOT_RECT),
+        adsenseSlotBanner: digitsOnly(process.env.ADSENSE_SLOT_BANNER),
         accountServerUrl: process.env.ACCOUNT_SERVER_URL || '/api/account',
         masterServerUrl: process.env.MASTER_SERVER_URL || '/api/master',
         // The default server list reaches the game through this page's address at this path.
@@ -204,6 +233,12 @@ function startWebServer() {
             res.writeHead(400).end('Bad request');
             return;
         }
+        if (urlPath === '/ads.txt' && adsenseClient()) {
+            // AdSense asks every site that shows its ads to publish this line.
+            res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
+            res.end(`google.com, ${adsenseClient().replace(/^ca-/, '')}, DIRECT, f08c47fec0942fa0\n`);
+            return;
+        }
         if (urlPath === '/config.js') {
             res.writeHead(200, { 'Content-Type': 'text/javascript; charset=utf-8', 'Cache-Control': 'no-store' });
             res.end(clientConfig());
@@ -236,6 +271,7 @@ function startWebServer() {
             : `server error: ${err.message}`);
         shutdown(1);
     });
+    checkGoogleSettings();
     server.listen(WEB_PORT, '0.0.0.0', () => log('web', `game ready at http://localhost:${WEB_PORT}`));
     return server;
 }

@@ -1,4 +1,4 @@
-#Fri Nov 06 22:24:42 UTC 2026
+#Sat Nov 07 01:27:53 UTC 2026
 accountServerURL=http\://localhost\:14002
 adminForEveryone=false
 adminPerms=true
@@ -6,6 +6,7 @@ beginCoinsAfterSpawnInSeconds=30
 beta_version=1
 br_coinsAfterWin=1000
 captchaHostname=
+captchaMinScore=0.5
 closedForDev=false
 defAngleSpeed=0.31
 enableCoinEarning=true

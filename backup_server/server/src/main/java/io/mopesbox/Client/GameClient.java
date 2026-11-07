@@ -37,6 +37,7 @@ import io.mopesbox.Objects.Biome.Biome;
 import io.mopesbox.Objects.Dangerous.MopeCoinBox;
 import io.mopesbox.Objects.ETC.Button;
 import io.mopesbox.Objects.ETC.PumpkinBall;
+import io.mopesbox.Objects.ETC.PumpkinType;
 import io.mopesbox.Objects.ETC.ScorpionClaw;
 import io.mopesbox.Objects.ETC.TrexShake;
 import io.mopesbox.Objects.Fun.Amogus;
@@ -1146,16 +1147,23 @@ public class GameClient {
                     String token = reader.readString();
                     if (token != null && !token.equals("error")) {
                         String resp = this.room.accountConnector.checkToken(token);
-                        // Main.instance.log.info(resp);
-                        Gson gson = new Gson();
-                        JsonObject ress = gson.fromJson(resp, JsonObject.class).getAsJsonObject("google_response");
-                        // Main.instance.log.info(ress);
-                        // Main.log.info(ress);
-              
-                        if (ress.get("success").getAsBoolean()
+                        // A missing or malformed answer counts as a failed check.
+                        JsonObject ress = null;
+                        try {
+                            JsonObject whole = new Gson().fromJson(resp, JsonObject.class);
+                            if (whole != null && whole.has("google_response") && whole.get("google_response").isJsonObject())
+                                ress = whole.getAsJsonObject("google_response");
+                        } catch (Exception e) {
+                            ress = null;
+                        }
+                        boolean passed = ress != null && ress.has("success") && ress.get("success").getAsBoolean();
+                        String hostname = ress != null && ress.has("hostname") ? ress.get("hostname").getAsString() : "";
+                        double score = ress != null && ress.has("score") ? ress.get("score").getAsDouble() : 0;
+
+                        if (passed
                                 && (Constants.CAPTCHA_HOSTNAME.isEmpty()
-                                        || ress.get("hostname").getAsString().equalsIgnoreCase(Constants.CAPTCHA_HOSTNAME))) {
-                            if (ress.get("score").getAsDouble() < 0.5) {
+                                        || hostname.equalsIgnoreCase(Constants.CAPTCHA_HOSTNAME))) {
+                            if (score < Constants.CAPTCHA_MIN_SCORE) {
                                 logsArray.put("AccountServer: Solved bot attack "+this.ip, "...");
                                 this.saveSession = false;
 
@@ -2846,8 +2854,7 @@ public class GameClient {
                 for (GameObject obj : this.room.objects) {
                     if (obj.getType() == 131) {
                         this.room.pumpDots.remove(obj);
-                        this.room.land.pumking = 0;
-                        this.room.land.goldenpumking = 0;
+                        this.room.land.clearPumpkinCounts();
 
                         this.room.removeObj(obj, null);
                     }
@@ -2905,10 +2912,13 @@ public class GameClient {
                     if (!Utils.isNumeric(args[1]))
                         return false;
                     int type = Integer.parseInt(args[1]);
+                    if (!PumpkinType.isValidId(type))
+                        return false;
                     PumpkinBall pump = new PumpkinBall(this.room.getID(), this.getPlayer().getX(),
                             this.getPlayer().getY(), type, this.getRoom());
                     room.addObj(pump);
                     room.pumpDots.add(pump);
+                    room.land.pumpkinAdded(PumpkinType.fromId(type));
                     this.send(Networking.personalGameEvent(255, "COMMAND EXECUTED!"));
                 } else if (args[0].equals("pvpbot")) {
                     // if (this.account.admin < 3)
