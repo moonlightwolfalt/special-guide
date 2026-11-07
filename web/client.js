@@ -2463,15 +2463,135 @@ Object.assign(EXTRA_SKINS, {
         ],
         "keep": true
     },
+    "20_210": {
+        "name": "Classic Stingray",
+        "full": {
+            "img": "ocean/stingray/210/full",
+            "x": -1.29,
+            "y": -1.54,
+            "w": 2.58,
+            "h": 2.58
+        }
+    },
+    "20_211": {
+        "name": "Gold-trim Stingray",
+        "full": {
+            "img": "ocean/stingray/211/full",
+            "x": -1.29,
+            "y": -1.54,
+            "w": 2.58,
+            "h": 2.58
+        }
+    },
+    "20_212": {
+        "name": "Chocolate Ray",
+        "full": {
+            "img": "ocean/stingray/212/full",
+            "x": -1.29,
+            "y": -1.54,
+            "w": 2.58,
+            "h": 2.58
+        }
+    },
+    "20_213": {
+        "name": "Valentine Stingray",
+        "full": {
+            "img": "ocean/stingray/213/full",
+            "x": -1.29,
+            "y": -1.54,
+            "w": 2.58,
+            "h": 2.58
+        }
+    },
+    "27_211": {
+        "name": "Classic Swordfish",
+        "base": "ocean/swordfish/swordfish",
+        "sprite": "ocean/swordfish/211/swordfish",
+        "variants": [
+            "",
+            "1",
+            "2"
+        ],
+        "keep": true,
+        "full": {
+            "img": "ocean/swordfish/211/full",
+            "x": -1.264,
+            "y": -1.189,
+            "w": 2.528,
+            "h": 2.528
+        }
+    },
+    "27_212": {
+        "name": "Evergreen Swordfish",
+        "base": "ocean/swordfish/swordfish",
+        "sprite": "ocean/swordfish/212/swordfish",
+        "variants": [
+            "",
+            "1",
+            "2"
+        ],
+        "keep": true,
+        "full": {
+            "img": "ocean/swordfish/212/full",
+            "x": -1.264,
+            "y": -1.189,
+            "w": 2.528,
+            "h": 2.528
+        }
+    },
+    "27_213": {
+        "name": "Gold-trim Swordfish",
+        "base": "ocean/swordfish/swordfish",
+        "sprite": "ocean/swordfish/213/swordfish",
+        "variants": [
+            "",
+            "1",
+            "2"
+        ],
+        "keep": true,
+        "full": {
+            "img": "ocean/swordfish/213/full",
+            "x": -1.264,
+            "y": -1.189,
+            "w": 2.528,
+            "h": 2.528
+        }
+    },
+    "27_214": {
+        "name": "Sodafish",
+        "base": "ocean/swordfish/swordfish",
+        "sprite": "ocean/swordfish/214/swordfish",
+        "variants": [
+            "",
+            "1",
+            "2"
+        ],
+        "keep": true,
+        "full": {
+            "img": "ocean/swordfish/214/full",
+            "x": -1.264,
+            "y": -1.189,
+            "w": 2.528,
+            "h": 2.528
+        }
+    },
     "27_210": {
         "name": "Surfboardfish",
         "base": "ocean/swordfish/swordfish",
         "sprite": "ocean/swordfish/210/swordfish",
         "variants": [
             "",
+            "1",
             "2"
         ],
-        "keep": true
+        "keep": true,
+        "full": {
+            "img": "ocean/swordfish/210/full",
+            "x": -1.264,
+            "y": -1.189,
+            "w": 2.528,
+            "h": 2.528
+        }
     },
     "54_210": {
         "name": "Chimera Tiger"
@@ -2833,6 +2953,20 @@ function addExtraSkinSupport(obj) {
         // keep: a pose the skin has no sprite for keeps the default one
         return extra.keep ? name : extra.sprite;
     };
+}
+
+// An imported skin drawn as one image over the area an animal's separate parts cover
+// (EXTRA_SKINS "full": x, y, w, h in units of the body radius). Returns true when it did,
+// so the caller skips the default parts.
+function drawFullSkin(animal) {
+    var extra = EXTRA_SKINS[animal.animalType + '_' + animal.animalSpecies];
+    if (!extra || !extra.full) return false;
+    var img = _0x2f22f9('skins/' + extra.full.img + '.png');
+    if (img) {
+        var u = (animal.rad - animal.outlineW) * (0x1f4 / 0x154);
+        ctx.drawImage(img, u * extra.full.x, u * extra.full.y, u * extra.full.w, u * extra.full.h);
+    }
+    return true;
 }
 
 // --- outer space beyond the map edges ---------------------------------------------
@@ -17635,8 +17769,24 @@ mopeShopObject.prototype.getAnimalInfo = function (_0x58287b) {
             return [18, 212, 'Seacoast\nSquid', 'ocean/squid/212/squid'];
         case 'mio_squid_void_scuttling':
             return [18, 213, 'Void\nScuttling Squid', 'ocean/squid/213/squid'];
+        case 'mio_stingray_classic':
+            return [20, 210, 'Classic\nStingray', 'ocean/stingray/210/full'];
+        case 'mio_stingray_gold_trim':
+            return [20, 211, 'Gold-trim\nStingray', 'ocean/stingray/211/full'];
+        case 'mio_stingray_summer21_chocolate':
+            return [20, 212, 'Chocolate\nRay', 'ocean/stingray/212/full'];
+        case 'mio_stingray_val23':
+            return [20, 213, 'Valentine\nStingray', 'ocean/stingray/213/full'];
+        case 'mio_swordfish_classic':
+            return [27, 211, 'Classic\nSwordfish', 'ocean/swordfish/211/full'];
+        case 'mio_swordfish_evergreen':
+            return [27, 212, 'Evergreen\nSwordfish', 'ocean/swordfish/212/full'];
+        case 'mio_swordfish_gold_trim':
+            return [27, 213, 'Gold-trim\nSwordfish', 'ocean/swordfish/213/full'];
+        case 'mio_swordfish_hw2023_soda_fish':
+            return [27, 214, 'Sodafish', 'ocean/swordfish/214/full'];
         case 'mio_swordfish_summer21_surfboard':
-            return [27, 210, 'Surfboardfish', 'ocean/swordfish/210/swordfish'];
+            return [27, 210, 'Surfboardfish', 'ocean/swordfish/210/full'];
         case 'mio_tiger_chimera':
             return [54, 210, 'Chimera\nTiger', 'land/tiger/210/tiger'];
         case 'mio_tiger_classic':
@@ -25755,6 +25905,7 @@ var _0x27ee4 = 1.5,
     _0xf376ff = 1.2,
     _0x3f7b03 = 0.8;
 _0x56f95f.prototype.drawUnderSkinImg = function () {
+    if (drawFullSkin(this)) return;
     var _0x6c37f9 = 0x1f4 / 0x154,
         _0x2d9dc9 = _0x2f22f9('skins/ocean/stingray/' + this.animalSpecies + '/tail.png');
     if (_0x2d9dc9) {
@@ -25947,6 +26098,7 @@ _0x52e8dc.prototype.getSkinName = function () {
 };
 _0x52e8dc.prototype.drawSkinCustomization = function () { };
 _0x52e8dc.prototype.drawUnderSkinImg = function () {
+    if (drawFullSkin(this)) return;
     var _0x1e8471 = 0x1f4 / 0x154,
         _0x3d8708 = _0x2f22f9('skins/ocean/swordfish/nose.png');
     if (_0x3d8708) {

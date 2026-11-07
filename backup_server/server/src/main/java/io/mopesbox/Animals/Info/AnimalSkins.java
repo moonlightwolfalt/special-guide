@@ -513,6 +513,14 @@ public class AnimalSkins {
     public static AnimalInfo mio_squid_gold_trim_skin = new AnimalInfo(AnimalType.SQUID, BiomeType.OCEAN, 5, 0, 211); // Gold-trim Squid
     public static AnimalInfo mio_squid_summer21_skin = new AnimalInfo(AnimalType.SQUID, BiomeType.OCEAN, 5, 0, 212); // Seacoast Squid
     public static AnimalInfo mio_squid_void_scuttling_skin = new AnimalInfo(AnimalType.SQUID, BiomeType.OCEAN, 5, 0, 213); // Void Scuttling Squid
+    public static AnimalInfo mio_stingray_classic_skin = new AnimalInfo(AnimalType.STINGRAY, BiomeType.OCEAN, 8, 9, 210); // Classic Stingray
+    public static AnimalInfo mio_stingray_gold_trim_skin = new AnimalInfo(AnimalType.STINGRAY, BiomeType.OCEAN, 8, 9, 211); // Gold-trim Stingray
+    public static AnimalInfo mio_stingray_summer21_chocolate_skin = new AnimalInfo(AnimalType.STINGRAY, BiomeType.OCEAN, 8, 9, 212); // Chocolate Ray
+    public static AnimalInfo mio_stingray_val23_skin = new AnimalInfo(AnimalType.STINGRAY, BiomeType.OCEAN, 8, 9, 213); // Valentine Stingray
+    public static AnimalInfo mio_swordfish_classic_skin = new AnimalInfo(AnimalType.SWORDFISH, BiomeType.OCEAN, 10, 9, 211); // Classic Swordfish
+    public static AnimalInfo mio_swordfish_evergreen_skin = new AnimalInfo(AnimalType.SWORDFISH, BiomeType.OCEAN, 10, 9, 212); // Evergreen Swordfish
+    public static AnimalInfo mio_swordfish_gold_trim_skin = new AnimalInfo(AnimalType.SWORDFISH, BiomeType.OCEAN, 10, 9, 213); // Gold-trim Swordfish
+    public static AnimalInfo mio_swordfish_hw2023_soda_fish_skin = new AnimalInfo(AnimalType.SWORDFISH, BiomeType.OCEAN, 10, 9, 214); // Sodafish
     public static AnimalInfo mio_swordfish_summer21_surfboard_skin = new AnimalInfo(AnimalType.SWORDFISH, BiomeType.OCEAN, 10, 9, 210); // Surfboardfish
     public static AnimalInfo mio_tiger_chimera_skin = new AnimalInfo(AnimalType.TIGER, BiomeType.LAND, 10, 40, 210); // Chimera Tiger
     public static AnimalInfo mio_tiger_classic_skin = new AnimalInfo(AnimalType.TIGER, BiomeType.LAND, 10, 40, 211); // Classic Tiger

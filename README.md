@@ -173,7 +173,7 @@ For each skin it converts the WebP textures to the PNG file names the 2020 clien
 
 Prices are the mope.io coin prices. Gem prices are ×25 coins, and skins mope.io no longer sells cost 10,000.
 
-`tools/mope_io_animals.json` maps each animal's mope.io texture names to the 2020 ones, found by comparing the default animals pixel by pixel. For about 30 animals the 2020 client only swaps the main sprite for a skin, so their heads, wings and other parts keep the default look. The script skips skins that are already in the shop under the same name, skins that look exactly like the default animal, and skins whose main sprite can't be converted. It also skips the kakapo and turkey, which the 2020 client can't draw.
+`tools/mope_io_animals.json` maps each animal's mope.io texture names to the 2020 ones, found by comparing the default animals pixel by pixel. For about 30 animals the 2020 client only swaps the main sprite for a skin, so their heads, wings and other parts keep the default look. The 2020 client draws the stingray's wings and tail, and the swordfish's nose and tail, as separate parts, while a mope.io skin's body is the whole animal. Their skins are drawn as one image over the area those parts cover (`full` in `EXTRA_SKINS`), so they don't flap or swish. The script skips skins that are already in the shop under the same name, skins that look exactly like the default animal, and skins whose main sprite can't be converted. It also skips the kakapo and turkey, which the 2020 client can't draw.
 
 ## Fetch the mope.io pumpkins
 
