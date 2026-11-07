@@ -279,9 +279,15 @@ ensureNodeModules('master', MASTER_DIR);
 ensureNodeModules('account', ACCOUNT_DIR);
 ensureGameJar();
 
-start('master', process.execPath, ['index.js'], MASTER_DIR);
-start('account', process.execPath, ['index.js'], ACCOUNT_DIR);
-// JAVA_OPTS sets the game server's JVM flags, e.g. a memory cap on small hosting plans.
-const javaOpts = (process.env.JAVA_OPTS || '-XX:MaxRAMPercentage=50').split(/\s+/).filter(Boolean);
+// Memory: the servers hold very little data (the game server's live heap is a few MB),
+// but by default Java and Node size themselves from the machine's memory. These caps keep
+// the whole app small enough for 512 MB-1 GB instances. Override with JAVA_OPTS or
+// NODE_SERVER_OPTS.
+const nodeOpts = (process.env.NODE_SERVER_OPTS || '--max-old-space-size=96').split(/\s+/).filter(Boolean);
+start('master', process.execPath, [...nodeOpts, 'index.js'], MASTER_DIR);
+start('account', process.execPath, [...nodeOpts, 'index.js'], ACCOUNT_DIR);
+const javaOpts = (process.env.JAVA_OPTS
+    || '-Xms16m -Xmx128m -XX:+UseSerialGC -XX:MaxMetaspaceSize=96m -XX:ReservedCodeCacheSize=48m -Xss512k')
+    .split(/\s+/).filter(Boolean);
 start('game', 'java', [...javaOpts, '-Dfile.encoding=UTF-8', '-jar', GAME_JAR], GAME_DIR);
 startWebServer();

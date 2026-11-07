@@ -18,6 +18,17 @@ var season = 0;
 
 var coinsperoutlevel = 2000;
 
+// Unlimited coins: every account (players log in with Google) shows this balance and
+// buys shop items without spending coins. INFINITE_COINS=0 turns it off.
+const INFINITE_COINS = process.env.INFINITE_COINS !== '0';
+const INFINITE_COIN_BALANCE = 999999999;
+if (INFINITE_COINS) console.log("Unlimited coins are on (INFINITE_COINS=0 to turn off).");
+
+function withCoinBalance(row) {
+    if (INFINITE_COINS && row) row.coins = INFINITE_COIN_BALANCE;
+    return row;
+}
+
 //DB
 
 var mysql = require('mysql2');
@@ -395,7 +406,7 @@ async function loadAccountData(id, token) {
             return out;
         } else {
             out = {
-                coins: rows[0].coins,
+                coins: INFINITE_COINS ? INFINITE_COIN_BALANCE : rows[0].coins,
                 level: rows[0].level,
                 xp: rows[0].xp,
                 xpNextLvl: getNextLevelXP(rows[0].level),
@@ -1073,7 +1084,7 @@ async function buyItem(id, token, itemName) {
                 }
                 return out;
             } else {
-                let cst = getCost(itemName);
+                let cst = INFINITE_COINS ? 0 : getCost(itemName);
                 if(rows[0].coins < cst) {
                     out = {
                         success: false,
@@ -1176,7 +1187,7 @@ async function getAccountData(id) {
             }
             return out;
         } else {
-            out = rows[0];
+            out = withCoinBalance(rows[0]);
             return out;
         }
     })
@@ -1204,7 +1215,7 @@ async function reqloadAccountData(id, token) {
             }
             return out;
         } else {
-            out = rows[0];
+            out = withCoinBalance(rows[0]);
             return out;
         }
     })

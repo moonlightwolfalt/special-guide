@@ -56,6 +56,7 @@ Run only one instance of the app, because all players share the one game server 
 | `GAME_SERVERS` | web client: JSON list of game servers, e.g. `[{"name":"EU 1","host":"game.example.com","port":443,"ssl":true}]` | 15 locations in USA, South America, Europe, Russia, Asia and Australia (see `GAME_SERVERS` in `web/client.js`), all on this site's `/game` address |
 | `DB_HOST`, `DB_PORT`, `DB_DATABASE` (or `DB_NAME`), `DB_USERNAME` (or `DB_USER`), `DB_PASSWORD`, or one `DB_URL` (`mysql://user:pass@host:3306/db`) | account server | `127.0.0.1`, `3306`, `mope`, `root`, empty |
 | `SERVER_KEY` | account server (key the game server sends) | placeholder |
+| `INFINITE_COINS` | account server: every account shows 999,999,999 coins and buys shop items for free; set to `0` for normal coin balances | on |
 | `ENABLE_CAPTCHA` | game server: kick players who don't pass reCAPTCHA v3 within 60 s | off |
 | `RECAPTCHA_SITE_KEY`, `RECAPTCHA_SECRET` | web client and account server: your reCAPTCHA v3 keys (needed when `ENABLE_CAPTCHA` is on) | empty |
 | `CAPTCHA_HOSTNAME` | game server: the site hostname reCAPTCHA must report | any |
