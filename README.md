@@ -58,6 +58,7 @@ Run only one instance of the app, because all players share the one game server 
 | `DB_SSL` | account server: `true` to connect to MySQL over TLS with the certificate checked, `skip-verify` to encrypt without checking. Or add `?ssl=true` to `DB_URL`. | off |
 | `DB_SSL_CA` | account server: your database provider's CA certificate (the PEM text or a file path), when it isn't publicly trusted | none |
 | `SERVER_KEY` | account server (key the game server sends) | placeholder |
+| `DAILY_OFFERS_TZ` | account server: the time zone whose midnight refreshes the shop's daily offers, e.g. `America/New_York` | `UTC` |
 | `INFINITE_COINS` | account server: every account shows 999,999,999 coins and buys shop items for free; set to `0` for normal coin balances | on |
 | `ENABLE_CAPTCHA` | game server: kick players who don't pass reCAPTCHA v3 within 60 s | off |
 | `RECAPTCHA_SITE_KEY`, `RECAPTCHA_SECRET` | web client and account server: your reCAPTCHA v3 keys (needed when `ENABLE_CAPTCHA` is on) | empty |
@@ -142,6 +143,10 @@ node tools/fetch-shop-skins.js --no-images           # only write the list
 ```
 
 It writes `shop-skins/skins.json` and the images under `shop-skins/images/`, in the same folders as the site's `skins/`. Prices, categories and ownership come from the account server and need a logged-in player: set `MOPE_USER_ID` and `MOPE_PASSWORD_TOKEN` to add them.
+
+## Daily offers
+
+The shop's **DAILY** tab has 6 skins at 20–50% off, with a countdown to the next set. The account server picks them from the date, so every player sees the same 6, and they stay the same through restarts. They change at midnight in `DAILY_OFFERS_TZ` (UTC unless you set it). An offer skin costs its offer price all day, wherever you buy it: from the DAILY tab, its regular shop tab, or "Buy all". Offers come from the Golden, Locked, Halloween, Community and MopeIO tabs. `/dailyOffers` on the account server lists today's offers.
 
 ## Wardrobe
 

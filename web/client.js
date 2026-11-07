@@ -3177,6 +3177,127 @@ function wardrobeBuildTab(panel) {
     });
 }
 
+// --- daily offers ----------------------------------------------------------------------
+// Six discounted skins a day, picked by the account server (same for everyone). The shop's
+// DAILY tab shows them with a countdown to the next refresh at midnight.
+var dailyOffersData = null, dailyOffersAt = 0, dailyOffersTimer = null;
+
+function dailyOffersLoad(cb) {
+    $.ajax({
+        url: ACCOUNT_SERVER_URL + '/dailyOffers', crossDomain: true,
+        success: function (r) {
+            try { r = JSON.parse(r); if (r.success) { dailyOffersData = r; dailyOffersAt = Date.now(); } } catch (e) { }
+            cb && cb();
+        },
+        error: function () { cb && cb(); }
+    });
+}
+
+function dailyOffersSecondsLeft() {
+    if (!dailyOffersData) return 0;
+    return Math.max(0, Math.round(dailyOffersData.secondsLeft - (Date.now() - dailyOffersAt) / 1000));
+}
+
+function dailyCountdownText(sec) {
+    var h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60), s = sec % 60;
+    var two = function (n) { return (n < 10 ? '0' : '') + n; };
+    return two(h) + ':' + two(m) + ':' + two(s);
+}
+
+function dailyBuy(itemName, btn) {
+    if (!login_userId) { _0x1fed78('Log in to buy skins!', 'error', 0x5); return; }
+    btn.disabled = true;
+    mopeShopObj.blockOverlay();
+    _0x3e4625(itemName, function (ok, reason) {
+        if (ok) {
+            var mes = new MsgWriter(1);
+            mes.writeUInt8(71);
+            wsSendMsg(mes);
+            _0x1fed78('Purchase successful!', 'success', 0x5);
+            _0x201f22(!0);
+            _0x7db050();
+        } else {
+            btn.disabled = false;
+            _0x1fed78(reason == 'alreadyowned' ? 'AccountServer: item already purchased!' : reason == 'cantafford' ? 'AccountServer: not enough coins to buy this!' : 'AccountServer: something went wrong', reason || 'error', 0xf);
+        }
+        mopeShopObj.removeBlockOverlay();
+    });
+}
+
+function dailyBuildTab(panel) {
+    if (dailyOffersTimer) { clearInterval(dailyOffersTimer); dailyOffersTimer = null; }
+    panel.innerHTML = '';
+    if (!dailyOffersData) {
+        panel.innerHTML = '<div class="nopurchases">Loading today\'s offers...</div>';
+        return;
+    }
+    var head = document.createElement('div');
+    head.className = 'daily-head';
+    var title = document.createElement('span');
+    title.className = 'daily-title';
+    title.textContent = "Today's offers";
+    var timer = document.createElement('span');
+    timer.className = 'daily-timer';
+    head.appendChild(title);
+    head.appendChild(timer);
+    panel.appendChild(head);
+    var tick = function () {
+        var left = dailyOffersSecondsLeft();
+        timer.textContent = 'New offers in ' + dailyCountdownText(left);
+        if (left <= 0 && document.body.contains(panel)) {
+            clearInterval(dailyOffersTimer);
+            dailyOffersTimer = null;
+            setTimeout(function () { dailyOffersLoad(function () { dailyBuildTab(panel); }); }, 1500);
+        }
+    };
+    tick();
+    dailyOffersTimer = setInterval(function () {
+        if (!document.body.contains(panel)) { clearInterval(dailyOffersTimer); dailyOffersTimer = null; return; }
+        tick();
+    }, 1000);
+
+    var grid = document.createElement('div');
+    grid.className = 'daily-grid';
+    dailyOffersData.offers.forEach(function (o) {
+        var info = mopeShopObject.prototype.getAnimalInfo(o.itemName);
+        var card = document.createElement('div');
+        card.className = 'daily-card';
+        var pic = document.createElement('div');
+        pic.className = 'daily-pic';
+        if (info) { var im = new Image(); im.src = 'skins/' + info[3] + '.png'; pic.appendChild(im); }
+        var badge = document.createElement('span');
+        badge.className = 'daily-badge';
+        badge.textContent = '-' + o.discount + '%';
+        pic.appendChild(badge);
+        card.appendChild(pic);
+        var body = document.createElement('div');
+        body.className = 'daily-body';
+        var name = document.createElement('div');
+        name.className = 'daily-name';
+        name.textContent = info ? String(info[2]).replace(/\n/g, ' ') : o.itemName;
+        body.appendChild(name);
+        var was = document.createElement('div');
+        was.className = 'daily-was';
+        was.textContent = mopeShopObj.coinsFormat ? mopeShopObj.coinsFormat(o.coinsPrice) : o.coinsPrice;
+        body.appendChild(was);
+        var owned = wardrobeOwned.indexOf(o.itemName) >= 0;
+        var buy = document.createElement('button');
+        buy.className = 'daily-buy';
+        if (owned) {
+            buy.textContent = 'Owned';
+            buy.disabled = true;
+            card.className += ' daily-owned';
+        } else {
+            buy.innerHTML = '<img class="buycoin-img" src="/assets/s/0/img/coin/coin.png"> ' + (mopeShopObj.coinsFormat ? mopeShopObj.coinsFormat(o.offerPrice) : o.offerPrice);
+            buy.onclick = function () { dailyBuy(o.itemName, buy); };
+        }
+        body.appendChild(buy);
+        card.appendChild(body);
+        grid.appendChild(card);
+    });
+    panel.appendChild(grid);
+}
+
 // --- outer space beyond the map edges ---------------------------------------------
 // Objects drawn in space, from web/img/space/ (made by tools/space-art/). depth is the
 // parallax: 0 stays put, larger values drift with the camera so they look further away.
@@ -19004,6 +19125,7 @@ mopeShopObject.prototype.showShopButtons = function () {
     mopeShop_Tab.append(mopeShop_Content);
     mopeShop_Tab.append(createElem('div', '', 'separator'));
     _0x3a1d1d.appendChild(mopeShop_Tab);
+    this.createDailyTab(_0x534d44, _0x3a1d1d);
     this.createMyPurchasesTab(_0x534d44, _0x3a1d1d, mopeShopObj.shop.ownedSkins);
     this.createWardrobeTab(_0x534d44, _0x3a1d1d);
     this.showUserExpBarAndCoinsBalance(_0x534d44);
@@ -19056,6 +19178,22 @@ mopeShopObject.prototype.createMyPurchasesTab = function (_0xfa2799, _0x4fd80d, 
         _0xfa2799.append(_0x5c824f);
         _0xfa2799.append(_0x5ec392);
     } else _0x1fc047 = _0x4d3dcf('div', 'nopurchases'), _0x1fc047.innerHTML = "You don't have any item to show here!", skinsPurchases.append(_0x1fc047), _0xfa2799.append(skinsPurchases);
+};
+mopeShopObject.prototype.createDailyTab = function (tabs, container) {
+    var panel = createElem('div', 'daily-panel', 'daily-panel');
+    var title = createElem('li', 'Daily', 'title');
+    title.innerHTML = 'DAILY';
+    title.onclick = function () {
+        mopeShopObj.curTabPage = 0;
+        mopeShopObj.showTab(this.id);
+        dailyOffersLoad(function () { dailyBuildTab(panel); });
+    };
+    tabs.appendChild(title);
+    var tab = createElem('div', 'tab-Daily', 'tab');
+    tab.appendChild(panel);
+    container.appendChild(tab);
+    if (dailyOffersData && dailyOffersSecondsLeft() > 0) dailyBuildTab(panel);
+    else dailyOffersLoad(function () { dailyBuildTab(panel); });
 };
 mopeShopObject.prototype.createWardrobeTab = function (tabs, container) {
     var panel = createElem('div', 'wardrobe-panel', 'wardrobe-panel');

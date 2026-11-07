@@ -1804,9 +1804,67 @@ function getNextLevelXP(level) {
 
 function getCost(itemName) {
     for(var i in shopitems) {
-        if(shopitems[i].itemName == itemName) return shopitems[i].coinsPrice;
+        if(shopitems[i].itemName == itemName) {
+            const offer = dailyOffers().byName[itemName];
+            return offer ? offer.offerPrice : shopitems[i].coinsPrice;
+        }
     }
     return false;
+}
+
+// ---- daily offers ---------------------------------------------------------------------
+// Six shop skins at a discount, the same for everyone, picked from the date so every
+// server restart agrees. They change at midnight in DAILY_OFFERS_TZ (default UTC).
+const DAILY_OFFERS_TZ = process.env.DAILY_OFFERS_TZ || 'UTC';
+const DAILY_OFFER_COUNT = 6;
+const DAILY_OFFER_DISCOUNTS = [20, 25, 30, 35, 40, 50];
+const DAILY_OFFER_CATEGORIES = new Set(['gold', 'locked', 'halloween', 'community', 'mopeio']);
+let dailyOfferCache = null;
+
+// today's date and the seconds left in it, in the offers' time zone
+function dailyOfferDay(now) {
+    let parts;
+    try {
+        parts = new Intl.DateTimeFormat('en-CA', { timeZone: DAILY_OFFERS_TZ, year: 'numeric', month: '2-digit', day: '2-digit',
+            hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' }).formatToParts(now);
+    } catch (e) {
+        parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'UTC', year: 'numeric', month: '2-digit', day: '2-digit',
+            hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' }).formatToParts(now);
+    }
+    const get = t => (parts.find(p => p.type === t) || {}).value;
+    const elapsed = Number(get('hour')) * 3600 + Number(get('minute')) * 60 + Number(get('second'));
+    return { date: `${get('year')}-${get('month')}-${get('day')}`, secondsLeft: Math.max(1, 86400 - elapsed) };
+}
+
+function seededRandom(text) {
+    let h = 2166136261;
+    for (let i = 0; i < text.length; i++) h = Math.imul(h ^ text.charCodeAt(i), 16777619);
+    return function () {
+        h += 0x6D2B79F5;
+        let t = h;
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+}
+
+function dailyOffers(now) {
+    const day = dailyOfferDay(now || new Date());
+    if (dailyOfferCache && dailyOfferCache.date === day.date) return { ...dailyOfferCache, secondsLeft: day.secondsLeft };
+    const exclusive = new Set(exclusiveitems.map(i => i.itemName));
+    const pool = shopitems.filter(i => DAILY_OFFER_CATEGORIES.has(i.shopCategory) && !i.isExclusive && !exclusive.has(i.itemName)
+        && typeof i.coinsPrice === 'number' && i.coinsPrice > 0)
+        .sort((a, b) => a.itemName < b.itemName ? -1 : 1);
+    const rand = seededRandom('daily-offers:' + day.date);
+    const offers = [];
+    for (let k = 0; k < DAILY_OFFER_COUNT && pool.length; k++) {
+        const item = pool.splice(Math.floor(rand() * pool.length), 1)[0];
+        const discount = DAILY_OFFER_DISCOUNTS[Math.floor(rand() * DAILY_OFFER_DISCOUNTS.length)];
+        const offerPrice = Math.max(10, Math.round(item.coinsPrice * (100 - discount) / 100 / 10) * 10);
+        offers.push({ itemName: item.itemName, shopCategory: item.shopCategory, coinsPrice: item.coinsPrice, offerPrice, discount });
+    }
+    dailyOfferCache = { date: day.date, timeZone: DAILY_OFFERS_TZ, offers, byName: Object.fromEntries(offers.map(o => [o.itemName, o])) };
+    return { ...dailyOfferCache, secondsLeft: day.secondsLeft };
 }
 
 async function getBattlePassReward(id, token, level, gold) {
@@ -1912,7 +1970,7 @@ async function buyAllItems(id, token, requested) {
         if (!rows.length || rows[0].banned == 1) return { success: false, reason: 'error' };
         const toBuy = items.filter(i => rows[0][i.itemName] != 1);
         if (!toBuy.length) return { success: false, reason: 'alreadyowned' };
-        const cost = INFINITE_COINS ? 0 : toBuy.reduce((sum, i) => sum + i.coinsPrice, 0);
+        const cost = INFINITE_COINS ? 0 : toBuy.reduce((sum, i) => sum + getCost(i.itemName), 0);
         if (rows[0].coins < cost) return { success: false, reason: 'cantafford', cost, coins: rows[0].coins };
         const sets = toBuy.map(i => "`" + i.itemName + "`=1").join(', ');
         // coins>=? guards against spending the same coins twice in parallel requests
@@ -2011,9 +2069,12 @@ async function loadShopData(id, token) {
     }
     const owned = item => row != null && row[item.itemName] == 1;
     // exclusive items are only listed for players who already have them; owned items first
+    const offers = dailyOffers().byName;
     return shopitems
         .filter(item => !item.isExclusive || owned(item))
-        .map(item => ({ ...item, purchasedByPlayer: owned(item) }))
+        .map(item => offers[item.itemName]
+            ? { ...item, coinsPrice: offers[item.itemName].offerPrice, basePrice: item.coinsPrice, dailyOffer: true, purchasedByPlayer: owned(item) }
+            : { ...item, purchasedByPlayer: owned(item) })
         .sort((a, b) => Number(b.purchasedByPlayer) - Number(a.purchasedByPlayer));
 }
 
@@ -2355,6 +2416,14 @@ async function equipSkin(id, token, animal, itemName) {
         return { success: false, reason: 'error' };
     }
 }
+
+app.get('/dailyOffers', function(request, response) {
+    response.header("Access-Control-Allow-Origin", "*");
+    response.header("Access-Control-Allow-Headers", "X-Requested-With");
+    const d = dailyOffers();
+    response.writeHead(200, {'Content-Type': 'text/html'});
+    response.end(JSON.stringify({ success: true, date: d.date, timeZone: d.timeZone, secondsLeft: d.secondsLeft, offers: d.offers }));
+})
 
 app.get('/loadWardrobe', async function(request, response) {
     response.header("Access-Control-Allow-Origin", "*");
