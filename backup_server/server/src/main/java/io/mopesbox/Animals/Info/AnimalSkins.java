@@ -224,6 +224,11 @@ public class AnimalSkins {
     public static AnimalInfo skin_snowgirl_skin = new AnimalInfo(AnimalType.SNOWMAN, BiomeType.ARCTIC, 15, 11, 2, true); // The Snowgirl
     public static AnimalInfo skin_pterodactyl_blue_skin = new AnimalInfo(AnimalType.PTERODACTYL, BiomeType.DESERT, 15, 93, 12); // Blue Pterodactyl
 
+    // Animal unlocks from mope.trygames.party: the plain look (skin 0), offered as an extra
+    // choice when you reach tier 17, like the Snowman and Bigfoot skins.
+    public static AnimalInfo skin_blackdragon_skin = new AnimalInfo(AnimalType.BLACKDRAGON, BiomeType.VOLCANO, 17, 30, 0, true); // Black Dragon
+    public static AnimalInfo skin_kingdragon_skin = new AnimalInfo(AnimalType.KINGDRAGON, BiomeType.VOLCANO, 17, 99, 0, true); // King Dragon
+
     // very dangerous shenanigans
     public static AnimalInfo byName(String name) {
         try {

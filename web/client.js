@@ -15259,6 +15259,10 @@ mopeShopObject.prototype.datatab = [];
 mopeShopObject.prototype.getAnimalInfo = function (_0x58287b) {
     switch (_0x58287b) {
         // Shop skins imported from mope.trygames.party: [animal type, skin number, name, image]
+        case 'skin_blackdragon':
+            return [_0x1da4d1, 0, `Black\nDragon`, 'volcano/blackdragon/0/blackdragon'];
+        case 'skin_kingdragon':
+            return [_0x4e99c5, 0, `King\nDragon`, 'volcano/kingdragon/0/kingdragon'];
         case 'astralPhoenix':
             return [68, 200, 'Astral Phoenix', 'volcano/phoenix/200/phoenix'];
         case 'bonfire_phoenix':
@@ -15642,8 +15646,8 @@ mopeShopObject.prototype.getAnimalInfo = function (_0x58287b) {
             return [_0x4e99c5, 0x6, `Queen\nCeleste`, 'volcano/kingdragon/6/kingdragon'];
         case 'skin_bigFoot':
             return [_0x15ef44, 0, `The\nBigfoot`, 'land/bigfoot/0/thebigfoot'];
-        // case 'skin_kingMelon':
-        //     return [_0x4e99c5, 0, `King\nMelon`, 'volcano/kingdragon/11/kingdragon'];
+        case 'skin_kingMelon':
+            return [_0x4e99c5, 11, `King\nMelon`, 'volcano/kingdragon/11/kingdragon_body'];
         case 'skin_sapphireMouse':
             return [_0x4170f3, 0, `Sapphire\nMouse`, 'land/mouse/6/mouse'];
         case 'skin_amethystMouse':
@@ -15652,8 +15656,8 @@ mopeShopObject.prototype.getAnimalInfo = function (_0x58287b) {
             return [_0x4170f3, 0, `Emerald\nMouse`, 'land/mouse/8/mouse'];
         case 'skin_diamondMouse':
             return [_0x4170f3, 0, `Diamond\nMouse`, 'land/mouse/9/mouse'];
-        // case 'skin_lordofice':
-        //     return [_0x1da4d1, 0, `The\nLord Of Ice`, 'volcano/blackdragon/4/blackdragon'];
+        case 'skin_lordofice':
+            return [_0x1da4d1, 4, `The\nLord Of Ice`, 'volcano/blackdragon/4/blackdragon'];
         case 'skin_woollyRhino':
             return [_0x1bea6f, 0, `Woolly\nRhino`, 'land/rhino/3/rhino'];
         case 'skin_retrocrocodilealligator':

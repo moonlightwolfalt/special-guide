@@ -139,6 +139,8 @@ public class Account {
     public int skin_meltedMonster;
     public int skin_giftboxKraken;
     // Shop skins imported from mope.trygames.party
+    public int skin_blackdragon;
+    public int skin_kingdragon;
     public int astralPhoenix;
     public int bonfire_phoenix;
     public int skin_dragon_3_3;
