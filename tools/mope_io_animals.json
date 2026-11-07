@@ -1,0 +1,3507 @@
+{
+ "arctic_fox": {
+  "base": "arctic/arcticfox",
+  "candidates": {
+   "arcticfox": [
+    "body"
+   ]
+  },
+  "dir": "arctic",
+  "enum": "ARCTICFOX",
+  "files": [
+   "arcticfox"
+  ],
+  "id": 41,
+  "java": {
+   "ability": 23,
+   "biome": "BiomeType.ARCTIC",
+   "rare": null,
+   "tier": 6
+  },
+  "main": "arcticfox",
+  "per": false,
+  "ref": "arctic",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "arctic_hare": {
+  "base": "arctic/arctichare",
+  "candidates": {
+   "arctichare": [
+    "body"
+   ]
+  },
+  "dir": "arctic",
+  "enum": "ARCTICHARE",
+  "files": [
+   "arctichare"
+  ],
+  "id": 31,
+  "java": {
+   "ability": 0,
+   "biome": "BiomeType.ARCTIC",
+   "rare": null,
+   "tier": 2
+  },
+  "main": "arctichare",
+  "per": false,
+  "ref": "arctic",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "armadillo": {
+  "base": "/desert/armadillo/armadillo",
+  "candidates": {
+   "armadillo": [
+    "body"
+   ],
+   "armadillo0": [
+    "ability1"
+   ],
+   "armadillo1": [
+    "ability2"
+   ],
+   "armadillo2": [
+    "ability3"
+   ],
+   "armadillo3": [
+    "ability4"
+   ],
+   "armadillo4": [
+    "ability5"
+   ],
+   "armadillo5": [
+    "ability6"
+   ]
+  },
+  "dir": "desert/armadillo",
+  "enum": "ARMADILLO",
+  "files": [
+   "armadillo",
+   "armadillo0",
+   "armadillo1",
+   "armadillo2",
+   "armadillo3",
+   "armadillo4",
+   "armadillo5"
+  ],
+  "id": 86,
+  "java": {
+   "ability": 78,
+   "biome": "BiomeType.DESERT",
+   "rare": null,
+   "tier": 4
+  },
+  "main": "armadillo",
+  "per": false,
+  "ref": "desert/armadillo",
+  "transforms": {},
+  "variants": [
+   "",
+   "0",
+   "1",
+   "2",
+   "3",
+   "4",
+   "5"
+  ]
+ },
+ "bear": {
+  "base": "land/bear/{N}/",
+  "candidates": {
+   "ability": [
+    "ability"
+   ],
+   "bear": [
+    "body"
+   ]
+  },
+  "dir": "land/bear",
+  "enum": "BEAR",
+  "files": [
+   "ability",
+   "bear"
+  ],
+  "id": 10,
+  "java": {
+   "ability": 62,
+   "biome": "BiomeType.LAND",
+   "rare": null,
+   "tier": 10
+  },
+  "main": "bear",
+  "per": true,
+  "ref": "land/bear/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "bison": {
+  "base": "desert/bison/bison",
+  "candidates": {
+   "bison": [
+    "body"
+   ],
+   "bison1": [
+    "bison1"
+   ]
+  },
+  "dir": "desert/bison",
+  "enum": "BISON",
+  "files": [
+   "bison",
+   "bison1"
+  ],
+  "id": 93,
+  "java": {
+   "ability": 70,
+   "biome": "BiomeType.DESERT",
+   "rare": null,
+   "tier": 12
+  },
+  "main": "bison",
+  "per": false,
+  "ref": "desert/bison",
+  "transforms": {},
+  "variants": [
+   "",
+   "1"
+  ]
+ },
+ "black_dragon": {
+  "base": null,
+  "candidates": {
+   "blackdragon": [
+    "body"
+   ],
+   "wings": [
+    "wings",
+    "nostrils"
+   ]
+  },
+  "dir": "volcano/blackdragon",
+  "enum": "BLACKDRAGON",
+  "files": [
+   "blackdragon",
+   "wings"
+  ],
+  "id": 46,
+  "java": {
+   "ability": 30,
+   "biome": "BiomeType.VOLCANO",
+   "rare": null,
+   "tier": 17
+  },
+  "main": "blackdragon",
+  "per": true,
+  "ref": "volcano/blackdragon/0",
+  "transforms": {
+   "body>blackdragon": [
+    0.7,
+    1.0,
+    0.0,
+    350,
+    350,
+    0.088
+   ]
+  },
+  "variants": [
+   ""
+  ]
+ },
+ "black_widow": {
+  "base": null,
+  "candidates": {
+   "blackwidow": [
+    "body"
+   ],
+   "blackwidow1": [
+    "blackwidow1"
+   ]
+  },
+  "dir": "desert/blackwidow",
+  "enum": "BLACKWIDOW",
+  "files": [
+   "blackwidow",
+   "blackwidow1"
+  ],
+  "id": 98,
+  "java": {
+   "ability": 0,
+   "biome": "BiomeType.DESERT",
+   "rare": null,
+   "tier": 14
+  },
+  "main": "blackwidow",
+  "per": true,
+  "ref": "desert/blackwidow/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "blue_whale": {
+  "base": null,
+  "candidates": {
+   "bluewhale": [
+    "body"
+   ]
+  },
+  "dir": "ocean/bluewhale",
+  "enum": "BLUEWHALE",
+  "files": [
+   "ability_whaleTailHit",
+   "bluewhale"
+  ],
+  "id": 49,
+  "java": {
+   "ability": 98,
+   "biome": "BiomeType.OCEAN",
+   "rare": null,
+   "tier": 14
+  },
+  "main": "bluewhale",
+  "per": true,
+  "ref": "ocean/bluewhale/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "boa": {
+  "base": null,
+  "candidates": {
+   "boaconstrictor": [
+    "body"
+   ],
+   "boaconstrictor2": [
+    "boaconstrictor2"
+   ],
+   "tongue": [
+    "tongue"
+   ]
+  },
+  "dir": "land/boaconstrictor",
+  "enum": "BOACONSTRICTOR",
+  "files": [
+   "boaconstrictor",
+   "boaconstrictor2",
+   "constrict",
+   "tongue"
+  ],
+  "id": 51,
+  "java": {
+   "ability": 36,
+   "biome": "BiomeType.LAND",
+   "rare": null,
+   "tier": 13
+  },
+  "main": "boaconstrictor",
+  "per": true,
+  "ref": "land/boaconstrictor/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "camel": {
+  "base": null,
+  "candidates": {
+   "camel": [
+    "body"
+   ],
+   "camel1": [
+    "camel1"
+   ],
+   "camel_head": [
+    "camel_head"
+   ],
+   "camel_head1": [
+    "camel_head1"
+   ]
+  },
+  "dir": "desert/camel",
+  "enum": "CAMEL",
+  "files": [
+   "camel",
+   "camel1",
+   "camel_head",
+   "camel_head1"
+  ],
+  "id": 88,
+  "java": {
+   "ability": 83,
+   "biome": "BiomeType.DESERT",
+   "rare": null,
+   "tier": 8
+  },
+  "main": "camel",
+  "per": true,
+  "ref": "desert/camel/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "cassowary": {
+  "base": null,
+  "candidates": {
+   "cassowary": [
+    "body"
+   ],
+   "cassowary1": [
+    "cassowary1"
+   ],
+   "cassowary2": [
+    "cassowary2"
+   ]
+  },
+  "dir": "land/cassowary",
+  "enum": "CASSOWARY",
+  "files": [
+   "cassowary",
+   "cassowary1",
+   "cassowary2"
+  ],
+  "id": 78,
+  "java": {
+   "ability": 73,
+   "biome": "BiomeType.LAND",
+   "rare": null,
+   "tier": 14
+  },
+  "main": "cassowary",
+  "per": true,
+  "ref": "land/cassowary/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "cheetah": {
+  "base": "land/bigcat/",
+  "candidates": {
+   "cheetah": [
+    "body"
+   ]
+  },
+  "dir": "land/bigcat",
+  "enum": "BIGCAT",
+  "files": [
+   "cheetah"
+  ],
+  "id": 9,
+  "java": {
+   "ability": 15,
+   "biome": "BiomeType.LAND",
+   "rare": null,
+   "tier": 9
+  },
+  "main": "cheetah",
+  "per": false,
+  "ref": "land/bigcat",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "chicken": {
+  "base": null,
+  "candidates": {
+   "ability": [
+    "ability"
+   ],
+   "chicken": [
+    "body"
+   ],
+   "chicken1": [
+    "chicken1"
+   ],
+   "chicken_head": [
+    "chicken_head"
+   ],
+   "chicken_wing1": [
+    "chicken_wing1"
+   ],
+   "chicken_wing2": [
+    "chicken_wing2"
+   ]
+  },
+  "dir": "land/chicken",
+  "enum": "CHICKEN",
+  "files": [
+   "ability",
+   "chicken",
+   "chicken1",
+   "chicken_head",
+   "chicken_wing1",
+   "chicken_wing2"
+  ],
+  "id": 79,
+  "java": {
+   "ability": 150,
+   "biome": "BiomeType.LAND",
+   "rare": null,
+   "tier": 3
+  },
+  "main": "chicken",
+  "per": true,
+  "ref": "land/chicken/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "chipmunk": {
+  "base": "arctic/chipmunk",
+  "candidates": {
+   "chipmunk": [
+    "body"
+   ]
+  },
+  "dir": "arctic",
+  "enum": "CHIPMUNK",
+  "files": [
+   "chipmunk"
+  ],
+  "id": 33,
+  "java": {
+   "ability": 0,
+   "biome": "BiomeType.ARCTIC",
+   "rare": null,
+   "tier": 1
+  },
+  "main": "chipmunk",
+  "per": false,
+  "ref": "arctic",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "cobra": {
+  "base": null,
+  "candidates": {
+   "cobra": [
+    "body"
+   ],
+   "cobra2": [
+    "ability"
+   ],
+   "tongue": [
+    "tongue"
+   ]
+  },
+  "dir": "land/cobra",
+  "enum": "COBRA",
+  "files": [
+   "cobra",
+   "cobra2",
+   "tongue"
+  ],
+  "id": 50,
+  "java": {
+   "ability": 34,
+   "biome": "BiomeType.LAND",
+   "rare": null,
+   "tier": 8
+  },
+  "main": "cobra",
+  "per": true,
+  "ref": "land/cobra/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "crab": {
+  "base": "ocean/crab/crab",
+  "candidates": {
+   "crab": [
+    "body"
+   ],
+   "crab2": [
+    "ability"
+   ]
+  },
+  "dir": "ocean/crab",
+  "enum": "CRAB",
+  "files": [
+   "crab",
+   "crab2"
+  ],
+  "id": 17,
+  "java": {
+   "ability": 2,
+   "biome": "BiomeType.OCEAN",
+   "rare": null,
+   "tier": 3
+  },
+  "main": "crab",
+  "per": false,
+  "ref": "ocean/crab",
+  "transforms": {},
+  "variants": [
+   "",
+   "2"
+  ]
+ },
+ "crocodile": {
+  "base": null,
+  "candidates": {
+   "ability": [
+    "ability"
+   ],
+   "croc": [
+    "body"
+   ]
+  },
+  "dir": "land/croc",
+  "enum": "CROC",
+  "files": [
+   "ability",
+   "croc"
+  ],
+  "id": 11,
+  "java": {
+   "ability": 21,
+   "biome": "BiomeType.LAND",
+   "rare": null,
+   "tier": 11
+  },
+  "main": "croc",
+  "per": true,
+  "ref": "land/croc/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "deer": {
+  "base": null,
+  "candidates": {
+   "deer": [
+    "body"
+   ]
+  },
+  "dir": "land/deer",
+  "enum": "DEER",
+  "files": [
+   "deer"
+  ],
+  "id": 5,
+  "java": {
+   "ability": 25,
+   "biome": "BiomeType.LAND",
+   "rare": null,
+   "tier": 5
+  },
+  "main": "deer",
+  "per": true,
+  "ref": "land/deer/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "desert_chipmunk": {
+  "base": "desert/chipmunk/chipmunk",
+  "candidates": {
+   "chipmunk": [
+    "body"
+   ],
+   "chipmunk1": [
+    "ability"
+   ]
+  },
+  "dir": "desert/chipmunk",
+  "enum": "DESERTCHIPMUNK",
+  "files": [
+   "chipmunk",
+   "chipmunk1"
+  ],
+  "id": 83,
+  "java": {
+   "ability": 79,
+   "biome": "BiomeType.DESERT",
+   "rare": null,
+   "tier": 2
+  },
+  "main": "chipmunk",
+  "per": false,
+  "ref": "desert/chipmunk",
+  "transforms": {},
+  "variants": [
+   "",
+   "1"
+  ]
+ },
+ "dino_monster": {
+  "base": null,
+  "candidates": {
+   "dinomonster": [
+    "body"
+   ],
+   "dinomonster1": [
+    "dinomonster1"
+   ],
+   "dinomonster2": [
+    "dinomonster2"
+   ],
+   "dinomonster3": [
+    "dinomonster3"
+   ],
+   "dinomonster4": [
+    "dinomonster4"
+   ],
+   "dinomonster5": [
+    "dinomonster5"
+   ]
+  },
+  "dir": "land/dinomonster",
+  "enum": "DINOMONSTER",
+  "files": [
+   "dinomonster",
+   "dinomonster1",
+   "dinomonster2",
+   "dinomonster3",
+   "dinomonster4",
+   "dinomonster5"
+  ],
+  "id": 73,
+  "java": {
+   "ability": 70,
+   "biome": "BiomeType.LAND",
+   "rare": null,
+   "tier": 16
+  },
+  "main": "dinomonster",
+  "per": true,
+  "ref": "land/dinomonster/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "donkey": {
+  "base": null,
+  "candidates": {
+   "donkey": [
+    "body"
+   ],
+   "donkey1": [
+    "donkey1",
+    "donkey2"
+   ],
+   "donkey_head1": [
+    "donkey_head1"
+   ],
+   "donkey_head2": [
+    "donkey_head2"
+   ],
+   "legs": [
+    "legs"
+   ]
+  },
+  "dir": "land/donkey",
+  "enum": "DONKEY",
+  "files": [
+   "donkey",
+   "donkey1",
+   "donkey_head1",
+   "donkey_head2",
+   "legs"
+  ],
+  "id": 44,
+  "java": {
+   "ability": 20,
+   "biome": "BiomeType.LAND",
+   "rare": null,
+   "tier": 7
+  },
+  "main": "donkey",
+  "per": true,
+  "ref": "land/donkey/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "dragon": {
+  "base": null,
+  "candidates": {
+   "dragon": [
+    "body"
+   ]
+  },
+  "dir": "land/dragon",
+  "enum": "DRAGON",
+  "files": [
+   "dragon"
+  ],
+  "id": 14,
+  "java": {
+   "ability": 19,
+   "biome": "BiomeType.LAND",
+   "rare": null,
+   "tier": 15
+  },
+  "main": "dragon",
+  "per": true,
+  "ref": "land/dragon/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "eagle": {
+  "base": null,
+  "candidates": {
+   "eagle": [
+    "body"
+   ],
+   "eagle1": [
+    "eagle1"
+   ],
+   "eagle2": [
+    "eagle2"
+   ],
+   "eagle3": [
+    "eagle3"
+   ],
+   "eagle_head": [
+    "eagle_head"
+   ],
+   "eagle_head2": [
+    "eagle_head2"
+   ],
+   "eagle_wing1": [
+    "eagle_wing1"
+   ],
+   "eagle_wing2": [
+    "eagle_wing2"
+   ]
+  },
+  "dir": "eagle",
+  "enum": "EAGLE",
+  "files": [
+   "eagle",
+   "eagle1",
+   "eagle2",
+   "eagle3",
+   "eagle_head",
+   "eagle_head2",
+   "eagle_wing1",
+   "eagle_wing2"
+  ],
+  "id": 56,
+  "java": {
+   "ability": 47,
+   "biome": "BiomeType.LAND",
+   "rare": null,
+   "tier": 12
+  },
+  "main": "eagle",
+  "per": true,
+  "ref": "eagle/0",
+  "transforms": {
+   "eagle_wing1>eagle_wing1": [
+    1.84,
+    -14.327,
+    12.0,
+    323,
+    517,
+    0.082
+   ],
+   "eagle_wing2>eagle_wing2": [
+    1.92,
+    -10.498,
+    -4.0,
+    323,
+    517,
+    0.263
+   ]
+  },
+  "variants": [
+   ""
+  ]
+ },
+ "elephant": {
+  "base": null,
+  "candidates": {
+   "ability_elephantTrunkSmack": [
+    "ability"
+   ],
+   "elephant": [
+    "body"
+   ]
+  },
+  "dir": "land/elephant",
+  "enum": "ELEPHANT",
+  "files": [
+   "ability_elephantTrunkSmack",
+   "elephant"
+  ],
+  "id": 48,
+  "java": {
+   "ability": 97,
+   "biome": "BiomeType.LAND",
+   "rare": null,
+   "tier": 14
+  },
+  "main": "elephant",
+  "per": true,
+  "ref": "land/elephant/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "falcon": {
+  "base": null,
+  "candidates": {
+   "falcon": [
+    "body"
+   ],
+   "falcon1": [
+    "falcon1"
+   ],
+   "falcon2": [
+    "falcon2"
+   ],
+   "falcon3": [
+    "falcon3"
+   ],
+   "falcon_head": [
+    "falcon_head"
+   ],
+   "falcon_head1": [
+    "falcon_head1"
+   ],
+   "falcon_head2": [
+    "falcon_head2"
+   ],
+   "falcon_wing1": [
+    "falcon_wing1"
+   ],
+   "falcon_wing2": [
+    "falcon_wing2"
+   ]
+  },
+  "dir": "falcon",
+  "enum": "FALCON",
+  "files": [
+   "falcon",
+   "falcon1",
+   "falcon2",
+   "falcon3",
+   "falcon_head",
+   "falcon_head1",
+   "falcon_head2",
+   "falcon_wing1",
+   "falcon_wing2"
+  ],
+  "id": 65,
+  "java": {
+   "ability": 99,
+   "biome": "BiomeType.LAND",
+   "rare": null,
+   "tier": 11
+  },
+  "main": "falcon",
+  "per": true,
+  "ref": "falcon/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "fennec_fox": {
+  "base": "desert/fennecfox/fennecfox",
+  "candidates": {
+   "fennecfox": [
+    "body"
+   ],
+   "fennecfox1": [
+    "fennecfox1"
+   ],
+   "fennecfox2": [
+    "fennecfox2"
+   ]
+  },
+  "dir": "desert/fennecfox",
+  "enum": "FENNECFOX",
+  "files": [
+   "fennecfox",
+   "fennecfox1",
+   "fennecfox2"
+  ],
+  "id": 87,
+  "java": {
+   "ability": 81,
+   "biome": "BiomeType.DESERT",
+   "rare": null,
+   "tier": 6
+  },
+  "main": "fennecfox",
+  "per": false,
+  "ref": "desert/fennecfox",
+  "transforms": {},
+  "variants": [
+   "",
+   "1",
+   "2"
+  ]
+ },
+ "flamingo": {
+  "base": "flamingo/flamingo",
+  "candidates": {
+   "flamingo": [
+    "body"
+   ],
+   "flamingo1": [
+    "flamingo1",
+    "flamingo1_pink"
+   ],
+   "flamingo2": [
+    "flamingo2",
+    "flamingo2_pink"
+   ]
+  },
+  "dir": "flamingo",
+  "enum": "FLAMINGO",
+  "files": [
+   "flamingo",
+   "flamingo1",
+   "flamingo2"
+  ],
+  "id": 77,
+  "java": {
+   "ability": 72,
+   "biome": "BiomeType.OCEAN",
+   "rare": null,
+   "tier": 5
+  },
+  "main": "flamingo",
+  "per": false,
+  "ref": "flamingo",
+  "transforms": {},
+  "variants": [
+   "",
+   "1",
+   "2"
+  ]
+ },
+ "fox": {
+  "base": "fox",
+  "candidates": {
+   "fox": [
+    "body"
+   ]
+  },
+  "dir": "land/fox",
+  "enum": "FOX",
+  "files": [
+   "fox"
+  ],
+  "id": 4,
+  "java": {
+   "ability": 23,
+   "biome": "BiomeType.LAND",
+   "rare": null,
+   "tier": 6
+  },
+  "main": "fox",
+  "per": false,
+  "ref": "",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "gazelle": {
+  "base": null,
+  "candidates": {
+   "gazelle": [
+    "body"
+   ],
+   "gazelle1": [
+    "gazelle1"
+   ],
+   "legs0": [
+    "legs0"
+   ],
+   "legs1": [
+    "legs1"
+   ]
+  },
+  "dir": "desert/gazelle",
+  "enum": "GAZELLE",
+  "files": [
+   "gazelle",
+   "gazelle1",
+   "legs0",
+   "legs1",
+   "oaagazelle1"
+  ],
+  "id": 85,
+  "java": {
+   "ability": 77,
+   "biome": "BiomeType.DESERT",
+   "rare": null,
+   "tier": 5
+  },
+  "main": "gazelle",
+  "per": true,
+  "ref": "desert/gazelle/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "giant_scorpion": {
+  "base": null,
+  "candidates": {
+   "arms": [
+    "arms"
+   ],
+   "arms-grabbed": [
+    "arms-grabbed"
+   ],
+   "attack_stinger_dull": [
+    "attack_stinger_dull"
+   ],
+   "attack_stinger_full": [
+    "attack_stinger_full"
+   ],
+   "attack_tail": [
+    "attack_tail"
+   ],
+   "normal_stinger_dull": [
+    "normal_stinger_dull"
+   ],
+   "normal_stinger_full": [
+    "normal_stinger_full"
+   ],
+   "scorpion": [
+    "scorpion",
+    "body"
+   ],
+   "scorpion1": [
+    "scorpion1"
+   ],
+   "scorpion_ability": [
+    "scorpion_ability"
+   ],
+   "stinger_attack": [
+    "stinger_attack"
+   ],
+   "stinger_normal": [
+    "stinger_normal"
+   ],
+   "stinger_tail": [
+    "stinger_tail"
+   ],
+   "tail_back": [
+    "tail_back"
+   ]
+  },
+  "dir": "desert/scorpion",
+  "enum": "GIANTSCORPION",
+  "files": [
+   "arms",
+   "arms-grabbed",
+   "attack_stinger_dull",
+   "attack_stinger_full",
+   "attack_tail",
+   "giantscorpion",
+   "normal_stinger_dull",
+   "normal_stinger_full",
+   "scorpion",
+   "scorpion1",
+   "scorpion2",
+   "scorpion_ability",
+   "stinger_attack",
+   "stinger_normal",
+   "stinger_tail",
+   "tail_back"
+  ],
+  "id": 95,
+  "java": {
+   "ability": 91,
+   "biome": "BiomeType.DESERT",
+   "rare": null,
+   "tier": 16
+  },
+  "main": "scorpion",
+  "per": true,
+  "ref": "desert/scorpion/0",
+  "transforms": {
+   "body>scorpion": [
+    1.0,
+    0.0,
+    -80.0,
+    500,
+    500,
+    0.047
+   ]
+  },
+  "variants": [
+   ""
+  ]
+ },
+ "giant_spider": {
+  "base": null,
+  "candidates": {
+   "giantspider": [
+    "body"
+   ]
+  },
+  "dir": "land/giantspider",
+  "enum": "GIANTSPIDER",
+  "files": [
+   "giantspider"
+  ],
+  "id": 52,
+  "java": {
+   "ability": 0,
+   "biome": "BiomeType.LAND",
+   "rare": null,
+   "tier": 14
+  },
+  "main": "giantspider",
+  "per": true,
+  "ref": "land/giantspider/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "giraffe": {
+  "base": "giraffe",
+  "candidates": {
+   "giraffe": [
+    "body"
+   ]
+  },
+  "dir": "land/giraffe",
+  "enum": "GIRAFFE",
+  "files": [
+   "giraffe"
+  ],
+  "id": 55,
+  "java": {
+   "ability": 42,
+   "biome": "BiomeType.LAND",
+   "rare": null,
+   "tier": 8
+  },
+  "main": "giraffe",
+  "per": false,
+  "ref": "",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "gobi_bear": {
+  "base": "desert/gobibear/gobibear",
+  "candidates": {
+   "gobibear": [
+    "body"
+   ],
+   "gobibear1": [
+    "gobibear1",
+    "body",
+    "gobibear_attack"
+   ]
+  },
+  "dir": "desert/gobibear",
+  "enum": "GOBIBEAR",
+  "files": [
+   "gobibear",
+   "gobibear1"
+  ],
+  "id": 97,
+  "java": {
+   "ability": 0,
+   "biome": "BiomeType.DESERT",
+   "rare": null,
+   "tier": 10
+  },
+  "main": "gobibear",
+  "per": false,
+  "ref": "desert/gobibear",
+  "transforms": {},
+  "variants": [
+   "",
+   "1"
+  ]
+ },
+ "gorilla": {
+  "base": null,
+  "candidates": {
+   "gorilla": [
+    "body"
+   ]
+  },
+  "dir": "land/gorilla",
+  "enum": "GORILLA",
+  "files": [
+   "gorilla"
+  ],
+  "id": 28,
+  "java": {
+   "ability": 24,
+   "biome": "BiomeType.LAND",
+   "rare": null,
+   "tier": 9
+  },
+  "main": "gorilla",
+  "per": true,
+  "ref": "land/gorilla/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "hedgehog": {
+  "base": "hedgehog",
+  "candidates": {
+   "hedgehog": [
+    "body"
+   ],
+   "hedgehog2": [
+    "ability"
+   ]
+  },
+  "dir": "land/hedgehog",
+  "enum": "HEDGEHOG",
+  "files": [
+   "hedgehog",
+   "hedgehog2"
+  ],
+  "id": 57,
+  "java": {
+   "ability": 49,
+   "biome": "BiomeType.LAND",
+   "rare": null,
+   "tier": 6
+  },
+  "main": "hedgehog",
+  "per": false,
+  "ref": "",
+  "transforms": {},
+  "variants": [
+   "",
+   "2"
+  ]
+ },
+ "hippopotamus": {
+  "base": null,
+  "candidates": {
+   "hippo": [
+    "body"
+   ],
+   "hippo1": [
+    "ability"
+   ]
+  },
+  "dir": "land/hippo",
+  "enum": "HIPPO",
+  "files": [
+   "hippo",
+   "hippo1"
+  ],
+  "id": 13,
+  "java": {
+   "ability": 18,
+   "biome": "BiomeType.LAND",
+   "rare": null,
+   "tier": 13
+  },
+  "main": "hippo",
+  "per": true,
+  "ref": "land/hippo/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "hyena": {
+  "base": "desert/hyena/hyena",
+  "candidates": {
+   "hyena": [
+    "body"
+   ],
+   "hyena1": [
+    "hyena1"
+   ],
+   "hyena2": [
+    "hyena2"
+   ]
+  },
+  "dir": "desert/hyena",
+  "enum": "HYENA",
+  "files": [
+   "hyena",
+   "hyena1",
+   "hyena2"
+  ],
+  "id": 90,
+  "java": {
+   "ability": 86,
+   "biome": "BiomeType.DESERT",
+   "rare": null,
+   "tier": 10
+  },
+  "main": "hyena",
+  "per": false,
+  "ref": "desert/hyena",
+  "transforms": {},
+  "variants": [
+   "",
+   "1",
+   "2"
+  ]
+ },
+ "ice_monster": {
+  "base": null,
+  "candidates": {
+   "ability": [
+    "body"
+   ],
+   "crystal": [
+    "crystal"
+   ],
+   "icemonster": [
+    "icemonster",
+    "body"
+   ]
+  },
+  "dir": "arctic/icemonster",
+  "enum": "ICEMONSTER",
+  "files": [
+   "ability",
+   "crystal",
+   "crystalfire",
+   "icemonster"
+  ],
+  "id": 72,
+  "java": {
+   "ability": 69,
+   "biome": "BiomeType.ARCTIC",
+   "rare": null,
+   "tier": 16
+  },
+  "main": "icemonster",
+  "per": true,
+  "ref": "arctic/icemonster/0",
+  "transforms": {
+   "body>icemonster": [
+    0.8,
+    3.0,
+    3.0,
+    406,
+    406,
+    0.352
+   ],
+   "crystal>crystal": [
+    0.99,
+    4.5,
+    -12.375,
+    200,
+    200,
+    0.095
+   ],
+   "icemonster>icemonster": [
+    0.8,
+    3.0,
+    5.25,
+    406,
+    406,
+    0.364
+   ]
+  },
+  "variants": [
+   ""
+  ]
+ },
+ "jellyfish": {
+  "base": "ocean/jellyfish/jellyfish_body",
+  "candidates": {
+   "jellyfish_body": [
+    "jellyfish_body",
+    "body"
+   ]
+  },
+  "dir": "ocean/jellyfish",
+  "enum": "JELLYFISH",
+  "files": [
+   "jellyfish_body"
+  ],
+  "id": 23,
+  "java": {
+   "ability": 0,
+   "biome": "BiomeType.OCEAN",
+   "rare": null,
+   "tier": 6
+  },
+  "main": "jellyfish_body",
+  "per": false,
+  "ref": "ocean/jellyfish",
+  "transforms": {
+   "body>jellyfish_body": [
+    1.05,
+    -13.5,
+    -65.0,
+    500,
+    500,
+    0.143
+   ]
+  },
+  "variants": [
+   ""
+  ]
+ },
+ "kangaroo_rat": {
+  "base": null,
+  "candidates": {
+   "kangaroorat": [
+    "body"
+   ],
+   "kangaroorat1": [
+    "kangaroorat1"
+   ],
+   "tail": [
+    "tail"
+   ]
+  },
+  "dir": "desert/kangaroorat",
+  "enum": "KANGAROORAT",
+  "files": [
+   "kangaroorat",
+   "kangaroorat1",
+   "tail"
+  ],
+  "id": 82,
+  "java": {
+   "ability": 0,
+   "biome": "BiomeType.DESERT",
+   "rare": null,
+   "tier": 1
+  },
+  "main": "kangaroorat",
+  "per": true,
+  "ref": "desert/kangaroorat/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "king_crab": {
+  "base": null,
+  "candidates": {
+   "ability_crabSmash0": [
+    "ability_crabSmash0"
+   ],
+   "ability_crabSmash1": [
+    "ability_crabSmash1"
+   ],
+   "kingcrab": [
+    "body"
+   ]
+  },
+  "dir": "ocean/kingcrab",
+  "enum": "KINGCRAB",
+  "files": [
+   "ability_crabSmash0",
+   "ability_crabSmash1",
+   "kingcrab"
+  ],
+  "id": 61,
+  "java": {
+   "ability": 51,
+   "biome": "BiomeType.OCEAN",
+   "rare": null,
+   "tier": 15
+  },
+  "main": "kingcrab",
+  "per": true,
+  "ref": "ocean/kingcrab/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "king_dragon": {
+  "base": null,
+  "candidates": {
+   "bone1": [
+    "bone1"
+   ],
+   "bone2": [
+    "bone2"
+   ],
+   "bone3": [
+    "bone3"
+   ],
+   "kingdragon": [
+    "body"
+   ],
+   "kingdragon_body": [
+    "body",
+    "king_dragon_body"
+   ],
+   "left_wing": [
+    "left_wing"
+   ],
+   "left_wing1": [
+    "left_wing1"
+   ],
+   "nostrils": [
+    "nostrils"
+   ],
+   "right_wing": [
+    "right_wing"
+   ],
+   "right_wing2": [
+    "right_wing2"
+   ],
+   "tail": [
+    "tail"
+   ]
+  },
+  "dir": "volcano/kingdragon",
+  "enum": "KINGDRAGON",
+  "files": [
+   "bone1",
+   "bone2",
+   "bone3",
+   "kingdragon",
+   "kingdragon_body",
+   "left_wing",
+   "left_wing1",
+   "nostrils",
+   "right_wing",
+   "right_wing2",
+   "tail"
+  ],
+  "id": 100,
+  "java": {
+   "ability": 99,
+   "biome": "BiomeType.VOLCANO",
+   "rare": "Rares.KingDragon.animal",
+   "tier": 17
+  },
+  "main": "kingdragon_body",
+  "per": true,
+  "ref": "volcano/kingdragon/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "komodo_dragon": {
+  "base": null,
+  "candidates": {
+   "komododragon": [
+    "komododragon",
+    "body"
+   ],
+   "komododragon1": [
+    "komododragon1"
+   ],
+   "komododragon_ability": [
+    "komododragon_ability"
+   ],
+   "komododragon_attack": [
+    "komododragon_attack"
+   ],
+   "komododragon_head": [
+    "komododragon_head"
+   ],
+   "komododragon_neck": [
+    "komododragon_neck"
+   ],
+   "komododragon_tail": [
+    "komododragon_tail"
+   ],
+   "licked_face": [
+    "licked_face"
+   ],
+   "tongue": [
+    "tongue"
+   ],
+   "tongue0": [
+    "tongue0"
+   ],
+   "tongue1": [
+    "tongue1"
+   ],
+   "tongue10": [
+    "tongue10"
+   ],
+   "tongue11": [
+    "tongue11"
+   ],
+   "tongue12": [
+    "tongue12"
+   ],
+   "tongue2": [
+    "tongue2"
+   ],
+   "tongue3": [
+    "tongue3"
+   ],
+   "tongue4": [
+    "tongue4"
+   ],
+   "tongue5": [
+    "tongue5"
+   ],
+   "tongue6": [
+    "tongue6"
+   ],
+   "tongue7": [
+    "tongue7"
+   ],
+   "tongue8": [
+    "tongue8"
+   ],
+   "tongue9": [
+    "tongue9"
+   ]
+  },
+  "dir": "desert/komododragon",
+  "enum": "KOMODODRAGON",
+  "files": [
+   "komododragon",
+   "komododragon1",
+   "komododragon_ability",
+   "komododragon_attack",
+   "komododragon_head",
+   "komododragon_neck",
+   "komododragon_tail",
+   "licked_face",
+   "tongue",
+   "tongue0",
+   "tongue1",
+   "tongue10",
+   "tongue11",
+   "tongue12",
+   "tongue2",
+   "tongue3",
+   "tongue4",
+   "tongue5",
+   "tongue6",
+   "tongue7",
+   "tongue8",
+   "tongue9"
+  ],
+  "id": 94,
+  "java": {
+   "ability": 0,
+   "biome": "BiomeType.DESERT",
+   "rare": null,
+   "tier": 13
+  },
+  "main": "komododragon",
+  "per": true,
+  "ref": "desert/komododragon/0",
+  "transforms": {
+   "body>komododragon": [
+    1.0,
+    -1.0,
+    -54.0,
+    500,
+    500,
+    0.069
+   ]
+  },
+  "variants": [
+   ""
+  ]
+ },
+ "kraken": {
+  "base": null,
+  "candidates": {
+   "kraken": [
+    "body"
+   ]
+  },
+  "dir": "ocean/kraken",
+  "enum": "KRAKEN",
+  "files": [
+   "kraken"
+  ],
+  "id": 24,
+  "java": {
+   "ability": 5,
+   "biome": "BiomeType.OCEAN",
+   "rare": null,
+   "tier": 15
+  },
+  "main": "kraken",
+  "per": true,
+  "ref": "ocean/kraken/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "lava_monster": {
+  "base": null,
+  "candidates": {
+   "landmonster": [
+    "body"
+   ]
+  },
+  "dir": "volcano/landmonster",
+  "enum": "LANDMONSTER",
+  "files": [
+   "landmonster"
+  ],
+  "id": 71,
+  "java": {
+   "ability": 66,
+   "biome": "BiomeType.VOLCANO",
+   "rare": null,
+   "tier": 16
+  },
+  "main": "landmonster",
+  "per": true,
+  "ref": "volcano/landmonster/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "lion": {
+  "base": null,
+  "candidates": {
+   "head": [
+    "head"
+   ],
+   "lion": [
+    "body"
+   ],
+   "lion1": [
+    "lion1"
+   ],
+   "lion_head1": [
+    "lion_head1"
+   ],
+   "lion_roar": [
+    "ability"
+   ]
+  },
+  "dir": "land/lion",
+  "enum": "LION",
+  "files": [
+   "head",
+   "lion",
+   "lion1",
+   "lion_head1",
+   "lion_roar"
+  ],
+  "id": 8,
+  "java": {
+   "ability": 18,
+   "biome": "BiomeType.LAND",
+   "rare": null,
+   "tier": 11
+  },
+  "main": "lion",
+  "per": true,
+  "ref": "land/lion/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "macaw": {
+  "base": null,
+  "candidates": {
+   "macaw": [
+    "body"
+   ],
+   "macaw1": [
+    "macaw1"
+   ],
+   "macaw_head": [
+    "macaw_head"
+   ],
+   "macaw_wing1": [
+    "macaw_wing1"
+   ],
+   "macaw_wing2": [
+    "macaw_wing2"
+   ]
+  },
+  "dir": "macaw",
+  "enum": "MACAW",
+  "files": [
+   "macaw",
+   "macaw1",
+   "macaw_head",
+   "macaw_wing1",
+   "macaw_wing2"
+  ],
+  "id": 76,
+  "java": {
+   "ability": 71,
+   "biome": "BiomeType.LAND",
+   "rare": null,
+   "tier": 7
+  },
+  "main": "macaw",
+  "per": true,
+  "ref": "macaw/0",
+  "transforms": {
+   "macaw_wing1>macaw_wing1": [
+    0.97,
+    -2.331,
+    -1.0,
+    176,
+    254,
+    0.1
+   ],
+   "macaw_wing2>macaw_wing2": [
+    0.95,
+    -3.106,
+    0.0,
+    176,
+    254,
+    0.102
+   ]
+  },
+  "variants": [
+   ""
+  ]
+ },
+ "mammoth": {
+  "base": null,
+  "candidates": {
+   "mammoth": [
+    "body"
+   ]
+  },
+  "dir": "arctic/mammoth",
+  "enum": "MAMMOTH",
+  "files": [
+   "mammoth"
+  ],
+  "id": 43,
+  "java": {
+   "ability": 13,
+   "biome": "BiomeType.ARCTIC",
+   "rare": null,
+   "tier": 14
+  },
+  "main": "mammoth",
+  "per": true,
+  "ref": "arctic/mammoth/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "markhor": {
+  "base": null,
+  "candidates": {
+   "back_legs": [
+    "back_legs"
+   ],
+   "front_legs": [
+    "front_legs"
+   ],
+   "markhor": [
+    "body"
+   ],
+   "markhor1": [
+    "markhor1"
+   ],
+   "markhor_head": [
+    "markhor_head"
+   ],
+   "markhor_head_charging": [
+    "markhor_head_charging"
+   ]
+  },
+  "dir": "arctic/markhor",
+  "enum": "MARKHOR",
+  "files": [
+   "back_legs",
+   "front_legs",
+   "markhor",
+   "markhor1",
+   "markhor_head",
+   "markhor_head_charging"
+  ],
+  "id": 105,
+  "java": {
+   "ability": 151,
+   "biome": "BiomeType.ARCTIC",
+   "rare": null,
+   "tier": 12
+  },
+  "main": "markhor",
+  "per": true,
+  "ref": "arctic/markhor/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "meerkat": {
+  "base": null,
+  "candidates": {
+   "meerkat": [
+    "body"
+   ],
+   "meerkat1": [
+    "meerkat1"
+   ]
+  },
+  "dir": "desert/meerkat",
+  "enum": "MEERKAT",
+  "files": [
+   "meerkat",
+   "meerkat1"
+  ],
+  "id": 84,
+  "java": {
+   "ability": 0,
+   "biome": "BiomeType.DESERT",
+   "rare": null,
+   "tier": 3
+  },
+  "main": "meerkat",
+  "per": true,
+  "ref": "desert/meerkat/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "mole": {
+  "base": null,
+  "candidates": {
+   "mole": [
+    "body"
+   ]
+  },
+  "dir": "land/mole",
+  "enum": "MOLE",
+  "files": [
+   "mole"
+  ],
+  "id": 6,
+  "java": {
+   "ability": 1,
+   "biome": "BiomeType.LAND",
+   "rare": null,
+   "tier": 3
+  },
+  "main": "mole",
+  "per": true,
+  "ref": "land/mole/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "mouse": {
+  "base": null,
+  "candidates": {
+   "mouse": [
+    "body"
+   ]
+  },
+  "dir": "land/mouse",
+  "enum": "MOUSE",
+  "files": [
+   "mouse"
+  ],
+  "id": 1,
+  "java": {
+   "ability": 0,
+   "biome": "BiomeType.LAND",
+   "rare": null,
+   "tier": 1
+  },
+  "main": "mouse",
+  "per": true,
+  "ref": "land/mouse/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "muskox": {
+  "base": "arctic/muskox/muskox",
+  "candidates": {
+   "muskox": [
+    "body"
+   ],
+   "muskox2": [
+    "ability"
+   ]
+  },
+  "dir": "arctic/muskox",
+  "enum": "MUSKOX",
+  "files": [
+   "muskox",
+   "muskox2"
+  ],
+  "id": 34,
+  "java": {
+   "ability": 9,
+   "biome": "BiomeType.ARCTIC",
+   "rare": null,
+   "tier": 7
+  },
+  "main": "muskox",
+  "per": false,
+  "ref": "arctic/muskox",
+  "transforms": {},
+  "variants": [
+   "",
+   "2"
+  ]
+ },
+ "octopus": {
+  "base": "ocean/octopus/octopus",
+  "candidates": {
+   "octopus": [
+    "body"
+   ]
+  },
+  "dir": "ocean/octopus",
+  "enum": "OCTOPUS",
+  "files": [
+   "octopus"
+  ],
+  "id": 29,
+  "java": {
+   "ability": 7,
+   "biome": "BiomeType.OCEAN",
+   "rare": null,
+   "tier": 11
+  },
+  "main": "octopus",
+  "per": false,
+  "ref": "ocean/octopus",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "orca": {
+  "base": null,
+  "candidates": {
+   "killerwhale": [
+    "body"
+   ]
+  },
+  "dir": "ocean/killerwhale",
+  "enum": "KILLERWHALE",
+  "files": [
+   "killerwhale"
+  ],
+  "id": 26,
+  "java": {
+   "ability": 28,
+   "biome": "BiomeType.OCEAN",
+   "rare": null,
+   "tier": 13
+  },
+  "main": "killerwhale",
+  "per": true,
+  "ref": "ocean/killerwhale/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "ostrich": {
+  "base": null,
+  "candidates": {
+   "ostrich": [
+    "body"
+   ]
+  },
+  "dir": "land/ostrich",
+  "enum": "OSTRICH",
+  "files": [
+   "ostrich",
+   "ostrich-baby",
+   "ostrichEgg",
+   "ostrichEgg_e"
+  ],
+  "id": 63,
+  "java": {
+   "ability": 0,
+   "biome": "BiomeType.LAND",
+   "rare": null,
+   "tier": 13
+  },
+  "main": "ostrich",
+  "per": true,
+  "ref": "land/ostrich/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "ostrich_baby": {
+  "base": null,
+  "candidates": {
+   "ostrich-baby": [
+    "body"
+   ]
+  },
+  "dir": "land/ostrich",
+  "enum": "OSTRICHBABY",
+  "files": [
+   "ostrich",
+   "ostrich-baby",
+   "ostrichEgg",
+   "ostrichEgg_e"
+  ],
+  "id": 69,
+  "java": {
+   "ability": 0,
+   "biome": "BiomeType.LAND",
+   "rare": null,
+   "tier": 13
+  },
+  "main": "ostrich-baby",
+  "per": true,
+  "ref": "land/ostrich/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "peacock": {
+  "base": "peacock/peacock",
+  "candidates": {
+   "peacock": [
+    "body"
+   ]
+  },
+  "dir": "peacock",
+  "enum": "PEACOCK",
+  "files": [
+   "peacock"
+  ],
+  "id": 81,
+  "java": {
+   "ability": 76,
+   "biome": "BiomeType.LAND",
+   "rare": null,
+   "tier": 6
+  },
+  "main": "peacock",
+  "per": false,
+  "ref": "peacock",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "pelican": {
+  "base": "ocean/pelican/pelican",
+  "candidates": {
+   "pelican": [
+    "body"
+   ],
+   "pelican1": [
+    "pelican1"
+   ],
+   "pelican2": [
+    "pelican2"
+   ],
+   "pelican3": [
+    "pelican3"
+   ],
+   "pelican4": [
+    "pelican4"
+   ]
+  },
+  "dir": "ocean/pelican",
+  "enum": "PELICAN",
+  "files": [
+   "pelican",
+   "pelican1",
+   "pelican2",
+   "pelican3",
+   "pelican4"
+  ],
+  "id": 64,
+  "java": {
+   "ability": 55,
+   "biome": "BiomeType.OCEAN",
+   "rare": null,
+   "tier": 10
+  },
+  "main": "pelican",
+  "per": false,
+  "ref": "ocean/pelican",
+  "transforms": {},
+  "variants": [
+   "",
+   "1",
+   "2",
+   "3",
+   "4"
+  ]
+ },
+ "penguin": {
+  "base": "arctic/penguin/penguin",
+  "candidates": {
+   "penguin": [
+    "body"
+   ]
+  },
+  "dir": "arctic/penguin",
+  "enum": "PENGUIN",
+  "files": [
+   "penguin",
+   "penguin1"
+  ],
+  "id": 35,
+  "java": {
+   "ability": 0,
+   "biome": "BiomeType.ARCTIC",
+   "rare": null,
+   "tier": 3
+  },
+  "main": "penguin",
+  "per": false,
+  "ref": "arctic/penguin",
+  "transforms": {},
+  "variants": [
+   "",
+   "1"
+  ]
+ },
+ "phoenix": {
+  "base": null,
+  "candidates": {
+   "phoenix": [
+    "body"
+   ],
+   "phoenix_head": [
+    "phoenix_head"
+   ]
+  },
+  "dir": "/volcano/phoenix",
+  "enum": "PHOENIX",
+  "files": [
+   "firetornado",
+   "phoenix",
+   "phoenix_body",
+   "phoenix_head"
+  ],
+  "id": 68,
+  "java": {
+   "ability": 0,
+   "biome": "BiomeType.VOLCANO",
+   "rare": null,
+   "tier": 15
+  },
+  "main": "phoenix",
+  "per": true,
+  "ref": "/volcano/phoenix/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "pig": {
+  "base": null,
+  "candidates": {
+   "pig": [
+    "body"
+   ]
+  },
+  "dir": "land/pig",
+  "enum": "PIG",
+  "files": [
+   "pig"
+  ],
+  "id": 3,
+  "java": {
+   "ability": 48,
+   "biome": "BiomeType.LAND",
+   "rare": null,
+   "tier": 4
+  },
+  "main": "pig",
+  "per": true,
+  "ref": "land/pig/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "pigeon": {
+  "base": null,
+  "candidates": {
+   "pigeon": [
+    "body"
+   ],
+   "pigeon1": [
+    "pigeon1"
+   ],
+   "pigeon_head": [
+    "pigeon_head"
+   ],
+   "pigeon_wing1": [
+    "pigeon_wing1"
+   ],
+   "pigeon_wing2": [
+    "pigeon_wing2"
+   ]
+  },
+  "dir": "pigeon",
+  "enum": "PIGEON",
+  "files": [
+   "pigeon",
+   "pigeon1",
+   "pigeon_head",
+   "pigeon_wing1",
+   "pigeon_wing2"
+  ],
+  "id": 74,
+  "java": {
+   "ability": 65,
+   "biome": "BiomeType.LAND",
+   "rare": null,
+   "tier": 2
+  },
+  "main": "pigeon",
+  "per": true,
+  "ref": "pigeon/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "polar_bear": {
+  "base": "arctic/bear/bear",
+  "candidates": {
+   "bear": [
+    "body"
+   ]
+  },
+  "dir": "arctic/bear",
+  "enum": "POLARBEAR",
+  "files": [
+   "bear"
+  ],
+  "id": 36,
+  "java": {
+   "ability": 14,
+   "biome": "BiomeType.ARCTIC",
+   "rare": null,
+   "tier": 11
+  },
+  "main": "bear",
+  "per": false,
+  "ref": "arctic/bear",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "pterodactyl": {
+  "base": null,
+  "candidates": {
+   "legs": [
+    "legs"
+   ],
+   "legs2": [
+    "legs2"
+   ],
+   "pterodactyl": [
+    "body",
+    "x.pterodactyl"
+   ],
+   "pterodactyl1": [
+    "pterodactyl1"
+   ],
+   "pterodactyl3": [
+    "pterodactyl3"
+   ],
+   "pterodactyl_ability": [
+    "pterodactyl_ability",
+    "body"
+   ],
+   "pterodactyl_hand1": [
+    "pterodactyl_hand1"
+   ],
+   "pterodactyl_hand11": [
+    "pterodactyl_hand11"
+   ],
+   "pterodactyl_hand13": [
+    "pterodactyl_hand13"
+   ],
+   "pterodactyl_hand2": [
+    "pterodactyl_hand2"
+   ],
+   "pterodactyl_hand22": [
+    "pterodactyl_hand22"
+   ],
+   "pterodactyl_hand23": [
+    "pterodactyl_hand23"
+   ],
+   "pterodactyl_head": [
+    "pterodactyl_head"
+   ],
+   "pterodactyl_wing11_bones": [
+    "pterodactyl_wing11_bones"
+   ],
+   "pterodactyl_wing11_nohand": [
+    "pterodactyl_wing11_nohand"
+   ],
+   "pterodactyl_wing1_nohand": [
+    "pterodactyl_wing1_nohand"
+   ],
+   "pterodactyl_wing22_bones": [
+    "pterodactyl_wing22_bones"
+   ],
+   "pterodactyl_wing22_nohand": [
+    "pterodactyl_wing22_nohand"
+   ],
+   "pterodactyl_wing2_bones": [
+    "pterodactyl_wing2_bones"
+   ],
+   "pterodactyl_wing2_nohand": [
+    "pterodactyl_wing2_nohand"
+   ]
+  },
+  "dir": "desert//pterodactyl",
+  "enum": "PTERODACTYL",
+  "files": [
+   "legs",
+   "legs2",
+   "pterodactyl",
+   "pterodactyl1",
+   "pterodactyl3",
+   "pterodactyl_ability",
+   "pterodactyl_hand1",
+   "pterodactyl_hand11",
+   "pterodactyl_hand13",
+   "pterodactyl_hand2",
+   "pterodactyl_hand22",
+   "pterodactyl_hand23",
+   "pterodactyl_head",
+   "pterodactyl_wing11_bones",
+   "pterodactyl_wing11_nohand",
+   "pterodactyl_wing1_nohand",
+   "pterodactyl_wing22_bones",
+   "pterodactyl_wing22_nohand",
+   "pterodactyl_wing2_bones",
+   "pterodactyl_wing2_nohand"
+  ],
+  "id": 96,
+  "java": {
+   "ability": 93,
+   "biome": "BiomeType.DESERT",
+   "rare": null,
+   "tier": 15
+  },
+  "main": "pterodactyl",
+  "per": true,
+  "ref": "desert/pterodactyl/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "pufferfish": {
+  "base": null,
+  "candidates": {
+   "pufferfish": [
+    "body"
+   ],
+   "pufferfish2": [
+    "ability"
+   ]
+  },
+  "dir": "ocean/pufferfish",
+  "enum": "PUFFERFISH",
+  "files": [
+   "pufferfish",
+   "pufferfish2"
+  ],
+  "id": 25,
+  "java": {
+   "ability": 10,
+   "biome": "BiomeType.OCEAN",
+   "rare": null,
+   "tier": 9
+  },
+  "main": "pufferfish",
+  "per": true,
+  "ref": "ocean/pufferfish/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "rabbit": {
+  "base": "rabbit",
+  "candidates": {
+   "rabbit": [
+    "body"
+   ]
+  },
+  "dir": "land/rabbit",
+  "enum": "RABBIT",
+  "files": [
+   "rabbit"
+  ],
+  "id": 2,
+  "java": {
+   "ability": 0,
+   "biome": "BiomeType.LAND",
+   "rare": null,
+   "tier": 2
+  },
+  "main": "rabbit",
+  "per": false,
+  "ref": "",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "rattle_snake": {
+  "base": null,
+  "candidates": {
+   "rattle": [
+    "rattle"
+   ],
+   "rattlesnake": [
+    "body"
+   ],
+   "rattlesnake1": [
+    "rattlesnake1"
+   ],
+   "rattlesnake_head": [
+    "rattlesnake_head"
+   ],
+   "tongue": [
+    "tongue"
+   ]
+  },
+  "dir": "desert/rattlesnake",
+  "enum": "RATTLESNAKE",
+  "files": [
+   "circle",
+   "rattle",
+   "rattlesnake",
+   "rattlesnake1",
+   "rattlesnake21",
+   "rattlesnake_head",
+   "tongue"
+  ],
+  "id": 91,
+  "java": {
+   "ability": 0,
+   "biome": "BiomeType.DESERT",
+   "rare": null,
+   "tier": 9
+  },
+  "main": "rattlesnake",
+  "per": true,
+  "ref": "desert/rattlesnake/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "reindeer": {
+  "base": null,
+  "candidates": {
+   "reindeer": [
+    "body"
+   ]
+  },
+  "dir": "arctic/reindeer",
+  "enum": "REINDEER",
+  "files": [
+   "reindeer"
+  ],
+  "id": 40,
+  "java": {
+   "ability": 25,
+   "biome": "BiomeType.ARCTIC",
+   "rare": null,
+   "tier": 5
+  },
+  "main": "reindeer",
+  "per": true,
+  "ref": "arctic/reindeer/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "rhinoceros": {
+  "base": null,
+  "candidates": {
+   "rhino": [
+    "body",
+    "ability"
+   ]
+  },
+  "dir": "land/rhino",
+  "enum": "RHINO",
+  "files": [
+   "rhino",
+   "rhino1",
+   "rhino_charge",
+   "rhino_head1"
+  ],
+  "id": 12,
+  "java": {
+   "ability": 9,
+   "biome": "BiomeType.LAND",
+   "rare": null,
+   "tier": 12
+  },
+  "main": "rhino",
+  "per": true,
+  "ref": "land/rhino/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "sabertooth_tiger": {
+  "base": null,
+  "candidates": {
+   "sabertooth": [
+    "body"
+   ]
+  },
+  "dir": "arctic/sabertooth",
+  "enum": "SABERTOOTHTIGER",
+  "files": [
+   "sabertooth"
+  ],
+  "id": 47,
+  "java": {
+   "ability": 33,
+   "biome": "BiomeType.ARCTIC",
+   "rare": null,
+   "tier": 13
+  },
+  "main": "sabertooth",
+  "per": true,
+  "ref": "arctic/sabertooth/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "sea_horse": {
+  "base": "seahorse",
+  "candidates": {
+   "seahorse": [
+    "body"
+   ]
+  },
+  "dir": "ocean/seahorse",
+  "enum": "SEAHORSE",
+  "files": [
+   "seahorse"
+  ],
+  "id": 22,
+  "java": {
+   "ability": 15,
+   "biome": "BiomeType.OCEAN",
+   "rare": null,
+   "tier": 4
+  },
+  "main": "seahorse",
+  "per": false,
+  "ref": "",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "sea_monster": {
+  "base": null,
+  "candidates": {
+   "seamonster": [
+    "body"
+   ],
+   "seamonster-crown": [
+    "seamonster-crown"
+   ]
+  },
+  "dir": "ocean/seamonster",
+  "enum": "SEAMONSTER",
+  "files": [
+   "seamonster",
+   "seamonster-crown"
+  ],
+  "id": 70,
+  "java": {
+   "ability": 63,
+   "biome": "BiomeType.OCEAN",
+   "rare": null,
+   "tier": 16
+  },
+  "main": "seamonster",
+  "per": true,
+  "ref": "ocean/seamonster/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "seal": {
+  "base": "arctic/seal/seal",
+  "candidates": {
+   "seal": [
+    "body"
+   ],
+   "seal1": [
+    "ability"
+   ]
+  },
+  "dir": "arctic/seal",
+  "enum": "SEAL",
+  "files": [
+   "seal",
+   "seal1"
+  ],
+  "id": 37,
+  "java": {
+   "ability": 0,
+   "biome": "BiomeType.ARCTIC",
+   "rare": null,
+   "tier": 4
+  },
+  "main": "seal",
+  "per": false,
+  "ref": "arctic/seal",
+  "transforms": {},
+  "variants": [
+   "",
+   "1"
+  ]
+ },
+ "shark": {
+  "base": null,
+  "candidates": {
+   "ability": [
+    "ability"
+   ],
+   "diving": [
+    "diving"
+   ],
+   "shark": [
+    "body"
+   ],
+   "tail": [
+    "tail"
+   ]
+  },
+  "dir": "ocean/shark",
+  "enum": "SHARK",
+  "files": [
+   "ability",
+   "diving",
+   "shark",
+   "tail"
+  ],
+  "id": 19,
+  "java": {
+   "ability": 46,
+   "biome": "BiomeType.OCEAN",
+   "rare": null,
+   "tier": 12
+  },
+  "main": "shark",
+  "per": true,
+  "ref": "ocean/shark/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "shrimp": {
+  "base": "shrimp",
+  "candidates": {
+   "shrimp": [
+    "body"
+   ]
+  },
+  "dir": "ocean/shrimp",
+  "enum": "SHRIMP",
+  "files": [
+   "shrimp"
+  ],
+  "id": 15,
+  "java": {
+   "ability": 0,
+   "biome": "BiomeType.OCEAN",
+   "rare": null,
+   "tier": 1
+  },
+  "main": "shrimp",
+  "per": false,
+  "ref": "",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "snow_leopard": {
+  "base": null,
+  "candidates": {
+   "snowleopard": [
+    "body"
+   ]
+  },
+  "dir": "arctic/snowleopard",
+  "enum": "SNOWLEOPARD",
+  "files": [
+   "snowleopard"
+  ],
+  "id": 38,
+  "java": {
+   "ability": 15,
+   "biome": "BiomeType.ARCTIC",
+   "rare": null,
+   "tier": 9
+  },
+  "main": "snowleopard",
+  "per": true,
+  "ref": "arctic/snowleopard/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "snowy_owl": {
+  "base": "arctic/snowyowl/snowyowl",
+  "candidates": {
+   "snowyowl": [
+    "body"
+   ],
+   "snowyowl1": [
+    "snowyowl1"
+   ]
+  },
+  "dir": "arctic/snowyowl",
+  "enum": "SNOWYOWL",
+  "files": [
+   "snowyowl",
+   "snowyowl1",
+   "snowyowl2",
+   "snowyowl3"
+  ],
+  "id": 66,
+  "java": {
+   "ability": 57,
+   "biome": "BiomeType.ARCTIC",
+   "rare": null,
+   "tier": 8
+  },
+  "main": "snowyowl",
+  "per": false,
+  "ref": "arctic/snowyowl",
+  "transforms": {},
+  "variants": [
+   "",
+   "1",
+   "2",
+   "3"
+  ]
+ },
+ "squid": {
+  "base": "ocean/squid/squid",
+  "candidates": {
+   "squid": [
+    "body"
+   ]
+  },
+  "dir": "ocean/squid",
+  "enum": "SQUID",
+  "files": [
+   "squid"
+  ],
+  "id": 18,
+  "java": {
+   "ability": 0,
+   "biome": "BiomeType.OCEAN",
+   "rare": null,
+   "tier": 5
+  },
+  "main": "squid",
+  "per": false,
+  "ref": "ocean/squid",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "stingray": {
+  "base": null,
+  "candidates": {
+   "leftwing": [
+    "leftwing"
+   ],
+   "rightwing": [
+    "rightwing"
+   ],
+   "stingray": [
+    "body"
+   ],
+   "tail": [
+    "tail"
+   ]
+  },
+  "dir": "ocean/stingray",
+  "enum": "STINGRAY",
+  "files": [
+   "leftwing",
+   "rightwing",
+   "stingray",
+   "tail"
+  ],
+  "id": 20,
+  "java": {
+   "ability": 9,
+   "biome": "BiomeType.OCEAN",
+   "rare": null,
+   "tier": 8
+  },
+  "main": "stingray",
+  "per": true,
+  "ref": "ocean/stingray/0",
+  "transforms": {
+   "body>stingray": [
+    0.85,
+    -5.25,
+    -94.0,
+    500,
+    500,
+    0.176
+   ]
+  },
+  "variants": [
+   ""
+  ]
+ },
+ "swordfish": {
+  "base": "ocean/swordfish/swordfish",
+  "candidates": {
+   "swordfish": [
+    "swordfish",
+    "body"
+   ],
+   "swordfish2": [
+    "swordfish2"
+   ]
+  },
+  "dir": "ocean/swordfish",
+  "enum": "SWORDFISH",
+  "files": [
+   "swordfish",
+   "swordfish2"
+  ],
+  "id": 27,
+  "java": {
+   "ability": 9,
+   "biome": "BiomeType.OCEAN",
+   "rare": null,
+   "tier": 10
+  },
+  "main": "swordfish",
+  "per": false,
+  "ref": "ocean/swordfish",
+  "transforms": {
+   "body>swordfish": [
+    1.0,
+    0.0,
+    -58.5,
+    500,
+    500,
+    0.099
+   ]
+  },
+  "variants": [
+   "",
+   "2"
+  ]
+ },
+ "tiger": {
+  "base": null,
+  "candidates": {
+   "ability_tigerJump": [
+    "ability_tigerJump"
+   ],
+   "tiger": [
+    "body"
+   ]
+  },
+  "dir": "land/tiger",
+  "enum": "TIGER",
+  "files": [
+   "ability_tigerJump",
+   "tiger",
+   "tiger1",
+   "tiger2",
+   "tiger3",
+   "tiger4"
+  ],
+  "id": 54,
+  "java": {
+   "ability": 40,
+   "biome": "BiomeType.LAND",
+   "rare": null,
+   "tier": 10
+  },
+  "main": "tiger",
+  "per": true,
+  "ref": "land/tiger/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "toucan": {
+  "base": null,
+  "candidates": {
+   "toucan": [
+    "body"
+   ],
+   "toucan1": [
+    "toucan1"
+   ],
+   "toucan_head": [
+    "toucan_head"
+   ]
+  },
+  "dir": "toucan",
+  "enum": "TOUCAN",
+  "files": [
+   "toucan",
+   "toucan1",
+   "toucan_head"
+  ],
+  "id": 75,
+  "java": {
+   "ability": 65,
+   "biome": "BiomeType.LAND",
+   "rare": null,
+   "tier": 9
+  },
+  "main": "toucan",
+  "per": true,
+  "ref": "toucan/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "trex": {
+  "base": null,
+  "candidates": {
+   "ability_trexBite": [
+    "ability_trexBite"
+   ],
+   "trex": [
+    "body"
+   ],
+   "trex-head": [
+    "trex-head"
+   ]
+  },
+  "dir": "land/trex",
+  "enum": "TREX",
+  "files": [
+   "ability_trexBite",
+   "trex",
+   "trex-head"
+  ],
+  "id": 53,
+  "java": {
+   "ability": 37,
+   "biome": "BiomeType.LAND",
+   "rare": null,
+   "tier": 15
+  },
+  "main": "trex",
+  "per": true,
+  "ref": "land/trex/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "trout": {
+  "base": "trout",
+  "candidates": {
+   "trout": [
+    "body"
+   ]
+  },
+  "dir": "ocean/trout",
+  "enum": "TROUT",
+  "files": [
+   "trout"
+  ],
+  "id": 16,
+  "java": {
+   "ability": 15,
+   "biome": "BiomeType.OCEAN",
+   "rare": null,
+   "tier": 2
+  },
+  "main": "trout",
+  "per": false,
+  "ref": "",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "turtle": {
+  "base": "ocean/turtle/turtle",
+  "candidates": {
+   "turtle": [
+    "body"
+   ],
+   "turtle1": [
+    "turtle1"
+   ],
+   "turtle2": [
+    "ability"
+   ]
+  },
+  "dir": "ocean/turtle",
+  "enum": "TURTLE",
+  "files": [
+   "turtle",
+   "turtle1",
+   "turtle2"
+  ],
+  "id": 21,
+  "java": {
+   "ability": 2,
+   "biome": "BiomeType.OCEAN",
+   "rare": null,
+   "tier": 7
+  },
+  "main": "turtle",
+  "per": false,
+  "ref": "ocean/turtle",
+  "transforms": {},
+  "variants": [
+   "",
+   "1",
+   "2"
+  ]
+ },
+ "vulture": {
+  "base": null,
+  "candidates": {
+   "vulture": [
+    "body"
+   ],
+   "vulture1": [
+    "vulture1"
+   ],
+   "vulture2": [
+    "vulture2"
+   ],
+   "vulture_head": [
+    "vulture_head"
+   ],
+   "vulture_head1": [
+    "vulture_head1"
+   ],
+   "vulture_wing1": [
+    "vulture_wing1"
+   ],
+   "vulture_wing2": [
+    "vulture_wing2"
+   ],
+   "vulture_wing21": [
+    "vulture_wing21"
+   ],
+   "vulture_wing22": [
+    "vulture_wing22"
+   ]
+  },
+  "dir": "/desert/vulture",
+  "enum": "VULTURE",
+  "files": [
+   "vulture",
+   "vulture1",
+   "vulture2",
+   "vulture_head",
+   "vulture_head1",
+   "vulture_wing1",
+   "vulture_wing2",
+   "vulture_wing21",
+   "vulture_wing22"
+  ],
+  "id": 92,
+  "java": {
+   "ability": 47,
+   "biome": "BiomeType.DESERT",
+   "rare": null,
+   "tier": 11
+  },
+  "main": "vulture",
+  "per": true,
+  "ref": "/desert/vulture/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "walrus": {
+  "base": null,
+  "candidates": {
+   "walrus": [
+    "body"
+   ],
+   "walrus1": [
+    "ability"
+   ]
+  },
+  "dir": "arctic/walrus",
+  "enum": "WALRUS",
+  "files": [
+   "walrus",
+   "walrus1"
+  ],
+  "id": 39,
+  "java": {
+   "ability": 0,
+   "biome": "BiomeType.ARCTIC",
+   "rare": null,
+   "tier": 8
+  },
+  "main": "walrus",
+  "per": true,
+  "ref": "arctic/walrus/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "warthog": {
+  "base": null,
+  "candidates": {
+   "leg0": [
+    "leg0"
+   ],
+   "leg1": [
+    "leg1"
+   ],
+   "warthog": [
+    "body"
+   ]
+  },
+  "dir": "desert/warthog",
+  "enum": "WARTHOG",
+  "files": [
+   "leg0",
+   "leg1",
+   "warthog"
+  ],
+  "id": 89,
+  "java": {
+   "ability": 9,
+   "biome": "BiomeType.DESERT",
+   "rare": null,
+   "tier": 7
+  },
+  "main": "warthog",
+  "per": true,
+  "ref": "desert/warthog/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "wolf": {
+  "base": "arctic/wolf/wolf",
+  "candidates": {
+   "wolf": [
+    "body"
+   ],
+   "wolf1": [
+    "ability"
+   ]
+  },
+  "dir": "arctic/wolf",
+  "enum": "WOLF",
+  "files": [
+   "wolf",
+   "wolf1"
+  ],
+  "id": 30,
+  "java": {
+   "ability": 12,
+   "biome": "BiomeType.ARCTIC",
+   "rare": null,
+   "tier": 10
+  },
+  "main": "wolf",
+  "per": false,
+  "ref": "arctic/wolf",
+  "transforms": {},
+  "variants": [
+   "",
+   "1"
+  ]
+ },
+ "wolverine": {
+  "base": "arctic/wolverine/wolverine",
+  "candidates": {
+   "wolverine": [
+    "body"
+   ]
+  },
+  "dir": "arctic/wolverine",
+  "enum": "WOLVERINE",
+  "files": [
+   "wolverine"
+  ],
+  "id": 42,
+  "java": {
+   "ability": 18,
+   "biome": "BiomeType.ARCTIC",
+   "rare": null,
+   "tier": 12
+  },
+  "main": "wolverine",
+  "per": false,
+  "ref": "arctic/wolverine",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "woodpecker": {
+  "base": "woodpecker/woodpecker",
+  "candidates": {
+   "woodpecker": [
+    "body"
+   ],
+   "woodpecker1": [
+    "woodpecker1"
+   ],
+   "woodpecker2": [
+    "woodpecker2"
+   ]
+  },
+  "dir": "woodpecker",
+  "enum": "WOODPECKER",
+  "files": [
+   "woodpecker",
+   "woodpecker1",
+   "woodpecker2"
+  ],
+  "id": 80,
+  "java": {
+   "ability": 75,
+   "biome": "BiomeType.LAND",
+   "rare": null,
+   "tier": 4
+  },
+  "main": "woodpecker",
+  "per": false,
+  "ref": "woodpecker",
+  "transforms": {},
+  "variants": [
+   "",
+   "1",
+   "2"
+  ]
+ },
+ "yeti": {
+  "base": null,
+  "candidates": {
+   "yeti": [
+    "body"
+   ],
+   "yeti1": [
+    "yeti1"
+   ],
+   "yeti_head1": [
+    "yeti_head1"
+   ]
+  },
+  "dir": "arctic/yeti",
+  "enum": "YETI",
+  "files": [
+   "yeti",
+   "yeti1",
+   "yeti_head1"
+  ],
+  "id": 32,
+  "java": {
+   "ability": 11,
+   "biome": "BiomeType.ARCTIC",
+   "rare": null,
+   "tier": 15
+  },
+  "main": "yeti",
+  "per": true,
+  "ref": "arctic/yeti/0",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ },
+ "zebra": {
+  "base": "land/undefined/undefined",
+  "candidates": {
+   "zebra": [
+    "body"
+   ]
+  },
+  "dir": "land/zebra",
+  "enum": "ZEBRA",
+  "files": [
+   "zebra"
+  ],
+  "id": 7,
+  "java": {
+   "ability": 0,
+   "biome": "BiomeType.LAND",
+   "rare": null,
+   "tier": 7
+  },
+  "main": "zebra",
+  "per": false,
+  "ref": "land/zebra",
+  "transforms": {},
+  "variants": [
+   ""
+  ]
+ }
+}
