@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `warns` varchar(225) DEFAULT NULL,
   `warn_executors` varchar(225) DEFAULT NULL,
   `banned` int(11) DEFAULT 0,
+  `wardrobe` text DEFAULT NULL,
   `banreason` varchar(225) DEFAULT NULL,
   `banexecutor` varchar(225) DEFAULT NULL,
   `banTime` varchar(225) DEFAULT NULL,

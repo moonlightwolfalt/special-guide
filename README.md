@@ -143,6 +143,14 @@ node tools/fetch-shop-skins.js --no-images           # only write the list
 
 It writes `shop-skins/skins.json` and the images under `shop-skins/images/`, in the same folders as the site's `skins/`. Prices, categories and ownership come from the account server and need a logged-in player: set `MOPE_USER_ID` and `MOPE_PASSWORD_TOKEN` to add them.
 
+## Wardrobe
+
+The shop's **Wardrobe** tab lists every skin you own, grouped by animal. Click one to make that animal wear it, or click **Default** to go back to the plain animal. You can wear one skin per animal, and the choice is saved to your account (the `wardrobe` column, added on startup).
+
+The upgrade menu shows each animal once, wearing its equipped skin. A small **+N** in the corner means you own more skins for that animal: right-click the choice, or hold it for half a second (also on touch screens), to see all of them and pick one for this upgrade. Click outside the picker or press Esc to go back.
+
+The account server's `/loadWardrobe` and `/equipSkin` endpoints store it, and equipping checks that the account owns the skin. The game server still sends every owned skin as a choice, and the client sends back the index of the one picked, so nothing changed there.
+
 ## Fetch the mope.io shop skins
 
 `tools/fetch-mope-io-skins.ts` (run with [Bun](https://bun.sh)) downloads the current mope.io shop skin images:
