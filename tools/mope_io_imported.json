@@ -1414,6 +1414,46 @@
   "number": 213,
   "type": 18
  },
+ "mio_stingray_classic": {
+  "folder": "ocean/stingray/210",
+  "number": 210,
+  "type": 20
+ },
+ "mio_stingray_gold_trim": {
+  "folder": "ocean/stingray/211",
+  "number": 211,
+  "type": 20
+ },
+ "mio_stingray_summer21_chocolate": {
+  "folder": "ocean/stingray/212",
+  "number": 212,
+  "type": 20
+ },
+ "mio_stingray_val23": {
+  "folder": "ocean/stingray/213",
+  "number": 213,
+  "type": 20
+ },
+ "mio_swordfish_classic": {
+  "folder": "ocean/swordfish/211",
+  "number": 211,
+  "type": 27
+ },
+ "mio_swordfish_evergreen": {
+  "folder": "ocean/swordfish/212",
+  "number": 212,
+  "type": 27
+ },
+ "mio_swordfish_gold_trim": {
+  "folder": "ocean/swordfish/213",
+  "number": 213,
+  "type": 27
+ },
+ "mio_swordfish_hw2023_soda_fish": {
+  "folder": "ocean/swordfish/214",
+  "number": 214,
+  "type": 27
+ },
  "mio_swordfish_summer21_surfboard": {
   "folder": "ocean/swordfish/210",
   "number": 210,

@@ -23,9 +23,12 @@ public class Fire extends GameObject {
     private Timer hpTimer = new Timer(1000);
 
     private FireWood firewood;
+    // which fire frames the client draws (web/img/fire/<style>); the species still decides damage
+    private int style;
     public Fire(int id, double x, double y, int radius, int type, Room room, GameClient owner, int damage, boolean isDamaged) {
         super(id, x, y, radius, 70);
         this.setSpecies(type);
+        this.style = type;
         this.owner = owner;
         this.room = room;
         this.isDamaged = isDamaged;
@@ -103,6 +106,10 @@ public class Fire extends GameObject {
         super.update();
     }
 
+    public void setStyle(int style) {
+        this.style = style;
+    }
+
     public int getSecondaryType() {
         return secondaryType;
     }
@@ -110,6 +117,6 @@ public class Fire extends GameObject {
     @Override
     public void writeCustomData_onAdd(MsgWriter writer){
         super.writeCustomData_onAdd(writer);
-        writer.writeUInt8(this.getSpecies());
+        writer.writeUInt8(this.style);
     }
 }

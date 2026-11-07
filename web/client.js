@@ -2463,15 +2463,135 @@ Object.assign(EXTRA_SKINS, {
         ],
         "keep": true
     },
+    "20_210": {
+        "name": "Classic Stingray",
+        "full": {
+            "img": "ocean/stingray/210/full",
+            "x": -1.29,
+            "y": -1.54,
+            "w": 2.58,
+            "h": 2.58
+        }
+    },
+    "20_211": {
+        "name": "Gold-trim Stingray",
+        "full": {
+            "img": "ocean/stingray/211/full",
+            "x": -1.29,
+            "y": -1.54,
+            "w": 2.58,
+            "h": 2.58
+        }
+    },
+    "20_212": {
+        "name": "Chocolate Ray",
+        "full": {
+            "img": "ocean/stingray/212/full",
+            "x": -1.29,
+            "y": -1.54,
+            "w": 2.58,
+            "h": 2.58
+        }
+    },
+    "20_213": {
+        "name": "Valentine Stingray",
+        "full": {
+            "img": "ocean/stingray/213/full",
+            "x": -1.29,
+            "y": -1.54,
+            "w": 2.58,
+            "h": 2.58
+        }
+    },
+    "27_211": {
+        "name": "Classic Swordfish",
+        "base": "ocean/swordfish/swordfish",
+        "sprite": "ocean/swordfish/211/swordfish",
+        "variants": [
+            "",
+            "1",
+            "2"
+        ],
+        "keep": true,
+        "full": {
+            "img": "ocean/swordfish/211/full",
+            "x": -1.264,
+            "y": -1.189,
+            "w": 2.528,
+            "h": 2.528
+        }
+    },
+    "27_212": {
+        "name": "Evergreen Swordfish",
+        "base": "ocean/swordfish/swordfish",
+        "sprite": "ocean/swordfish/212/swordfish",
+        "variants": [
+            "",
+            "1",
+            "2"
+        ],
+        "keep": true,
+        "full": {
+            "img": "ocean/swordfish/212/full",
+            "x": -1.264,
+            "y": -1.189,
+            "w": 2.528,
+            "h": 2.528
+        }
+    },
+    "27_213": {
+        "name": "Gold-trim Swordfish",
+        "base": "ocean/swordfish/swordfish",
+        "sprite": "ocean/swordfish/213/swordfish",
+        "variants": [
+            "",
+            "1",
+            "2"
+        ],
+        "keep": true,
+        "full": {
+            "img": "ocean/swordfish/213/full",
+            "x": -1.264,
+            "y": -1.189,
+            "w": 2.528,
+            "h": 2.528
+        }
+    },
+    "27_214": {
+        "name": "Sodafish",
+        "base": "ocean/swordfish/swordfish",
+        "sprite": "ocean/swordfish/214/swordfish",
+        "variants": [
+            "",
+            "1",
+            "2"
+        ],
+        "keep": true,
+        "full": {
+            "img": "ocean/swordfish/214/full",
+            "x": -1.264,
+            "y": -1.189,
+            "w": 2.528,
+            "h": 2.528
+        }
+    },
     "27_210": {
         "name": "Surfboardfish",
         "base": "ocean/swordfish/swordfish",
         "sprite": "ocean/swordfish/210/swordfish",
         "variants": [
             "",
+            "1",
             "2"
         ],
-        "keep": true
+        "keep": true,
+        "full": {
+            "img": "ocean/swordfish/210/full",
+            "x": -1.264,
+            "y": -1.189,
+            "w": 2.528,
+            "h": 2.528
+        }
     },
     "54_210": {
         "name": "Chimera Tiger"
@@ -2833,6 +2953,228 @@ function addExtraSkinSupport(obj) {
         // keep: a pose the skin has no sprite for keeps the default one
         return extra.keep ? name : extra.sprite;
     };
+}
+
+// An imported skin drawn as one image over the area an animal's separate parts cover
+// (EXTRA_SKINS "full": x, y, w, h in units of the body radius). Returns true when it did,
+// so the caller skips the default parts.
+function drawFullSkin(animal) {
+    var extra = EXTRA_SKINS[animal.animalType + '_' + animal.animalSpecies];
+    if (!extra || !extra.full) return false;
+    var img = _0x2f22f9('skins/' + extra.full.img + '.png');
+    if (img) {
+        var u = (animal.rad - animal.outlineW) * (0x1f4 / 0x154);
+        ctx.drawImage(img, u * extra.full.x, u * extra.full.y, u * extra.full.w, u * extra.full.h);
+    }
+    return true;
+}
+
+// --- wardrobe ---------------------------------------------------------------------------
+// Each animal can wear one owned skin (saved on the account server). The upgrade menu then
+// shows every animal once, in its equipped skin; right-click or hold a choice to see all the
+// skins you own for that animal and pick another one for this upgrade.
+var WARDROBE = {};             // animal type -> itemName of the equipped skin
+var wardrobeOwned = [];        // itemNames of every shop item the player owns
+var aniChoiceAll = [];         // every choice the server sent; the server wants its index
+var wardrobePicker = null;     // the open picker: {buttons, title}
+var wardrobeHold = null;       // a press that may turn into a hold: {btn, timer}
+var wardrobeSuppressClick = false;
+
+function wardrobeUrl(path, extra) {
+    return ACCOUNT_SERVER_URL + path + '?userId=' + encodeURIComponent(login_userId) +
+        '&passwordToken=' + encodeURIComponent(login_passwordToken) + (extra || '');
+}
+
+function wardrobeLoad(cb) {
+    if (!login_userId) { WARDROBE = {}; cb && cb(); return; }
+    $.ajax({
+        url: wardrobeUrl('/loadWardrobe'), crossDomain: true,
+        success: function (r) {
+            try { r = JSON.parse(r); if (r.success) WARDROBE = r.wardrobe || {}; } catch (e) { }
+            cb && cb();
+        },
+        error: function () { cb && cb(); }
+    });
+}
+
+// itemName '' puts the animal back in its default look.
+function wardrobeEquip(animalType, itemName, cb) {
+    if (!login_userId) return;
+    $.ajax({
+        url: wardrobeUrl('/equipSkin', '&animal=' + animalType + '&itemName=' + encodeURIComponent(itemName || '')),
+        crossDomain: true,
+        success: function (r) {
+            try { r = JSON.parse(r); if (r.success) WARDROBE = r.wardrobe || {}; } catch (e) { r = { success: false }; }
+            cb && cb(r.success);
+        },
+        error: function () { cb && cb(false); }
+    });
+}
+
+// [animal type, skin number] the animal wears, or null for its default look
+function wardrobeSkinOf(animalType) {
+    var item = WARDROBE[animalType];
+    var info = item ? mopeShopObject.prototype.getAnimalInfo(item) : null;
+    return info && info[0] == animalType ? info : null;
+}
+
+// One choice per animal: the equipped skin when it's offered, else the plain animal.
+// Every choice keeps the list of all options for its animal, for the picker.
+function wardrobeArrange(all) {
+    var groups = [], byType = {};
+    for (var i = 0; i < all.length; i++) {
+        var b = all[i];
+        b.wardrobeMain = false;
+        b.wardrobeOptions = null;
+        if (!byType[b.aniT]) { byType[b.aniT] = []; groups.push(byType[b.aniT]); }
+        byType[b.aniT].push(b);
+    }
+    var shown = [];
+    for (var g = 0; g < groups.length; g++) {
+        var group = groups[g];
+        var pick = null;
+        var eq = wardrobeSkinOf(group[0].aniT);
+        if (eq) for (var k = 0; k < group.length; k++) if (group[k].premiumSkinType == 1 && group[k].species == eq[1]) { pick = group[k]; break; }
+        if (!pick) for (var k = 0; k < group.length; k++) if (group[k].premiumSkinType != 1) { pick = group[k]; break; }
+        pick = pick || group[0];
+        pick.wardrobeMain = true;
+        pick.wardrobeOptions = group;
+        shown.push(pick);
+    }
+    return shown;
+}
+
+function wardrobeOpenPicker(btn) {
+    if (!btn || !btn.wardrobeOptions || btn.wardrobeOptions.length < 2) return false;
+    var plain = btn.wardrobeOptions.filter(function (b) { return b.premiumSkinType != 1; })[0] || btn.wardrobeOptions[0];
+    var title = '';
+    try { title = String(plain.drawnAniObj.animalInfo().aniName || '').replace(/!$/, ''); } catch (e) { }
+    wardrobePicker = { buttons: btn.wardrobeOptions.slice(), title: title && title != '??' ? title : '' };
+    for (var i = 0; i < wardrobePicker.buttons.length; i++) wardrobePicker.buttons[i].isHighLighted = false;
+    return true;
+}
+
+function wardrobeChoiceAt(x, y) {
+    var list = wardrobePicker ? wardrobePicker.buttons : _0x2a3b6d;
+    for (var i = 0; i < list.length; i++) if (list[i].testPosHitsButton(x, y)) return list[i];
+    return null;
+}
+
+// A press on a choice: a hold (or a right-click) opens the picker instead of choosing.
+function wardrobePressStart(x, y) {
+    wardrobePressEnd();
+    if (!_0x109e62 || wardrobePicker) return;
+    var btn = wardrobeChoiceAt(x, y);
+    if (!btn || !btn.wardrobeOptions || btn.wardrobeOptions.length < 2) return;
+    wardrobeHold = { btn: btn, timer: setTimeout(function () {
+        if (wardrobeHold && wardrobeOpenPicker(wardrobeHold.btn)) { wardrobeSuppressClick = true; _0x388d73(); }
+        wardrobeHold = null;
+    }, 450) };
+}
+
+function wardrobePressEnd() {
+    if (wardrobeHold) { clearTimeout(wardrobeHold.timer); wardrobeHold = null; }
+}
+
+function wardrobeClosePicker() {
+    wardrobePicker = null;
+}
+
+// Draws the open picker over the upgrade menu.
+function wardrobeDrawPicker(alpha) {
+    var list = wardrobePicker.buttons;
+    var size = Math.min(110 * interfS, canvasW / 7), gap = 1.15 * size, perRow = Math.min(6, list.length);
+    var rows = Math.ceil(list.length / perRow);
+    ctx.save();
+    ctx.globalAlpha = 0.6 * alpha;
+    ctx.fillStyle = 'black';
+    ctx.fillRect(0, 0, canvasW, canvasH);
+    ctx.globalAlpha = alpha;
+    var top = canvasH / 2 - rows * gap / 2 + gap / 2;
+    for (var i = 0; i < list.length; i++) {
+        var row = Math.floor(i / perRow), inRow = Math.min(perRow, list.length - row * perRow);
+        var b = list[i];
+        b.buttonScaleF = 1;
+        b.w = b.h = size;
+        b.x = canvasW / 2 - inRow * gap / 2 + gap / 2 + (i - row * perRow) * gap;
+        b.y = top + row * gap;
+        b.draw();
+    }
+    ctx.fillStyle = 'white';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = 0x19 * interfS + 'px Arial';
+    0x2 != _0x14fca5 && (ctx.shadowOffsetX = 0x1, ctx.shadowOffsetY = 0x1, ctx.shadowColor = 'black');
+    ctx.fillText('Pick a skin' + (wardrobePicker.title ? ' for ' + wardrobePicker.title : '') + ':', canvasW / 2, top - gap / 2 - 25 * pixelRat);
+    ctx.font = 0x10 * interfS + 'px Arial';
+    ctx.fillText('Click outside or press Esc to go back. Equip skins in the shop\'s Wardrobe.', canvasW / 2, top + (rows - 0.5) * gap + 25 * pixelRat);
+    ctx.restore();
+}
+
+// The shop's Wardrobe tab: every owned skin by animal; click one to wear it.
+function wardrobeBuildTab(panel) {
+    panel.innerHTML = '';
+    var groups = {}, order = [];
+    for (var i = 0; i < wardrobeOwned.length; i++) {
+        var info = mopeShopObject.prototype.getAnimalInfo(wardrobeOwned[i]);
+        if (!info) continue;
+        if (!groups[info[0]]) { groups[info[0]] = []; order.push(info[0]); }
+        groups[info[0]].push({ item: wardrobeOwned[i], info: info });
+    }
+    if (!login_userId) { panel.innerHTML = '<div class="nopurchases">Log in to use the wardrobe.</div>'; return; }
+    if (!order.length) { panel.innerHTML = '<div class="nopurchases">Buy skins in the shop, then equip one for each animal here.</div>'; return; }
+    var names = {}, plainImg = {};
+    order.forEach(function (t) {
+        try {
+            var a = GameObjType.createGameObjOfOType(o_player, t);
+            a.animalType = t;
+            a.animalSpecies = 0;
+            var ai = a.animalInfo();
+            names[t] = ai.aniName && ai.aniName != '??' ? ai.aniName : 'Animal ' + t;
+            plainImg[t] = ai.skinName ? 'skins/' + String(ai.skinName).replace(/^\/+/, '') + '.png' : null;
+        } catch (e) { names[t] = 'Animal ' + t; }
+    });
+    order.sort(function (a, b) { return String(names[a]).localeCompare(String(names[b])); });
+    var help = document.createElement('div');
+    help.className = 'wardrobe-help';
+    help.textContent = 'Pick the skin each animal wears. Upgrade choices show it; right-click or hold a choice to see all your skins for that animal.';
+    panel.appendChild(help);
+    order.forEach(function (t) {
+        var row = document.createElement('div');
+        row.className = 'wardrobe-row';
+        var title = document.createElement('div');
+        title.className = 'wardrobe-animal';
+        title.textContent = String(names[t]).replace(/!$/, '');
+        row.appendChild(title);
+        var cards = document.createElement('div');
+        cards.className = 'wardrobe-cards';
+        var options = [{ item: '', label: 'Default', img: plainImg[t] }].concat(groups[t].map(function (g) {
+            return { item: g.item, label: String(g.info[2]).replace(/\n/g, ' '), img: 'skins/' + g.info[3] + '.png' };
+        }));
+        options.forEach(function (o) {
+            var card = document.createElement('div');
+            var on = (WARDROBE[t] || '') === o.item;
+            card.className = 'wardrobe-card' + (on ? ' equipped' : '');
+            if (o.img) {
+                var im = new Image();
+                im.onerror = function () { this.replaceWith(Object.assign(document.createElement('div'), { className: 'wardrobe-default', textContent: '?' })); };
+                im.src = o.img;
+                card.appendChild(im);
+            } else { var none = document.createElement('div'); none.className = 'wardrobe-default'; none.textContent = 'Default'; card.appendChild(none); }
+            var label = document.createElement('span');
+            label.textContent = on ? 'Equipped' : o.label;
+            card.appendChild(label);
+            card.title = o.label;
+            card.onclick = function () {
+                if (on) return;
+                card.className += ' saving';
+                wardrobeEquip(t, o.item, function (ok) { if (ok) _0x388d73(); wardrobeBuildTab(panel); });
+            };
+            cards.appendChild(card);
+        });
+        row.appendChild(cards);
+        panel.appendChild(row);
+    });
 }
 
 // --- outer space beyond the map edges ---------------------------------------------
@@ -4605,7 +4947,18 @@ function aniChoiceButton(_0x509c4c, _0xaaa697, _0x1e79a7, _0x95b420, aniTT, biom
         ctx.restore();
         var _0xaaa697 = 0xa + this.imgSizeF / 0.5 * 0xa;
         0xf < _0x21ad18 && (this.buttonTXT.setFontSize(_0xaaa697 * interfS), this.buttonTXT.x = 0, this.buttonTXT.y = 0.375 * -this.h, this.buttonTXT.y += 0.1 * this.h, this.buttonTXT.draw());
-        this.hotkey && !_0x467658 && (ctx.save(), 0x2 != _0x14fca5 && (ctx.globalAlpha = 0.3, this.hotkey.setFontSize(0x10 * interfS), this.hotkey.x = -this.w / 0x2 + 0xa * interfS, this.hotkey.y = this.h / 0x2 - 0xc * interfS, this.hotkey.draw()), ctx.restore());
+        this.hotkey && !_0x467658 && !wardrobePicker && (ctx.save(), 0x2 != _0x14fca5 && (ctx.globalAlpha = 0.3, this.hotkey.setFontSize(0x10 * interfS), this.hotkey.x = -this.w / 0x2 + 0xa * interfS, this.hotkey.y = this.h / 0x2 - 0xc * interfS, this.hotkey.draw()), ctx.restore());
+        if (!wardrobePicker && this.wardrobeOptions && this.wardrobeOptions.length > 1) {
+            // how many more skins the picker has for this animal
+            ctx.save();
+            ctx.font = 'bold ' + Math.round(0xd * interfS) + 'px Arial';
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'top';
+            ctx.fillStyle = 'white';
+            0x2 != _0x14fca5 && (ctx.shadowOffsetX = 0x1, ctx.shadowOffsetY = 0x1, ctx.shadowColor = 'black');
+            ctx.fillText('+' + (this.wardrobeOptions.length - 1), this.w / 0x2 - 0x5 * interfS, -this.h / 0x2 + 0x4 * interfS);
+            ctx.restore();
+        }
         ctx.restore();
     };
 }
@@ -6883,7 +7236,7 @@ function _0x30b270() {
             window.matchMedia('(orientation: portrait)').matches && (_0x4c6604 = !0x1);
             window.matchMedia('(orientation: landscape)').matches && (_0x4c6604 = !0);
             for (var _0x1468d5 = _0x3fc2b9 = 0; _0x1468d5 < _0x2a3b6d.length; _0x1468d5++) {
-                if (_0x2a3b6d[_0x1468d5].premiumSkinType == 1) skins.push(_0x2a3b6d[_0x1468d5]);
+                if (_0x2a3b6d[_0x1468d5].premiumSkinType == 1 && !_0x2a3b6d[_0x1468d5].wardrobeMain) skins.push(_0x2a3b6d[_0x1468d5]);
                 else animals.push(_0x2a3b6d[_0x1468d5]);
             }
             _0x4c6604 ? 0xf <= animals.length ? _0x4aa6df = 0x78 : 0xa <= animals.length ? _0x4aa6df = 0x82 : 0x5 <= animals.length && (_0x4aa6df = 0x8c) : _0x4aa6df = Math.max(0x50, window.innerWidth / 0x2 / 0x4);
@@ -6964,9 +7317,20 @@ function _0x30b270() {
             if (skins[0]) y = true;
             if (y) ctx.fillText('Choose from Premium Skins:', canvasW / 0x2, skins[0].y - _0x2a3b6d[0].w / 0x2 - 25 * pixelRat);
         }
+        var anyMore = false, lowest = 0;
+        for (var i in _0x2a3b6d) {
+            if (_0x2a3b6d[i].wardrobeOptions && _0x2a3b6d[i].wardrobeOptions.length > 1) anyMore = true;
+            lowest = Math.max(lowest, _0x2a3b6d[i].y + _0x2a3b6d[i].h / 2);
+        }
+        if (anyMore && !wardrobePicker) {
+            ctx.font = 0x10 * interfS + 'px Arial';
+            ctx.fillText('Right-click or hold a choice to see all your skins for it', canvasW / 0x2, lowest + 22 * pixelRat);
+        }
         ctx.restore();
+        if (wardrobePicker && _0x109e62) wardrobeDrawPicker(_0x3bc188);
         ctx.restore();
     }
+    _0x109e62 || wardrobeClosePicker();
     null != _0x1bcd79 && _0x1bcd79.interface();
     _0x51e1cf();
     null != _0x2ff0f0 && _0x2ff0f0.width && ctx.drawImage(_0x2ff0f0, canvasW / 0x2 - _0x2ff0f0.width / 0x2, _0x3e1652, _0x2ff0f0.width, _0x2ff0f0.height);
@@ -7973,7 +8337,7 @@ setTimeout(function () {
 }, 0x1);
 
 function _0x5f675() {
-    //
+    wardrobeLoad();
 }
 
 function _0x3a61e5(_0x41e308) {
@@ -8620,6 +8984,15 @@ _0x3ad1cd.ontouchend = function (_0x53abd3) {
             }
     }
 };
+_0x3ad1cd.addEventListener('touchstart', function (e) {
+    if (_0x109e62 && e.touches.length == 1 && 0x28a < _0x1534e0 - _0x3ed7bd)
+        wardrobePressStart(e.touches[0].clientX * pixelRat, e.touches[0].clientY * pixelRat);
+}, { passive: true });
+_0x3ad1cd.addEventListener('touchend', function (e) {
+    wardrobePressEnd();
+    // a hold that opened the picker shouldn't also choose: drop the mouse click the browser makes
+    if (wardrobeSuppressClick) { wardrobeSuppressClick = false; e.preventDefault(); }
+});
 _0x3ad1cd.ontouchcancel = function (_0x461eb7) {
     console.log('touch cancel');
     _0x3ad1cd.ontouchend(_0x461eb7);
@@ -17635,8 +18008,24 @@ mopeShopObject.prototype.getAnimalInfo = function (_0x58287b) {
             return [18, 212, 'Seacoast\nSquid', 'ocean/squid/212/squid'];
         case 'mio_squid_void_scuttling':
             return [18, 213, 'Void\nScuttling Squid', 'ocean/squid/213/squid'];
+        case 'mio_stingray_classic':
+            return [20, 210, 'Classic\nStingray', 'ocean/stingray/210/full'];
+        case 'mio_stingray_gold_trim':
+            return [20, 211, 'Gold-trim\nStingray', 'ocean/stingray/211/full'];
+        case 'mio_stingray_summer21_chocolate':
+            return [20, 212, 'Chocolate\nRay', 'ocean/stingray/212/full'];
+        case 'mio_stingray_val23':
+            return [20, 213, 'Valentine\nStingray', 'ocean/stingray/213/full'];
+        case 'mio_swordfish_classic':
+            return [27, 211, 'Classic\nSwordfish', 'ocean/swordfish/211/full'];
+        case 'mio_swordfish_evergreen':
+            return [27, 212, 'Evergreen\nSwordfish', 'ocean/swordfish/212/full'];
+        case 'mio_swordfish_gold_trim':
+            return [27, 213, 'Gold-trim\nSwordfish', 'ocean/swordfish/213/full'];
+        case 'mio_swordfish_hw2023_soda_fish':
+            return [27, 214, 'Sodafish', 'ocean/swordfish/214/full'];
         case 'mio_swordfish_summer21_surfboard':
-            return [27, 210, 'Surfboardfish', 'ocean/swordfish/210/swordfish'];
+            return [27, 210, 'Surfboardfish', 'ocean/swordfish/210/full'];
         case 'mio_tiger_chimera':
             return [54, 210, 'Chimera\nTiger', 'land/tiger/210/tiger'];
         case 'mio_tiger_classic':
@@ -18203,6 +18592,7 @@ mopeShopObject.prototype.load = function (_0x4f78a2) {
                 _0x1f7a06.push(_0x4c314f);
             }
         console.log(_0x1f7a06);
+        wardrobeOwned = _0x1f7a06.filter(function (i) { return i.coinsPrice == -1; }).map(function (i) { return i.itemName; });
         for (var _0x329961 = {
             'tab': 'Golden',
             'shopItems': []
@@ -18578,6 +18968,7 @@ mopeShopObject.prototype.showShopButtons = function () {
     mopeShop_Tab.append(createElem('div', '', 'separator'));
     _0x3a1d1d.appendChild(mopeShop_Tab);
     this.createMyPurchasesTab(_0x534d44, _0x3a1d1d, mopeShopObj.shop.ownedSkins);
+    this.createWardrobeTab(_0x534d44, _0x3a1d1d);
     this.showUserExpBarAndCoinsBalance(_0x534d44);
     _0x3a1d1d.append(createElem('div', '', 'separator'));
     this.shopDiv.appendChild(_0x3a1d1d);
@@ -18628,6 +19019,21 @@ mopeShopObject.prototype.createMyPurchasesTab = function (_0xfa2799, _0x4fd80d, 
         _0xfa2799.append(_0x5c824f);
         _0xfa2799.append(_0x5ec392);
     } else _0x1fc047 = _0x4d3dcf('div', 'nopurchases'), _0x1fc047.innerHTML = "You don't have any item to show here!", skinsPurchases.append(_0x1fc047), _0xfa2799.append(skinsPurchases);
+};
+mopeShopObject.prototype.createWardrobeTab = function (tabs, container) {
+    var panel = createElem('div', 'wardrobe-panel', 'wardrobe-panel');
+    var title = createElem('li', 'Wardrobe', 'title');
+    title.innerHTML = 'WARDROBE';
+    title.onclick = function () {
+        mopeShopObj.curTabPage = 0;
+        mopeShopObj.showTab(this.id);
+        wardrobeLoad(function () { wardrobeBuildTab(panel); });
+    };
+    tabs.appendChild(title);
+    var tab = createElem('div', 'tab-Wardrobe', 'tab');
+    tab.appendChild(panel);
+    container.appendChild(tab);
+    wardrobeBuildTab(panel);
 };
 mopeShopObject.prototype.deleteTab = function () {
     var _0xd917fb = document.getElementById('shop_div');
@@ -25755,6 +26161,7 @@ var _0x27ee4 = 1.5,
     _0xf376ff = 1.2,
     _0x3f7b03 = 0.8;
 _0x56f95f.prototype.drawUnderSkinImg = function () {
+    if (drawFullSkin(this)) return;
     var _0x6c37f9 = 0x1f4 / 0x154,
         _0x2d9dc9 = _0x2f22f9('skins/ocean/stingray/' + this.animalSpecies + '/tail.png');
     if (_0x2d9dc9) {
@@ -25947,6 +26354,7 @@ _0x52e8dc.prototype.getSkinName = function () {
 };
 _0x52e8dc.prototype.drawSkinCustomization = function () { };
 _0x52e8dc.prototype.drawUnderSkinImg = function () {
+    if (drawFullSkin(this)) return;
     var _0x1e8471 = 0x1f4 / 0x154,
         _0x3d8708 = _0x2f22f9('skins/ocean/swordfish/nose.png');
     if (_0x3d8708) {
@@ -27360,7 +27768,8 @@ function _0x5a3cb9(_0xc13c5d) {
     _0x388d73();
     newMsg = new MsgWriter(0x2);
     newMsg.writeUInt8(0x18);
-    newMsg.writeUInt8(_0x2a3b6d.indexOf(_0xc13c5d));
+    newMsg.writeUInt8(aniChoiceAll.indexOf(_0xc13c5d) >= 0 ? aniChoiceAll.indexOf(_0xc13c5d) : _0x2a3b6d.indexOf(_0xc13c5d));
+    wardrobeClosePicker();
     wsSendMsg(newMsg);
     _0x26cd40 && (_0x408004 = !0x1);
     _0x26cd40 = _0x109e62 = !0x1;
@@ -27398,6 +27807,9 @@ function _0x324065(_0x37e3a1, _0x4c3a6c) {
         if (a.y > b.y) return 1;
         return 0;
     });
+    aniChoiceAll = _0x2a3b6d;
+    wardrobeClosePicker();
+    _0x2a3b6d = wardrobeArrange(aniChoiceAll);
 }
 
 function wsSendMsg(_0x43fcda) {
@@ -27870,6 +28282,10 @@ document.onkeyup = function (_0x3931f1) {
     var _0x347d80 = _0x3931f1.keyCode || _0x3931f1.which;
     if (0x9 == _0x347d80) _0x3931f1.preventDefault();
     else {
+        if (_0x109e62 && wardrobePicker) {
+            0x1b == _0x347d80 && wardrobeClosePicker();
+            return;
+        }
         if (_0x109e62) {
             if (0xd == _0x347d80) {
                 _0x5a3cb9(_0x2a3b6d[0]);
@@ -28061,8 +28477,8 @@ function _0x549ced(_0x2c66f0) {
     _0x4d7721();
     _0xe9168 || _0x46ab72();
     if (_0x109e62 && 0x28a < _0x1534e0 - _0x3ed7bd)
-        for (_0x2c66f0 = 0; _0x2c66f0 < _0x2a3b6d.length; _0x2c66f0++) {
-            var _0x25b8fc = _0x2a3b6d[_0x2c66f0];
+        for (var hoverList = wardrobePicker ? wardrobePicker.buttons : _0x2a3b6d, _0x2c66f0 = 0; _0x2c66f0 < hoverList.length; _0x2c66f0++) {
+            var _0x25b8fc = hoverList[_0x2c66f0];
             _0x25b8fc.isHighLighted = _0x25b8fc.testPosHitsButton(_0x16763, _0x42c274);
             _0x25b8fc.setMouseHover(_0x25b8fc.isHighLighted);
         }
@@ -28074,6 +28490,13 @@ function _0x2995be() { }
 
 function _0x2da90c(_0x13701d) {
     _0x46ab72();
+    if (_0x109e62 && 0x28a < _0x1534e0 - _0x3ed7bd) {
+        var px = _0x13701d.clientX * pixelRat, py = _0x13701d.clientY * pixelRat;
+        if (0x3 == _0x13701d.which) {
+            if (wardrobePicker) wardrobeClosePicker();
+            else if (wardrobeOpenPicker(wardrobeChoiceAt(px, py))) _0x388d73();
+        } else if (0x1 == _0x13701d.which) wardrobePressStart(px, py);
+    }
     0x1 == _0x13701d.which && _0x386281(_0x29bf00, !0);
     0x3 == _0x13701d.which && _0x386281(_0x4d2161, !0);
 }
@@ -28081,7 +28504,13 @@ function _0x2da90c(_0x13701d) {
 function _0x3e87b1(_0x372969) {
     if (0x1 == _0x372969.which) {
         _0x386281(_0x29bf00, !0x1);
-        if (_0x109e62 && 0x28a < _0x1534e0 - _0x3ed7bd) {
+        wardrobePressEnd();
+        if (wardrobeSuppressClick) {
+            wardrobeSuppressClick = false;
+        } else if (_0x109e62 && wardrobePicker) {
+            var picked = wardrobeChoiceAt(_0x372969.clientX * pixelRat, _0x372969.clientY * pixelRat);
+            picked ? _0x5a3cb9(picked) : wardrobeClosePicker();
+        } else if (_0x109e62 && 0x28a < _0x1534e0 - _0x3ed7bd) {
             _0x16763 = _0x372969.clientX * pixelRat;
             _0x42c274 = _0x372969.clientY * pixelRat;
             for (var _0x11ec43 = 0; _0x11ec43 < _0x2a3b6d.length; _0x11ec43++) {
@@ -28218,6 +28647,8 @@ function gameReset() {
     _0x109e62 = !0x1;
     _0x3bc188 = 0;
     _0x2a3b6d = [];
+    aniChoiceAll = [];
+    wardrobeClosePicker();
     _0x26cd40 = !0x1;
     _0x52b2bc = [];
     _0x3c64aa = _0x521271 = 0;

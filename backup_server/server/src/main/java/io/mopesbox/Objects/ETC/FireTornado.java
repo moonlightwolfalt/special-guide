@@ -109,6 +109,6 @@ public class FireTornado extends GameObject{
     @Override
     public void writeCustomData_onAdd(MsgWriter writer) {
         super.writeCustomData_onAdd(writer);
-        writer.writeUInt8(0); // species
+        writer.writeUInt8(this.getSpecies()); // the phoenix's skin: the client draws skins/volcano/phoenix/<skin>/firetornado.png
     }
 }

@@ -196,6 +196,12 @@ function addMissingShopColumns() {
             }
             const have = new Set(rows.map(r => r.COLUMN_NAME));
             const missing = shopitems.map(i => i.itemName).filter(n => /^\w+$/.test(n) && !have.has(n));
+            // the wardrobe: which owned skin each animal wears, as JSON {"<animal type>": "<itemName>"}
+            const wardrobeSql = have.has('wardrobe') ? null : "ALTER TABLE `users` ADD COLUMN `wardrobe` text DEFAULT NULL";
+            if (wardrobeSql) connectionms.query(wardrobeSql, (err) => {
+                if (err) console.log("Could not add the wardrobe column:", err.message);
+                else console.log("Added the wardrobe column to users.");
+            });
             if (!missing.length) {
                 console.log(`Database ready: ${dbConfig.host}:${dbConfig.port}/${dbConfig.database}`);
                 grantDeveloperLevels();
@@ -1327,6 +1333,14 @@ var shopitems = [
     { coinsPrice: 1000, shopCategory: 'mopeio', itemName: "mio_squid_gold_trim" },
     { coinsPrice: 10000, shopCategory: 'mopeio', itemName: "mio_squid_summer21" },
     { coinsPrice: 5000, shopCategory: 'mopeio', itemName: "mio_squid_void_scuttling" },
+    { coinsPrice: 1000, shopCategory: 'mopeio', itemName: "mio_stingray_classic" },
+    { coinsPrice: 1000, shopCategory: 'mopeio', itemName: "mio_stingray_gold_trim" },
+    { coinsPrice: 10000, shopCategory: 'mopeio', itemName: "mio_stingray_summer21_chocolate" },
+    { coinsPrice: 10000, shopCategory: 'mopeio', itemName: "mio_stingray_val23" },
+    { coinsPrice: 1000, shopCategory: 'mopeio', itemName: "mio_swordfish_classic" },
+    { coinsPrice: 5000, shopCategory: 'mopeio', itemName: "mio_swordfish_evergreen" },
+    { coinsPrice: 1000, shopCategory: 'mopeio', itemName: "mio_swordfish_gold_trim" },
+    { coinsPrice: 10000, shopCategory: 'mopeio', itemName: "mio_swordfish_hw2023_soda_fish" },
     { coinsPrice: 10000, shopCategory: 'mopeio', itemName: "mio_swordfish_summer21_surfboard" },
     { coinsPrice: 15000, shopCategory: 'mopeio', itemName: "mio_tiger_chimera" },
     { coinsPrice: 1000, shopCategory: 'mopeio', itemName: "mio_tiger_classic" },
@@ -2297,6 +2311,64 @@ app.get('/buyAllShopItems', async function(request, response) {
     response.header("Access-Control-Allow-Origin", "*");
     response.header("Access-Control-Allow-Headers", "X-Requested-With");
     let resp = await buyAllItems(encode_utf8(request.query.userId), encode_utf8(request.query.passwordToken), request.query.items);
+    response.writeHead(200, {'Content-Type': 'text/html'});
+    response.end(JSON.stringify(resp));
+})
+
+// The wardrobe: one equipped skin per animal, shown on that animal's upgrade choice.
+function parseWardrobe(text) {
+    try {
+        const w = JSON.parse(text || '{}');
+        return w && typeof w === 'object' && !Array.isArray(w) ? w : {};
+    } catch (e) {
+        return {};
+    }
+}
+
+async function loadWardrobe(id, token) {
+    try {
+        const [rows] = await connectionms.promise().query(`SELECT wardrobe, banned FROM users WHERE id=? AND password_token=?`, [id, token]);
+        if (!rows.length || rows[0].banned == 1) return { success: false, reason: 'error' };
+        return { success: true, wardrobe: parseWardrobe(rows[0].wardrobe) };
+    } catch (e) {
+        console.log("Could not load a wardrobe:", e.message);
+        return { success: false, reason: 'error' };
+    }
+}
+
+// itemName empty: the animal goes back to its default look.
+async function equipSkin(id, token, animal, itemName) {
+    const type = parseInt(animal, 10);
+    if (!(type > 0 && type < 256)) return { success: false, reason: 'error' };
+    if (itemName && !shopitems.some(i => i.itemName === itemName)) return { success: false, reason: 'error' };
+    try {
+        const [rows] = await connectionms.promise().query(`SELECT * FROM users WHERE id=? AND password_token=?`, [id, token]);
+        if (!rows.length || rows[0].banned == 1) return { success: false, reason: 'error' };
+        if (itemName && rows[0][itemName] != 1) return { success: false, reason: 'notowned' };
+        const wardrobe = parseWardrobe(rows[0].wardrobe);
+        if (itemName) wardrobe[type] = itemName;
+        else delete wardrobe[type];
+        await connectionms.promise().query(`UPDATE users SET wardrobe=? WHERE id=? AND password_token=?`, [JSON.stringify(wardrobe), id, token]);
+        return { success: true, wardrobe };
+    } catch (e) {
+        console.log("Could not save a wardrobe:", e.message);
+        return { success: false, reason: 'error' };
+    }
+}
+
+app.get('/loadWardrobe', async function(request, response) {
+    response.header("Access-Control-Allow-Origin", "*");
+    response.header("Access-Control-Allow-Headers", "X-Requested-With");
+    let resp = await loadWardrobe(encode_utf8(request.query.userId), encode_utf8(request.query.passwordToken));
+    response.writeHead(200, {'Content-Type': 'text/html'});
+    response.end(JSON.stringify(resp));
+})
+
+app.get('/equipSkin', async function(request, response) {
+    response.header("Access-Control-Allow-Origin", "*");
+    response.header("Access-Control-Allow-Headers", "X-Requested-With");
+    let resp = await equipSkin(encode_utf8(request.query.userId), encode_utf8(request.query.passwordToken),
+        request.query.animal, request.query.itemName ? encode_utf8(String(request.query.itemName)) : '');
     response.writeHead(200, {'Content-Type': 'text/html'});
     response.end(JSON.stringify(resp));
 })

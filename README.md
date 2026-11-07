@@ -143,6 +143,14 @@ node tools/fetch-shop-skins.js --no-images           # only write the list
 
 It writes `shop-skins/skins.json` and the images under `shop-skins/images/`, in the same folders as the site's `skins/`. Prices, categories and ownership come from the account server and need a logged-in player: set `MOPE_USER_ID` and `MOPE_PASSWORD_TOKEN` to add them.
 
+## Wardrobe
+
+The shop's **Wardrobe** tab lists every skin you own, grouped by animal. Click one to make that animal wear it, or click **Default** to go back to the plain animal. You can wear one skin per animal, and the choice is saved to your account (the `wardrobe` column, added on startup).
+
+The upgrade menu shows each animal once, wearing its equipped skin. A small **+N** in the corner means you own more skins for that animal: right-click the choice, or hold it for half a second (also on touch screens), to see all of them and pick one for this upgrade. Click outside the picker or press Esc to go back.
+
+The account server's `/loadWardrobe` and `/equipSkin` endpoints store it, and equipping checks that the account owns the skin. The game server still sends every owned skin as a choice, and the client sends back the index of the one picked, so nothing changed there.
+
 ## Fetch the mope.io shop skins
 
 `tools/fetch-mope-io-skins.ts` (run with [Bun](https://bun.sh)) downloads the current mope.io shop skin images:
@@ -173,7 +181,20 @@ For each skin it converts the WebP textures to the PNG file names the 2020 clien
 
 Prices are the mope.io coin prices. Gem prices are ×25 coins, and skins mope.io no longer sells cost 10,000.
 
-`tools/mope_io_animals.json` maps each animal's mope.io texture names to the 2020 ones, found by comparing the default animals pixel by pixel. For about 30 animals the 2020 client only swaps the main sprite for a skin, so their heads, wings and other parts keep the default look. The script skips skins that are already in the shop under the same name, skins that look exactly like the default animal, and skins whose main sprite can't be converted. It also skips the kakapo and turkey, which the 2020 client can't draw.
+`tools/mope_io_animals.json` maps each animal's mope.io texture names to the 2020 ones, found by comparing the default animals pixel by pixel. For about 30 animals the 2020 client only swaps the main sprite for a skin, so their heads, wings and other parts keep the default look. The 2020 client draws the stingray's wings and tail, and the swordfish's nose and tail, as separate parts, while a mope.io skin's body is the whole animal. Their skins are drawn as one image over the area those parts cover (`full` in `EXTRA_SKINS`), so they don't flap or swish. The script skips skins that are already in the shop under the same name, skins that look exactly like the default animal, and skins whose main sprite can't be converted. It also skips the kakapo and turkey, which the 2020 client can't draw.
+
+## Fetch the mope.io fire frames
+
+`tools/fetch-fire-frames.js` downloads every fire frame from s3.mope.io: the fireball animation frames of all 31 styles (the default plus one per dragon, phoenix and lava monster skin), and the phoenix's 9 fire tornado images.
+
+```
+node tools/fetch-fire-frames.js            # writes fire-frames/ and fire-frames/fire-frames.json
+node tools/fetch-fire-frames.js --no-tornado
+```
+
+Each fireball style has `fireball/<style>/dynamic/<n>.webp` (the moving fireball) and `fireball/<style>/static/<n>.webp`, 5 frames each (the king dragon has 6 static ones). `fire-frames.json` lists every style with its frames in order. Files already downloaded are skipped.
+
+The import script also gives skins their exact fire when `fire-frames/` is there (run `tools/fetch-fire-frames.js` first). Each fireball style goes to its shop skin: 26 dragon, black dragon, king dragon, phoenix and lava monster skins, including older shop skins with the same name. Their frames go to `web/img/fireball/<style>/` (the fireball) and `web/img/fire/<style>/` (the fire it leaves), with styles from 100 up kept in `tools/mope_io_fire_styles.json`. The game server picks the style from the generated `Objects/Fire/FireStyles.java`. This changes only the picture: damage still follows the fireball's own number. The phoenix's fire tornado now follows its skin too, and 9 phoenix skins get their mope.io tornado. Left out: the plain fireball and the plain King Dragon fire (already the 2020 ones), and three styles no shop skin uses.
 
 ## Fetch the mope.io pumpkins
 

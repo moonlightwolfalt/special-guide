@@ -422,6 +422,14 @@ public class Account {
     public int mio_squid_gold_trim;
     public int mio_squid_summer21;
     public int mio_squid_void_scuttling;
+    public int mio_stingray_classic;
+    public int mio_stingray_gold_trim;
+    public int mio_stingray_summer21_chocolate;
+    public int mio_stingray_val23;
+    public int mio_swordfish_classic;
+    public int mio_swordfish_evergreen;
+    public int mio_swordfish_gold_trim;
+    public int mio_swordfish_hw2023_soda_fish;
     public int mio_swordfish_summer21_surfboard;
     public int mio_tiger_chimera;
     public int mio_tiger_classic;
