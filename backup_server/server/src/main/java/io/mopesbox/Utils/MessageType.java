@@ -67,7 +67,9 @@ public enum MessageType {
     PLAYGAME(106),
     RECONNECTEDBYCLOUDFLARE(107),
     HEARTBEAT(108),
-    SENDUPDATE(109);
+    SENDUPDATE(109),
+    // milestones and the dragon skill tree (both directions)
+    SKILLTREE(120);
 
     private int value;
 

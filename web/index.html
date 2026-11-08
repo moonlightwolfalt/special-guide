@@ -370,6 +370,11 @@
 		script.async = false;
 		script.type = 'text/javascript';
 		document.head.appendChild(script);
+		// milestones and the dragon skill tree; runs after client.js
+		var skillTree = document.createElement('script');
+		skillTree.src = 'skilltree.js?x=' + (+new Date());
+		skillTree.async = false;
+		document.head.appendChild(skillTree);
 
 		if (location.href.indexOf("http") == -1) {
 

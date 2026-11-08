@@ -10,12 +10,12 @@ import io.mopesbox.Animals.Info.AnimalInfo;
 import io.mopesbox.Animals.Info.Animals;
 import io.mopesbox.Animals.Tier6.Bee;
 import io.mopesbox.Client.GameClient;
+import io.mopesbox.Milestones.MilestoneState;
 import io.mopesbox.Networking.Networking;
 import io.mopesbox.Networking.Selection;
 import io.mopesbox.Objects.GameObject;
 import io.mopesbox.Objects.Bones.AnimalCarcass;
 import io.mopesbox.Objects.ETC.IceCrystal;
-import io.mopesbox.Objects.Fire.FireBall;
 import io.mopesbox.Objects.PvP.PvPArena;
 import io.mopesbox.Server.MsgWriter;
 import io.mopesbox.Utils.Timer;
@@ -26,6 +26,9 @@ import io.mopesbox.Objects.Static.SandboxArena;
 
 public class BlackDragon extends Animal {
     private List<Apex> apexs = new ArrayList<>();
+
+    // Wing Slash, Wingspan and Shoot Meteor (keys Z, X, C): up to 2, one slot per milestone (I and II)
+    public final DragonAbilities abilities = new DragonAbilities(this);
     public BlackDragon(int id, double x, double y, AnimalInfo info, String playerName, GameClient client) {
         super(id, x, y, info, playerName, client);
         this.flag_fliesLikeDragon = true;
@@ -149,36 +152,23 @@ public class BlackDragon extends Animal {
         PlayerAbility abil = this.getInfo().getAbility();
         if(abil.isPossible() && !abil.isRecharging() && abil.isUsable()) {
             if (this.getWater() > this.maxwater / 4){
-            int mangle = 20;
-            this.takeWater(3);
-            if(this.getClient().getXP() >= 20000000) mangle = 20;
-            double ran = Utils.randomDouble(-2, 2);
-            double x = ((Math.cos(Math.toRadians(this.getAngle()-mangle+ran)) * (this.getRadius())));
-            double y = ((Math.sin(Math.toRadians(this.getAngle()-mangle+ran)) * (this.getRadius())));
-            FireBall newFire = new FireBall(this.getClient().getRoom().getID(), this.getX()+x, this.getY()+y, 30, this.getInfo().getAnimalSpecies(), this.getAngle() - 12.5, 25, this.getId(), this.getClient().getRoom(), this.getClient(),5);
-            this.getClient().getRoom().addObj(newFire);
-             mangle = 0;
+                MilestoneState ms = this.getClient().milestones;
+                this.takeWater(3 * ms.lavaMult());
+                // 2 fireballs, 3 from 20m XP, plus milestone and skill-tree extras;
+                // the fan widens a little with each extra so they don't overlap
+                int count = (this.getClient().getXP() >= 20000000 ? 3 : 2) + ms.volley();
+                double half = 12.5 * ms.spreadMult() * (1 + Math.max(0, count - 3) * 0.15);
+                ms.fireFan(this, MilestoneState.fireSpecies(this), count, half, this.getAngle());
 
-             if(this.getClient().getXP() >= 20000000){
-            ran = Utils.randomDouble(-2, 2);
-            x = ((Math.cos(Math.toRadians(this.getAngle()+mangle+ran)) * (this.getRadius())));
-            y = ((Math.sin(Math.toRadians(this.getAngle()+mangle+ran)) * (this.getRadius())));
-            newFire = new FireBall(this.getClient().getRoom().getID(), this.getX()+x, this.getY()+y, 30, this.getInfo().getAnimalSpecies(), this.getAngle(), 25, this.getId(), this.getClient().getRoom(), this.getClient(),5); //s=20
-            this.getClient().getRoom().addObj(newFire);
-             }
-
-                ran = Utils.randomDouble(-2, 2);
-                x = ((Math.cos(Math.toRadians(this.getAngle()+20+ran)) * (this.getRadius())));
-                y = ((Math.sin(Math.toRadians(this.getAngle()+20+ran)) * (this.getRadius())));
-                newFire = new FireBall(this.getClient().getRoom().getID(), this.getX()+x, this.getY()+y, 30, this.getInfo().getAnimalSpecies(), this.getAngle() + 12.5, 25, this.getId(), this.getClient().getRoom(), this.getClient(),5);
-                this.getClient().getRoom().addObj(newFire);
-            
-            if(!this.getClient().instantRecharge) {
-                abil.setRecharging(true);
-                abilT = 1;
-                this.getClient().send(Networking.rechargingAbility(false, abilT, this.getClient().getRoom()));
+                if(!this.getClient().instantRecharge) {
+                    abil.setRecharging(true);
+                    abilT = 1;
+                    // the volley recharges in under a second: shorten the one-second step itself
+                    abilTimer.setMaximumTime((int) Math.max(300, 950 * ms.rechargeMult()));
+                    abilTimer.reset();
+                    this.getClient().send(Networking.rechargingAbility(false, abilT, this.getClient().getRoom()));
+                }
             }
-        }
         }
     }
         public void biteCollision(double distance, Animal prey, Animal biter, PvPArena pvp, boolean diffAniCollision) {

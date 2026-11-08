@@ -83,7 +83,7 @@ public class LandMonster extends Animal {
             this.getClient().getRoom().addObj(sinkHole);
             if (!this.getClient().instantRecharge) {
                 abil.setRecharging(true);
-                abilT = 8;
+                abilT = this.milestoneCooldown(8);
                 this.getClient().send(Networking.rechargingAbility(false, abilT, this.getClient().getRoom()));
             }
             this.abilSpeed.reset();

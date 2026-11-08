@@ -16,6 +16,8 @@ public class Tailslap extends Ability {
     private Animal owner;
     private List<Animal> damaged = new ArrayList<>();
     private int damage = 200; // 200
+
+    public void setDamage(int d) { this.damage = d; }
     public Tailslap(int id, double x, double y, int radius, Room room, double angle, Animal owner, int species) {
         super(id, x, y, 95, radius, 0);
         this.room = room;

@@ -227,6 +227,61 @@ Pumpkins spawn in the land biome when `pumpEnabled` is on. Each kind's spawn rat
 
 Admins can spawn one with the `pump <id>` command.
 
+## Milestones and the dragon skill tree
+
+Milestones count from the most XP you've had this life, so losing XP doesn't take them away. They reset when you die. Each one shows a popup with its badge, and the badges you have are shown in a box at the bottom left.
+
+| Animal | Milestone XP | What it gives |
+|--------|--------------|---------------|
+| Black Dragon | 12.5m / 17.5m / 25m | An ability slot at each of the first two (choose 2 of Wing Slash, Wingspan, Shoot Meteor). Fire volley: +1 fireball; then 20% faster recharge; then half lava cost, bigger fireballs, 20% more range. Each opens the next skill-tree ring. |
+| King Dragon | 12.5m / 17.5m / 25m | Fire stream 30% longer and tail slap 11 s (was 15 s); then stream recharge 5 s (was 7 s) and tail slap +25% damage; then half lava cost, bigger fireballs, tail slap 30% bigger and 8 s. Each opens the next skill-tree ring. |
+| Dino Monster, Land Monster, Sea Monster, Giant Scorpion, Ice Monster (the 5m tier) | 7.25m | "Titan": ability recharges 25% faster, +50 max health, +10 bite damage, and a pick of 1 of 3 Titan skills |
+
+**Skill tree** (dragons, press **T**). The tree has three circular rings. You pick one skill from each ring, so the choices narrow from 45 to 10:
+
+| Ring | Opens at | Skills | Ability reworks | New abilities |
+|------|----------|--------|-----------------|---------------|
+| I: Ember (outer) | 12.5m | 45 | 23 | 22 |
+| II: Inferno (middle) | 17.5m | 25 | 13 | 12 |
+| III: Cataclysm (inner) | 25m | 10 | 5 | 5 |
+
+**Titan skills** (the 5m tier, press **T**). At 7.25m they pick 1 of only 3 skills, which work for every 5m-tier animal: **Relentless** (ability recharges 20% faster), **Titan Hide** (+80 max health, heal 2 per second) or **Titan Roar** (a Q shockwave that pushes and stuns animals within 500, 18 s cooldown). If a 5m-tier animal becomes a dragon, the Titan pick stops counting and the dragon tree takes over.
+
+Reworks (orange) are always on. They change the dragon's fire ability (extra fireballs, spread, size, range, burn time, recharge, lava cost) or its body (health, bite, regeneration). New abilities (blue) are cast with **Q**, each on its own cooldown. They include fireball novas, rear volleys, rings of fire, wing gusts that push and stun, dashes, immunity shields, heals and lava refills. Both dragons share the tree.
+
+- Server: `backup_server/server/src/main/java/io/mopesbox/Milestones/`. `Milestones.java` holds the XP and rewards, `SkillTree.java` all 80 dragon skills and the 3 Titan skills, and `MilestoneState.java` each player's picks and the Q abilities. The game talks to the client with message type 120.
+- Client: `web/skilltree.js` (the HUD, the tree and the milestone popup), with styles at the end of `web/modern.css`.
+- Badge images: `web/img/milestones/<animal>_<level>.png`, drawn by a Node script (needs Playwright):
+
+```
+node tools/milestones/make-milestone-images.js [OUT_DIR] [SIZE]
+```
+
+## Dragon milestone abilities: Wing Slash, Wingspan, Shoot Meteor
+
+Three extra abilities on keys **Z**, **X** and **C**:
+
+- **King Dragon:** all three, from the start.
+- **Black Dragon:** at most **2**. Milestone I (12.5m XP) opens the first slot and milestone II (17.5m) the second. When a slot opens, the box at the bottom left shows the abilities to choose from. The choice lasts until you die.
+
+They also appear as buttons in that box, with their cooldowns. On phones and tablets they're big buttons on the right side of the screen instead, with a Q button when the skill tree gave the dragon a Q ability. They can't be used while flying, in a hole, stunned or in a 1v1 arena. Skill-tree picks and milestones that shorten recharge times shorten these too.
+
+| Key | Ability | What it does | Cooldown |
+|-----|---------|--------------|----------|
+| Z | Wing Slash | A claw of fire sweeps across the front (140-degree cone, 2.4x the dragon's size). 55 damage, 3 s burn, knockback | 6 s |
+| X | Wingspan | Both wings snap open (3.2x the dragon's size). Every animal around takes 35 damage, is pushed away and stunned for 1 s | 14 s |
+| C | Shoot Meteor | A meteor flies about 650 px ahead and explodes. Up to 140 damage within 230 px, less at the edge, plus a 5 s burn and knockback. Costs 20% lava | 20 s |
+
+- Server: `Animals/Tier17/DragonAbilities.java`, shared by both dragons, and `Objects/ETC/KingDragonFx.java`, the effect the client draws (object type 175; 160 to 162 are outer space). The Black Dragon's choice is kept in `MilestoneState`. The client casts with message type 120, action 4, and a Black Dragon chooses with action 5.
+- Client: `web/skilltree.js` (`drawFx`, `castKD`, the Z/X/C buttons, the Black Dragon's choice and the touch buttons in `#msMobile`), with the keys in `web/client.js`.
+- Animation frames: `web/img/kingdragon/{wingslash,wingspan,meteor,impact}/<n>.png` (8, 10, 6 and 10 frames). The meteor loops; the others play once over the effect's life. They're drawn by a Python script (needs Pillow):
+
+```
+python3 tools/kingdragon_fx/make_fx_frames.py [OUT_DIR] [SIZE]
+```
+
+If you change a frame count in the script, change `FX` in `web/skilltree.js` to match.
+
 ## Shop skins
 
 Each shop skin is defined in five places, which must agree:
