@@ -128,6 +128,7 @@ public class KingDragon extends Animal {
     @Override
     public void update() {
         super.update();
+        abilities.tick(); // defensive passives (Inferno Ring, Phoenix Heart) and Dragon Dive
         abilityRecharge();
         if (coolDownTimer.isDone()) {
             this.flag_fliesLikeDragon = true;
@@ -217,6 +218,13 @@ public class KingDragon extends Animal {
         }
     }
 
-    // Wing Slash, Wingspan and Shoot Meteor (keys Z, X, C): all three, from the start
+    // milestone abilities: Z/X/C from the start, then an offensive (V, B, N) and a defensive
+    // passive (Inferno Ring, Dragonscale, Phoenix Heart) at each milestone. See DragonAbilities.
     public final DragonAbilities abilities = new DragonAbilities(this);
+
+    // Dragonscale (defensive milestone II): less damage taken
+    @Override
+    public void hurt(double damage, int reason, GameObject biter) {
+        super.hurt(damage * abilities.damageTakenMult(), reason, biter);
+    }
 }

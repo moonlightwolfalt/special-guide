@@ -28476,12 +28476,15 @@ document.onkeydown = function (_0x535a34) {
             _0x535a34.preventDefault();
             window.SkillTree && SkillTree.cast();
             break;
-        case 0x5a: // Z, X, C: King Dragon's Wing Slash, Wingspan, Shoot Meteor
+        case 0x5a: // Z, X, C: Wing Slash, Wingspan, Shoot Meteor
         case 0x58:
         case 0x43:
+        case 0x56: // V, B, N: King Dragon offensive milestones (Dragon Dive, Firestorm, Volcanic Eruption)
+        case 0x42:
+        case 0x4e:
             if (_0x109e62) break; // the upgrade menu is open
             _0x535a34.preventDefault();
-            window.SkillTree && SkillTree.castKD({ 0x5a: 0, 0x58: 1, 0x43: 2 }[_0x1b710f]);
+            window.SkillTree && SkillTree.castKD({ 0x5a: 0, 0x58: 1, 0x43: 2, 0x56: 3, 0x42: 4, 0x4e: 5 }[_0x1b710f]);
             break;
     }
 };

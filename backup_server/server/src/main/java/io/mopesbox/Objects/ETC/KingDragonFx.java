@@ -22,6 +22,10 @@ public class KingDragonFx extends GameObject {
     public static final int WINGSPAN = 1;
     public static final int METEOR = 2;
     public static final int IMPACT = 3;
+    public static final int INFERNO = 4;
+    public static final int DIVE = 5;
+    public static final int ERUPTION = 6;
+    public static final int PHOENIX = 7;
 
     private final int kind;
     private final int angleDeg;
