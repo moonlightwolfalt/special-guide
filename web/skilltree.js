@@ -8,6 +8,10 @@
 //
 // T opens the tree, Q casts the new abilities picked from it (client.js forwards both keys).
 // There are two trees: "dragon" (3 rings: 45, 25, 10 skills) and "titan" (the 5m tier: 1 ring of 3).
+//
+// King Dragons also always have Wing Slash (Z), Wingspan (X) and Shoot Meteor (C): action 4 with the
+// ability's index. Their effects are game objects of type 175 (o_kingDragonFx) that client.js hands to drawFx() below,
+// which plays the frames made by tools/kingdragon_fx/make_fx_frames.py.
 (function () {
     'use strict';
     var MSG = 120;
@@ -17,6 +21,12 @@
     var requested = {};
     var selected = -1;    // skill id shown in the details box
     var qReady = {};      // skill id -> time (ms) it can be cast again
+    var kdReady = [0, 0, 0]; // King Dragon Z/X/C -> time (ms) usable again
+
+    // frame folders and counts: must match FRAMES in make_fx_frames.py
+    var FX = [['wingslash', 8], ['wingspan', 10], ['meteor', 6], ['impact', 10]];
+    var KD_ICON = { wingslash: 'img/kingdragon/wingslash/4.png', wingspan: 'img/kingdragon/wingspan/6.png', meteor: 'img/kingdragon/meteor/0.png' };
+    var fxPreloaded = false;
     var hud, panel, toast, toastTimer;
     var SVGNS = 'http://www.w3.org/2000/svg';
 
@@ -37,11 +47,43 @@
 
     function send(action, id) {
         if (typeof MsgWriter !== 'function' || typeof wsSendMsg !== 'function') return;
-        var m = new MsgWriter(action === 2 ? 4 : 2);
+        var m = new MsgWriter(action === 2 ? 4 : action === 4 ? 3 : 2);
         m.writeUInt8(MSG);
         m.writeUInt8(action);
         if (action === 2) m.writeUInt16(id);
+        if (action === 4) m.writeUInt8(id);
         wsSendMsg(m);
+    }
+
+    // ---------------------------------------------------------------- King Dragon effects
+    function preloadFx() {
+        if (fxPreloaded) return;
+        fxPreloaded = true;
+        FX.forEach(function (f) {
+            for (var i = 0; i < f[1]; i++) new Image().src = 'img/kingdragon/' + f[0] + '/' + i + '.png';
+        });
+    }
+
+    // Draws an effect object; ctx is already at the object's centre. loadImg is client.js's image cache.
+    function drawFx(ctx, obj, elapsed, loadImg) {
+        var f = FX[obj.fxKind];
+        if (!f) return;
+        var frame = obj.fxKind === 2
+            ? Math.floor(elapsed / 70) % f[1]                                    // the meteor loops
+            : Math.min(f[1] - 1, Math.floor(elapsed / Math.max(1, obj.fxLife / f[1])));
+        var img = loadImg('img/kingdragon/' + f[0] + '/' + Math.max(0, frame) + '.png');
+        if (!img) return;
+        var r = obj.rad;
+        ctx.save();
+        ctx.rotate(obj.fxAngle || 0);
+        ctx.drawImage(img, -r, -r, 2 * r, 2 * r);
+        ctx.restore();
+    }
+
+    function castKD(i) {
+        if (!state || !state.kd || !state.kd.length || i == null) return;
+        if ((kdReady[i] || 0) > Date.now()) return;
+        send(4, i);
     }
 
     function fmtXP(xp) {
@@ -166,10 +208,21 @@
                 h += '<kbd class="ms-q-key">Q</kbd></div>';
             }
         }
+        if (state.kd && state.kd.length) {
+            preloadFx();
+            h += '<div class="ms-q ms-kd">';
+            state.kd.forEach(function (k) {
+                h += '<button class="ms-q-btn ms-kd-btn" data-kd="' + k.i + '" title="' + esc(k.name) + ' (' + k.key + ')">' +
+                    '<img src="' + KD_ICON[k.icon] + '" alt=""><span class="ms-q-cd"></span><kbd>' + k.key + '</kbd></button>';
+            });
+            h += '</div>';
+        }
         hud.innerHTML = h;
+        var kds = hud.querySelectorAll('.ms-kd-btn');
+        for (var kk = 0; kk < kds.length; kk++) kds[kk].onclick = function () { castKD(+this.getAttribute('data-kd')); };
         var btn = document.getElementById('msTreeBtn');
         if (btn) btn.onclick = function () { toggle(); };
-        var qs = hud.querySelectorAll('.ms-q-btn');
+        var qs = hud.querySelectorAll('.ms-q-btn:not(.ms-kd-btn)');
         for (var k = 0; k < qs.length; k++) qs[k].onclick = cast;
         renderQ();
     }
@@ -180,7 +233,8 @@
         var qs = hud.querySelectorAll('.ms-q-btn');
         for (var i = 0; i < qs.length; i++) {
             var id = qs[i].getAttribute('data-id');
-            var left = Math.max(0, (qReady[id] || 0) - now);
+            var kd = qs[i].getAttribute('data-kd');
+            var left = Math.max(0, (kd != null ? kdReady[kd] : qReady[id] || 0) - now);
             var cd = qs[i].querySelector('.ms-q-cd');
             cd.textContent = left > 0 ? Math.ceil(left / 1000) : '';
             qs[i].classList.toggle('cooling', left > 0);
@@ -396,6 +450,8 @@
             var now = Date.now();
             qReady = {};
             (state.q || []).forEach(function (q) { qReady[q.id] = now + q.left; });
+            kdReady = [0, 0, 0];
+            (state.kd || []).forEach(function (k) { kdReady[k.i] = now + k.left; });
             if (state.tree && !tree && !requested[state.track]) {
                 requested[state.track] = true;
                 send(1);
@@ -409,7 +465,7 @@
         if (isOpen()) renderTree();
     }
 
-    window.SkillTree = { onMessage: onMessage, toggle: toggle, cast: cast, close: close };
+    window.SkillTree = { onMessage: onMessage, toggle: toggle, cast: cast, close: close, castKD: castKD, drawFx: drawFx };
 
     // hide everything when the player dies or leaves
     setInterval(function () {

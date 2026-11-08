@@ -257,6 +257,26 @@ Reworks (orange) are always on. They change the dragon's fire ability (extra fir
 node tools/milestones/make-milestone-images.js [OUT_DIR] [SIZE]
 ```
 
+## King Dragon: Wing Slash, Wingspan, Shoot Meteor
+
+Every King Dragon has three extra abilities from the start, on keys **Z**, **X** and **C**. They also appear as buttons in the box at the bottom left, with their cooldowns. They can't be used while flying, in a hole, stunned or in a 1v1 arena. Skill-tree picks and milestones that shorten recharge times shorten these too.
+
+| Key | Ability | What it does | Cooldown |
+|-----|---------|--------------|----------|
+| Z | Wing Slash | A claw of fire sweeps across the front (140-degree cone, 2.4x the dragon's size). 55 damage, 3 s burn, knockback | 6 s |
+| X | Wingspan | Both wings snap open (3.2x the dragon's size). Every animal around takes 35 damage, is pushed away and stunned for 1 s | 14 s |
+| C | Shoot Meteor | A meteor flies about 650 px ahead and explodes. Up to 140 damage within 230 px, less at the edge, plus a 5 s burn and knockback. Costs 20% lava | 20 s |
+
+- Server: `KingDragon.java` (`castExtra`, `meteorLanded`) and `Objects/ETC/KingDragonFx.java`, the effect the client draws (object type 175; 160 to 162 are outer space). The client asks for an ability with message type 120, action 4.
+- Client: `web/skilltree.js` (`drawFx`, `castKD` and the Z/X/C buttons), with the keys in `web/client.js`.
+- Animation frames: `web/img/kingdragon/{wingslash,wingspan,meteor,impact}/<n>.png` (8, 10, 6 and 10 frames). The meteor loops; the others play once over the effect's life. They're drawn by a Python script (needs Pillow):
+
+```
+python3 tools/kingdragon_fx/make_fx_frames.py [OUT_DIR] [SIZE]
+```
+
+If you change a frame count in the script, change `FX` in `web/skilltree.js` to match.
+
 ## Shop skins
 
 Each shop skin is defined in five places, which must agree:

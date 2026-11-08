@@ -383,6 +383,12 @@ public class MilestoneState {
             case 3:
                 cast();
                 break;
+            case 4: { // King Dragon: Wing Slash (0), Wingspan (1), Shoot Meteor (2)
+                int i = reader.readUInt8();
+                Animal p = client.getPlayer();
+                if (p instanceof KingDragon && ((KingDragon) p).castExtra(i)) sendState();
+                break;
+            }
             default:
                 break;
         }
@@ -438,6 +444,21 @@ public class MilestoneState {
             }
         }
         m.put("q", q);
+        List<Object> kd = new ArrayList<>();
+        Animal pl = client.getPlayer();
+        if (pl instanceof KingDragon) {
+            KingDragon k = (KingDragon) pl;
+            for (int i = 0; i < 3; i++) {
+                Map<String, Object> e = new LinkedHashMap<>();
+                e.put("i", i);
+                e.put("name", KingDragon.EXTRA_NAMES[i]);
+                e.put("key", KingDragon.EXTRA_KEYS[i]);
+                e.put("icon", KingDragon.EXTRA_ICONS[i]);
+                e.put("left", k.extraLeft(i));
+                kd.add(e);
+            }
+        }
+        m.put("kd", kd);
         List<Object> badges = new ArrayList<>();
         for (int i = 1; i <= lvl; i++) {
             Map<String, Object> b = new LinkedHashMap<>();
