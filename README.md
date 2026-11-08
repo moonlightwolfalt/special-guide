@@ -346,6 +346,6 @@ A player's XP goes up to 4,294,967,295, the most the client's XP field can hold.
 
 ## Turning speed
 
-Animals turn on the game server, at most a set number of degrees per tick (`calculateAngle` in `Animal.java`). `turnSpeedPerTier` in `backup_server/server/config.txt` sets the limit for tiers 1 to 17, as degrees per tick (the server runs 20 ticks a second). It's 360 for every tier, so every animal turns instantly: no turn is over 180°. Lower a tier's number to make it turn more slowly. The client then eases its drawn angle toward the server's the same way v1.mope.io does: 10% of the gap per 1/120 s, at any frame rate.
+Animals turn on the game server, at most a set number of degrees per tick (`calculateAngle` in `Animal.java`). `turnSpeedPerTier` in `backup_server/server/config.txt` sets the limit for tiers 1 to 17, as degrees per tick (the server runs 20 ticks a second). The defaults are what the old formula gave, which is close to instant: 1,190° per tick for a mouse, down to 28° for tier 17. The client then eases its drawn angle toward the server's the same way v1.mope.io does: 10% of the gap per 1/120 s, at any frame rate.
 
 To match v1's server turning speed, measure it with `tools/measure-v1-turn-speed.js`. The steps are at the top of that file: paste it into the browser console on v1.mope.io, play, and it prints how many degrees per update the server turns each animal.
