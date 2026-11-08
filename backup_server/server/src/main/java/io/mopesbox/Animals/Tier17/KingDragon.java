@@ -7,12 +7,12 @@ import io.mopesbox.Animals.Info.AnimalInfo;
 import io.mopesbox.Animals.Info.Tier;
 import io.mopesbox.Animals.Tier6.Bee;
 import io.mopesbox.Client.GameClient;
+import io.mopesbox.Milestones.MilestoneState;
 import io.mopesbox.Networking.Networking;
 import io.mopesbox.Objects.GameObject;
 import io.mopesbox.Objects.Bones.AnimalCarcass;
 import io.mopesbox.Objects.ETC.IceCrystal;
 import io.mopesbox.Objects.ETC.Tailslap;
-import io.mopesbox.Objects.Fire.FireBall;
 import io.mopesbox.Objects.Static.SandboxArena;
 import io.mopesbox.Server.MsgWriter;
 import io.mopesbox.Utils.Timer;
@@ -48,12 +48,16 @@ public class KingDragon extends Animal {
                 && !this.isGhost) {
             double x = ((Math.cos(Math.toRadians(this.getAngle())) * (this.getRadius())));
             double y = ((Math.sin(Math.toRadians(this.getAngle())) * (this.getRadius())));
+            MilestoneState ms = this.getClient().milestones;
             Tailslap tailslap = new Tailslap(this.getClient().getRoom().getID(), this.getX() - x, this.getY() - y,
-                    this.getRadius(), this.getClient().getRoom(), this.getAngle(), this,
+                    (int) Math.round(this.getRadius() * ms.tailSizeMult()), this.getClient().getRoom(), this.getAngle(), this,
                     this.getInfo().getAnimalSpecies());
+            tailslap.setDamage((int) Math.round(200 * ms.tailDamageMult()));
             this.getClient().getRoom().addObj(tailslap);
             if (!this.getClient().instantRecharge)
                 canTailslap = false;
+            // milestones shorten the 15 s tail slap recharge
+            tailSlapTimer.setMaximumTime((int) Math.round(15000 * ms.tailCooldownMult()));
             tailSlapTimer.reset();
         }
     }
@@ -102,7 +106,7 @@ public class KingDragon extends Animal {
                 abilT--;
                 if (abilT < 1) {
                     this.getInfo().getAbility().setRecharging(false);
-                    fireStreaming = 20;
+                    fireStreaming = this.getClient().milestones.streamLength();
                 }
                 abilTimer.reset();
             }
@@ -150,10 +154,10 @@ public class KingDragon extends Animal {
     public void noUsingAbility() {
         PlayerAbility abil = this.getInfo().getAbility();
         if (abil.isPossible() && !abil.isRecharging() && abil.isUsable()) {
-            this.fireStreaming = 20;
+            this.fireStreaming = this.getClient().milestones.streamLength();
             if (abilT < 1 && !this.getClient().instantRecharge) {
                 abil.setRecharging(true);
-                abilT = 7;
+                abilT = this.milestoneCooldown(7);
                 this.getClient().send(Networking.rechargingAbility(false, abilT, this.getClient().getRoom()));
             }
         }
@@ -173,42 +177,41 @@ public class KingDragon extends Animal {
         PlayerAbility abil = this.getInfo().getAbility();
         if (abil.isPossible() && !abil.isRecharging() && abil.isUsable()) {
             if (this.getWater() > this.maxwater / 4){
+            MilestoneState ms = this.getClient().milestones;
+            int species = MilestoneState.fireSpecies(this);
             for (int i = 0; i < 4; i++) {
-                          int mangle = 20;
-                if(this.getClient().getXP() >= 20000000) mangle = 20;
+                int mangle = 20;
                 double ran = Utils.randomDouble(-2, 2);
                 double x = ((Math.cos(Math.toRadians(this.getAngle()-mangle+ran)) * (this.getRadius())));
                 double y = ((Math.sin(Math.toRadians(this.getAngle()-mangle+ran)) * (this.getRadius())));
-                FireBall newFire = new FireBall(this.getClient().getRoom().getID(), this.getX()+x, this.getY()+y, 30, this.getInfo().getAnimalSpecies() + 5, this.getAngle(), 25, this.getId(), this.getClient().getRoom(), this.getClient(),5);
-                this.getClient().getRoom().addObj(newFire);
+                ms.fireBall(this, this.getX()+x, this.getY()+y, species, this.getAngle());
 
-                 mangle = 0;
-                 if(getClient().getXP() >= 20000000){
-                ran = Utils.randomDouble(-2, 2);
-                x = ((Math.cos(Math.toRadians(this.getAngle()+mangle+ran)) * (this.getRadius())));
-                y = ((Math.sin(Math.toRadians(this.getAngle()+mangle+ran)) * (this.getRadius())));
-                newFire = new FireBall(this.getClient().getRoom().getID(), this.getX()+x, this.getY()+y, 30, this.getInfo().getAnimalSpecies() + 5, this.getAngle(), 25, this.getId(), this.getClient().getRoom(), this.getClient(),5); //s=20
-                this.getClient().getRoom().addObj(newFire);
-                 }
-
+                if(getClient().getXP() >= 20000000){
                     ran = Utils.randomDouble(-2, 2);
-                    x = ((Math.cos(Math.toRadians(this.getAngle()+20+ran)) * (this.getRadius())));
-                    y = ((Math.sin(Math.toRadians(this.getAngle()+20+ran)) * (this.getRadius())));
-                    newFire = new FireBall(this.getClient().getRoom().getID(), this.getX()+x, this.getY()+y, 30, this.getInfo().getAnimalSpecies()+ 5, this.getAngle(), 25, this.getId(), this.getClient().getRoom(), this.getClient(),5);
-                    this.getClient().getRoom().addObj(newFire);
-            
-                
+                    x = ((Math.cos(Math.toRadians(this.getAngle()+ran)) * (this.getRadius())));
+                    y = ((Math.sin(Math.toRadians(this.getAngle()+ran)) * (this.getRadius())));
+                    ms.fireBall(this, this.getX()+x, this.getY()+y, species, this.getAngle());
+                }
+
+                ran = Utils.randomDouble(-2, 2);
+                x = ((Math.cos(Math.toRadians(this.getAngle()+20+ran)) * (this.getRadius())));
+                y = ((Math.sin(Math.toRadians(this.getAngle()+20+ran)) * (this.getRadius())));
+                ms.fireBall(this, this.getX()+x, this.getY()+y, species, this.getAngle());
             }
+            // skill-tree extras: a fan of side fireballs once per burst
+            int extra = ms.volley();
+            if (extra > 0) ms.fireFan(this, species, extra + 1, 10 * ms.spreadMult(), this.getAngle());
+
             this.fireStreaming--;
-            this.takeWater(0.5);
+            this.takeWater(0.5 * ms.lavaMult());
 
             if (this.fireStreaming < 0) {
                 if (!this.getClient().instantRecharge) {
                     abil.setRecharging(true);
-                    abilT = 7;
+                    abilT = this.milestoneCooldown(7);
                     this.getClient().send(Networking.rechargingAbility(false, abilT, this.getClient().getRoom()));
                 }
-                this.fireStreaming = 20;
+                this.fireStreaming = ms.streamLength();
             }
             }
         }

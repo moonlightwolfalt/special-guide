@@ -577,6 +577,12 @@ public class Animal extends GameObject {
         this.hurt(30, 14, owner);
     }
 
+    // An ability recharge in seconds, shortened by milestones and skill-tree picks.
+    public int milestoneCooldown(int secs) {
+        GameClient c = this.getClient();
+        return c != null ? c.milestones.cooldown(secs) : secs;
+    }
+
     public void setImmunity(int sec) {
         this.immunitySeconds = sec;
         this.immunityTimer.reset();

@@ -25,6 +25,10 @@ public class Fire extends GameObject {
     private FireWood firewood;
     // which fire frames the client draws (web/img/fire/<style>); the species still decides damage
     private int style;
+    // seconds a touched animal burns (the fireball that made this fire passes its own)
+    private int burnSeconds = 6;
+
+    public void setBurnSeconds(int s) { this.burnSeconds = Math.max(1, s); }
     public Fire(int id, double x, double y, int radius, int type, Room room, GameClient owner, int damage, boolean isDamaged) {
         super(id, x, y, radius, 70);
         this.setSpecies(type);
@@ -55,7 +59,7 @@ public class Fire extends GameObject {
     public void onCollision(GameObject o) {
         if(this.owner != null){
         if (!isDamaged && o instanceof Animal && ((Animal) o) != this.owner.getPlayer() && !((Animal) o).inArena && !((Animal) o).isInvincible() && !((Animal) o).flag_flying && !((Animal) o).isInHole() && !((Animal)o).isDiveActive()) {
-            ((Animal)o).setFire(6, this.owner.getPlayer() != null ? this.owner.getPlayer() : null, ((Animal)this.owner.getPlayer()) instanceof Dragon ? 2 : 3);
+            ((Animal)o).setFire(burnSeconds, this.owner.getPlayer() != null ? this.owner.getPlayer() : null, ((Animal)this.owner.getPlayer()) instanceof Dragon ? 2 : 3);
                 if(!(this.owner.getPlayer() instanceof Dragon)) 
             
                 if (this.getSpecies() < 5) {

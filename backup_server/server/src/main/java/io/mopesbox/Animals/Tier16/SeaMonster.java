@@ -199,7 +199,7 @@ public class SeaMonster extends Animal {
                 PlayerAbility abil = this.getInfo().getAbility();
                 if (!this.getClient().instantRecharge) {
                     abil.setRecharging(true);
-                    abilT = 10;
+                    abilT = this.milestoneCooldown(10);
                     this.getClient().send(Networking.rechargingAbility(false, abilT, this.getClient().getRoom()));
                 }
             }

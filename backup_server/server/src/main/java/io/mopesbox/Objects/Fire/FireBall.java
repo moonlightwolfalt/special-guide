@@ -18,6 +18,13 @@ public class FireBall extends GameObject {
     private GameClient owner;
     private int damage;
     private boolean isDamaged = false;
+    // seconds a hit animal burns; milestones and skill-tree picks can raise it
+    private int burnSeconds = 6;
+
+    public void setBurnSeconds(int s) { this.burnSeconds = Math.max(1, s); }
+
+    // how many ticks the fireball keeps flying before it lands as a fire (18 by default)
+    public void setTravel(double ticks) { this.speed2 = Math.max(4, ticks); }
     // which fire frames the client draws (web/img/fireball/<style>); the species still decides damage
     private int style;
 
@@ -56,7 +63,7 @@ public class FireBall extends GameObject {
 
               }
 
-            ((Animal)o).setFire(6, this.owner.getPlayer() != null ? this.owner.getPlayer() : null, ((Animal)this.owner.getPlayer()) instanceof Dragon ? 2 : 3);
+            ((Animal)o).setFire(burnSeconds, this.owner.getPlayer() != null ? this.owner.getPlayer() : null, ((Animal)this.owner.getPlayer()) instanceof Dragon ? 2 : 3);
             isDamaged = true;
                         this.room.removeObj(this, o);
 
@@ -95,6 +102,7 @@ public class FireBall extends GameObject {
                         if(this.owner != null){
             Fire newFire = new Fire(this.room.getID(), this.getX(), this.getY(), this.getRadius()+4, this.getSpecies(), this.room, this.owner, damage, isDamaged);
             newFire.setStyle(this.style);
+            newFire.setBurnSeconds(burnSeconds);
             this.room.addObj(newFire);
             this.room.removeObj(this, newFire);
             return;

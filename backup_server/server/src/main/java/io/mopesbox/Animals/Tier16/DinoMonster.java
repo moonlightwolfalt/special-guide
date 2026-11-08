@@ -60,7 +60,7 @@ public class DinoMonster extends Animal {
         this.speed = mainSpeed;
         if (!this.getClient().instantRecharge) {
             this.getInfo().getAbility().setRecharging(true);
-            abilT = 8;
+            abilT = this.milestoneCooldown(8);
             this.getClient().send(Networking.rechargingAbility(false, abilT, this.getClient().getRoom()));
         }
     }

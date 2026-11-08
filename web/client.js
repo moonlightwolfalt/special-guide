@@ -6705,6 +6705,9 @@ function handleWsMessages(msg) {
             joinGame(false, true);//Sending another packets for a correct reconnect!
             break;
         }
+        case 120: // milestones and the dragon skill tree (skilltree.js)
+            if (window.SkillTree) SkillTree.onMessage(msg);
+            break;
         case 64: {
             try {
                 recaptcha();
@@ -28452,6 +28455,15 @@ document.onkeydown = function (_0x535a34) {
             break;
         case 0x44:
             _0x535a34.preventDefault(), _0x386281(_0x240fb4, !0);
+            break;
+        case 0x54: // T: dragon skill tree (skilltree.js)
+            _0x535a34.preventDefault();
+            window.SkillTree && SkillTree.toggle();
+            break;
+        case 0x51: // Q: cast the new abilities picked in the skill tree
+            _0x535a34.preventDefault();
+            window.SkillTree && SkillTree.cast();
+            break;
     }
 };
 document.onkeyup = function (_0x3931f1) {

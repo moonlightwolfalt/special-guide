@@ -586,6 +586,9 @@ public class GameClient {
 
     public WebSocket socket;
 
+    // milestones and the dragon skill tree for this life
+    public final io.mopesbox.Milestones.MilestoneState milestones = new io.mopesbox.Milestones.MilestoneState(this);
+
     private int pingTries = 0;
 
     public Animal player;
@@ -1755,6 +1758,10 @@ public class GameClient {
                     if (this.getPlayer() != null) {
                         this.getPlayer().waterShoot();
                     }
+                    break;
+                }
+                case SKILLTREE: {
+                    this.milestones.handle(reader);
                     break;
                 }
                 case REQUESTJOIN: {
@@ -4691,7 +4698,7 @@ public class GameClient {
 
     public void update() {
 
-
+        this.milestones.update();
 
         heartbeat.update(Constants.TICKS_PER_SECOND);
         if(heartbeat.isDone()){

@@ -118,7 +118,7 @@ public class IceMonster extends Animal {
             this.getClient().getRoom().addObj(newFire);
             if(!this.getClient().instantRecharge) {
                 abil.setRecharging(true);
-                abilT = 5;
+                abilT = this.milestoneCooldown(5);
                 this.getClient().send(Networking.rechargingAbility(false, abilT, this.getClient().getRoom()));
                 this.iceShards.get(this.hasStableCrystal()).radius = 0;
             }
