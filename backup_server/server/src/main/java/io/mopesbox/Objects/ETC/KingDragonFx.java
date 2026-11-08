@@ -1,18 +1,18 @@
 package io.mopesbox.Objects.ETC;
 
 import io.mopesbox.Constants;
-import io.mopesbox.Animals.Tier17.KingDragon;
+import io.mopesbox.Animals.Tier17.DragonAbilities;
 import io.mopesbox.Objects.GameObject;
 import io.mopesbox.Server.MsgWriter;
 import io.mopesbox.World.Room;
 import io.mopesbox.Utils.Timer;
 
 /**
- * The visible part of the King Dragon's Wing Slash, Wingspan and Shoot Meteor.
+ * The visible part of the dragons' Wing Slash, Wingspan and Shoot Meteor (DragonAbilities).
  *
  * The client (object type 175, o_kingDragonFx) plays a frame sequence from web/img/kingdragon/<kind>/, made by
  * tools/kingdragon_fx/make_fx_frames.py, rotated to the angle and sized to the radius.
- * Damage is done by KingDragon itself; this object only shows it, except the meteor, which
+ * Damage is done by DragonAbilities; this object only shows it, except the meteor, which
  * flies forward and tells the dragon where it landed.
  */
 public class KingDragonFx extends GameObject {
@@ -30,7 +30,7 @@ public class KingDragonFx extends GameObject {
     private final Timer life;
 
     // meteor only
-    private KingDragon owner;
+    private DragonAbilities owner;
     private double dirX, dirY, speed;
     private int travelTicks;
 
@@ -45,7 +45,7 @@ public class KingDragonFx extends GameObject {
     }
 
     /** Makes this a flying meteor: it moves `speed` pixels a tick for `ticks` ticks, then lands. */
-    public KingDragonFx flyAsMeteor(KingDragon owner, double speed, int ticks) {
+    public KingDragonFx flyAsMeteor(DragonAbilities owner, double speed, int ticks) {
         this.owner = owner;
         this.speed = speed;
         this.travelTicks = ticks;

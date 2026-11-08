@@ -12,15 +12,11 @@ import io.mopesbox.Networking.Networking;
 import io.mopesbox.Objects.GameObject;
 import io.mopesbox.Objects.Bones.AnimalCarcass;
 import io.mopesbox.Objects.ETC.IceCrystal;
-import io.mopesbox.Objects.ETC.KingDragonFx;
 import io.mopesbox.Objects.ETC.Tailslap;
 import io.mopesbox.Objects.Static.SandboxArena;
 import io.mopesbox.Server.MsgWriter;
 import io.mopesbox.Utils.Timer;
 import io.mopesbox.Utils.Utils;
-import io.mopesbox.World.Room;
-import java.util.ArrayList;
-import java.util.List;
 
 public class KingDragon extends Animal {
 
@@ -221,125 +217,6 @@ public class KingDragon extends Animal {
         }
     }
 
-    // ---------------------------------------------------------------- Wing Slash, Wingspan, Shoot Meteor
-    // Every King Dragon has these, on keys Z, X and C (the client sends message 120, action 4).
-    // The frames they show are made by tools/kingdragon_fx/make_fx_frames.py.
-
-    public static final String[] EXTRA_NAMES = { "Wing Slash", "Wingspan", "Shoot Meteor" };
-    public static final String[] EXTRA_KEYS = { "Z", "X", "C" };
-    public static final String[] EXTRA_ICONS = { "wingslash", "wingspan", "meteor" };
-    public static final int[] EXTRA_COOLDOWN = { 6, 14, 20 }; // seconds
-    private static final int METEOR_LAVA = 20;                // % of lava a meteor costs
-
-    private final long[] extraReady = new long[3];
-
-    /** Milliseconds until an extra ability can be used again. */
-    public long extraLeft(int i) {
-        return Math.max(0, extraReady[i] - System.currentTimeMillis());
-    }
-
-    /** Uses Wing Slash (0), Wingspan (1) or Shoot Meteor (2). Returns whether it happened. */
-    public boolean castExtra(int i) {
-        if (i < 0 || i > 2) return false;
-        if (this.isRammed || this.inArena || this.flag_flying || this.isInHole() || this.isGhost || this.isStunned()
-                || this.health <= 0)
-            return false;
-        long now = System.currentTimeMillis();
-        if (now < extraReady[i]) return false;
-        if (i == 2 && this.getWater() < METEOR_LAVA) {
-            this.getClient().send(Networking.personalGameEvent(255, "Not enough lava for a meteor!"));
-            return false;
-        }
-        switch (i) {
-            case 0: wingSlash(); break;
-            case 1: wingspan(); break;
-            default: shootMeteor(); break;
-        }
-        extraReady[i] = this.getClient().instantRecharge ? now
-                : now + this.milestoneCooldown(EXTRA_COOLDOWN[i]) * 1000L;
-        return true;
-    }
-
-    /** Animals the extra abilities can hit: not this dragon, nor anything flying, hiding or protected. */
-    private List<Animal> targets() {
-        Room room = this.getClient().getRoom();
-        List<GameClient> cs = new ArrayList<>(room.clients);
-        cs.addAll(room.aiClients);
-        List<Animal> out = new ArrayList<>();
-        for (GameClient c : cs) {
-            Animal o = c == null ? null : c.getPlayer();
-            if (o == null || o == this || o.inArena || o.isInvincible() || o.flag_flying || o.isInHole()
-                    || o.isDiveActive() || o.isGhost || o.health <= 0)
-                continue;
-            out.add(o);
-        }
-        return out;
-    }
-
-    private void push(Animal o, double fromX, double fromY, double force) {
-        double th = Math.atan2(o.getY() - fromY, o.getX() - fromX);
-        o.setVelocityX(Math.cos(th) * force);
-        o.setVelocityY(Math.sin(th) * force);
-    }
-
-    private void addFx(double x, double y, int radius, int kind, double angle, int lifeMs) {
-        Room room = this.getClient().getRoom();
-        room.addObj(new KingDragonFx(room.getID(), x, y, radius, kind, angle, lifeMs, room));
-    }
-
-    /** A claw of fire sweeping across the front: hits everything in a 140-degree cone. */
-    private void wingSlash() {
-        double reach = this.getRadius() * 2.4;
-        for (Animal o : targets()) {
-            double d = Utils.distance(this.getX(), o.getX(), this.getY(), o.getY());
-            if (d > reach + o.getRadius()) continue;
-            double ang = Math.toDegrees(Math.atan2(o.getY() - this.getY(), o.getX() - this.getX()));
-            double diff = ((ang - this.getAngle()) % 360 + 540) % 360 - 180;
-            if (Math.abs(diff) > 70) continue;
-            o.hurt(55, 0, this);
-            o.setFire(3, this, 2);
-            push(o, this.getX(), this.getY(), 18);
-        }
-        addFx(this.getX(), this.getY(), (int) reach, KingDragonFx.WINGSLASH, this.getAngle(), 400);
-    }
-
-    /** Both wings snap open: pushes every animal around away, hurts and stuns it. */
-    private void wingspan() {
-        double reach = this.getRadius() * 3.2;
-        for (Animal o : targets()) {
-            double d = Utils.distance(this.getX(), o.getX(), this.getY(), o.getY());
-            if (d > reach + o.getRadius() || d < 1) continue;
-            o.hurt(35, 0, this);
-            o.setStun(1);
-            push(o, this.getX(), this.getY(), 18 + 22 * (1 - Math.min(1, d / reach)));
-        }
-        addFx(this.getX(), this.getY(), (int) reach, KingDragonFx.WINGSPAN, this.getAngle(), 600);
-    }
-
-    /** Launches a meteor that lands about 650 pixels ahead (meteorLanded does the damage). */
-    private void shootMeteor() {
-        this.takeWater(METEOR_LAVA);
-        double a = this.getAngle();
-        double x = this.getX() + Math.cos(Math.toRadians(a)) * this.getRadius();
-        double y = this.getY() + Math.sin(Math.toRadians(a)) * this.getRadius();
-        Room room = this.getClient().getRoom();
-        KingDragonFx m = new KingDragonFx(room.getID(), x, y, 120, KingDragonFx.METEOR, a, 0, room)
-                .flyAsMeteor(this, 24, 26);
-        m.setSpawnID(this.getId());
-        room.addObj(m);
-    }
-
-    /** The meteor hit the ground: blast damage that drops off with distance, and burning. */
-    public void meteorLanded(double x, double y) {
-        double blast = 230;
-        for (Animal o : targets()) {
-            double d = Utils.distance(x, o.getX(), y, o.getY());
-            if (d > blast + o.getRadius()) continue;
-            double f = d < blast / 2 ? 1 : 1 - (d - blast / 2) / (blast / 2 + o.getRadius()) * 0.6;
-            o.hurt(140 * f, 0, this);
-            o.setFire(5, this, 3);
-            push(o, x, y, 26 * f);
-        }
-        addFx(x, y, (int) blast, KingDragonFx.IMPACT, 0, 700);
-    }
+    // Wing Slash, Wingspan and Shoot Meteor (keys Z, X, C): all three, from the start
+    public final DragonAbilities abilities = new DragonAbilities(this);
 }

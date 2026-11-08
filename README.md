@@ -233,7 +233,7 @@ Milestones count from the most XP you've had this life, so losing XP doesn't tak
 
 | Animal | Milestone XP | What it gives |
 |--------|--------------|---------------|
-| Black Dragon | 12.5m / 17.5m / 25m | Fire volley: +1 fireball; then 20% faster recharge; then half lava cost, bigger fireballs, 20% more range. Each opens the next skill-tree ring. |
+| Black Dragon | 12.5m / 17.5m / 25m | An ability slot at each of the first two (choose 2 of Wing Slash, Wingspan, Shoot Meteor). Fire volley: +1 fireball; then 20% faster recharge; then half lava cost, bigger fireballs, 20% more range. Each opens the next skill-tree ring. |
 | King Dragon | 12.5m / 17.5m / 25m | Fire stream 30% longer and tail slap 11 s (was 15 s); then stream recharge 5 s (was 7 s) and tail slap +25% damage; then half lava cost, bigger fireballs, tail slap 30% bigger and 8 s. Each opens the next skill-tree ring. |
 | Dino Monster, Land Monster, Sea Monster, Giant Scorpion, Ice Monster (the 5m tier) | 7.25m | "Titan": ability recharges 25% faster, +50 max health, +10 bite damage, and a pick of 1 of 3 Titan skills |
 
@@ -257,9 +257,14 @@ Reworks (orange) are always on. They change the dragon's fire ability (extra fir
 node tools/milestones/make-milestone-images.js [OUT_DIR] [SIZE]
 ```
 
-## King Dragon: Wing Slash, Wingspan, Shoot Meteor
+## Dragon milestone abilities: Wing Slash, Wingspan, Shoot Meteor
 
-Every King Dragon has three extra abilities from the start, on keys **Z**, **X** and **C**. They also appear as buttons in the box at the bottom left, with their cooldowns. They can't be used while flying, in a hole, stunned or in a 1v1 arena. Skill-tree picks and milestones that shorten recharge times shorten these too.
+Three extra abilities on keys **Z**, **X** and **C**:
+
+- **King Dragon:** all three, from the start.
+- **Black Dragon:** at most **2**. Milestone I (12.5m XP) opens the first slot and milestone II (17.5m) the second. When a slot opens, the box at the bottom left shows the abilities to choose from. The choice lasts until you die.
+
+They also appear as buttons in that box, with their cooldowns. On phones and tablets they're big buttons on the right side of the screen instead, with a Q button when the skill tree gave the dragon a Q ability. They can't be used while flying, in a hole, stunned or in a 1v1 arena. Skill-tree picks and milestones that shorten recharge times shorten these too.
 
 | Key | Ability | What it does | Cooldown |
 |-----|---------|--------------|----------|
@@ -267,8 +272,8 @@ Every King Dragon has three extra abilities from the start, on keys **Z**, **X**
 | X | Wingspan | Both wings snap open (3.2x the dragon's size). Every animal around takes 35 damage, is pushed away and stunned for 1 s | 14 s |
 | C | Shoot Meteor | A meteor flies about 650 px ahead and explodes. Up to 140 damage within 230 px, less at the edge, plus a 5 s burn and knockback. Costs 20% lava | 20 s |
 
-- Server: `KingDragon.java` (`castExtra`, `meteorLanded`) and `Objects/ETC/KingDragonFx.java`, the effect the client draws (object type 175; 160 to 162 are outer space). The client asks for an ability with message type 120, action 4.
-- Client: `web/skilltree.js` (`drawFx`, `castKD` and the Z/X/C buttons), with the keys in `web/client.js`.
+- Server: `Animals/Tier17/DragonAbilities.java`, shared by both dragons, and `Objects/ETC/KingDragonFx.java`, the effect the client draws (object type 175; 160 to 162 are outer space). The Black Dragon's choice is kept in `MilestoneState`. The client casts with message type 120, action 4, and a Black Dragon chooses with action 5.
+- Client: `web/skilltree.js` (`drawFx`, `castKD`, the Z/X/C buttons, the Black Dragon's choice and the touch buttons in `#msMobile`), with the keys in `web/client.js`.
 - Animation frames: `web/img/kingdragon/{wingslash,wingspan,meteor,impact}/<n>.png` (8, 10, 6 and 10 frames). The meteor loops; the others play once over the effect's life. They're drawn by a Python script (needs Pillow):
 
 ```

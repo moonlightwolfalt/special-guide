@@ -26,6 +26,9 @@ import io.mopesbox.Objects.Static.SandboxArena;
 
 public class BlackDragon extends Animal {
     private List<Apex> apexs = new ArrayList<>();
+
+    // Wing Slash, Wingspan and Shoot Meteor (keys Z, X, C): up to 2, one slot per milestone (I and II)
+    public final DragonAbilities abilities = new DragonAbilities(this);
     public BlackDragon(int id, double x, double y, AnimalInfo info, String playerName, GameClient client) {
         super(id, x, y, info, playerName, client);
         this.flag_fliesLikeDragon = true;

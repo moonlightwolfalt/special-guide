@@ -13,6 +13,8 @@ import com.google.gson.Gson;
 
 import io.mopesbox.Constants;
 import io.mopesbox.Animals.Animal;
+import io.mopesbox.Animals.Tier17.BlackDragon;
+import io.mopesbox.Animals.Tier17.DragonAbilities;
 import io.mopesbox.Animals.Tier17.KingDragon;
 import io.mopesbox.Client.GameClient;
 import io.mopesbox.Networking.Networking;
@@ -47,6 +49,8 @@ public class MilestoneState {
     // picks per tree: the dragon tree has 3 rings, the titan tree 1
     private final int[] dragonPicks = { -1, -1, -1 };
     private final int[] titanPicks = { -1 };
+    // the Black Dragon's chosen milestone abilities (Wing Slash, Wingspan, Shoot Meteor), at most 2
+    private final boolean[] blackDragonAbilities = new boolean[3];
     private final Map<Integer, Long> readyAt = new HashMap<>();
 
     private String lastKey = null;
@@ -104,6 +108,7 @@ public class MilestoneState {
         announced.clear();
         dragonPicks[0] = dragonPicks[1] = dragonPicks[2] = -1;
         titanPicks[0] = -1;
+        java.util.Arrays.fill(blackDragonAbilities, false);
         readyAt.clear();
         lastKey = null;
         lastLevel = -1;
@@ -224,6 +229,43 @@ public class MilestoneState {
     private int biteBonus() {
         String k = curKey();
         return (int) sum(s -> s.bite) + (k != null && !Milestones.isDragon(k) && curLevel() >= 1 ? 10 : 0);
+    }
+
+    // ------------------------------------------------------------------ dragon milestone abilities
+
+    public boolean blackDragonHas(int i) {
+        return i >= 0 && i < 3 && blackDragonAbilities[i];
+    }
+
+    private int blackDragonChosen() {
+        int n = 0;
+        for (boolean b : blackDragonAbilities) if (b) n++;
+        return n;
+    }
+
+    /** Black Dragon ability slots open now: one per milestone, at most 2. */
+    private int blackDragonSlots() {
+        return "blackdragon".equals(curKey()) ? Math.min(DragonAbilities.BLACK_DRAGON_LIMIT, curLevel()) : 0;
+    }
+
+    private DragonAbilities dragonAbilities() {
+        Animal p = client.getPlayer();
+        if (p instanceof KingDragon) return ((KingDragon) p).abilities;
+        if (p instanceof BlackDragon) return ((BlackDragon) p).abilities;
+        return null;
+    }
+
+    private void chooseBlackDragonAbility(int i) {
+        if (i < 0 || i > 2 || blackDragonAbilities[i]) return;
+        if (blackDragonChosen() >= blackDragonSlots()) {
+            client.send(Networking.popup(blackDragonSlots() >= DragonAbilities.BLACK_DRAGON_LIMIT
+                    ? "A Black Dragon can have only " + DragonAbilities.BLACK_DRAGON_LIMIT + " milestone abilities."
+                    : "Reach the next milestone to open another ability slot.", "error", 4));
+            return;
+        }
+        blackDragonAbilities[i] = true;
+        client.send(Networking.popup("Learned " + DragonAbilities.NAMES[i] + " (" + DragonAbilities.KEYS[i] + ")!", "success", 4));
+        sendState();
     }
 
     /** An ability recharge in whole seconds, after milestones and picks. */
@@ -383,10 +425,15 @@ public class MilestoneState {
             case 3:
                 cast();
                 break;
-            case 4: { // King Dragon: Wing Slash (0), Wingspan (1), Shoot Meteor (2)
+            case 4: { // dragons: Wing Slash (0), Wingspan (1), Shoot Meteor (2)
                 int i = reader.readUInt8();
-                Animal p = client.getPlayer();
-                if (p instanceof KingDragon && ((KingDragon) p).castExtra(i)) sendState();
+                DragonAbilities da = dragonAbilities();
+                if (da != null && da.cast(i)) sendState();
+                break;
+            }
+            case 5: { // Black Dragon: choose a milestone ability for an open slot
+                int i = reader.readUInt8();
+                if (client.getPlayer() instanceof BlackDragon) chooseBlackDragonAbility(i);
                 break;
             }
             default:
@@ -444,21 +491,32 @@ public class MilestoneState {
             }
         }
         m.put("q", q);
-        List<Object> kd = new ArrayList<>();
-        Animal pl = client.getPlayer();
-        if (pl instanceof KingDragon) {
-            KingDragon k = (KingDragon) pl;
+        // dragon milestone abilities: the usable ones, and (Black Dragon) the ones it can still choose
+        List<Object> da = new ArrayList<>();
+        List<Object> daChoose = new ArrayList<>();
+        DragonAbilities abil = dragonAbilities();
+        if (abil != null) {
+            boolean canChoose = client.getPlayer() instanceof BlackDragon && blackDragonChosen() < blackDragonSlots();
             for (int i = 0; i < 3; i++) {
                 Map<String, Object> e = new LinkedHashMap<>();
                 e.put("i", i);
-                e.put("name", KingDragon.EXTRA_NAMES[i]);
-                e.put("key", KingDragon.EXTRA_KEYS[i]);
-                e.put("icon", KingDragon.EXTRA_ICONS[i]);
-                e.put("left", k.extraLeft(i));
-                kd.add(e);
+                e.put("name", DragonAbilities.NAMES[i]);
+                e.put("key", DragonAbilities.KEYS[i]);
+                e.put("icon", DragonAbilities.ICONS[i]);
+                if (abil.has(i)) {
+                    e.put("left", abil.left(i));
+                    da.add(e);
+                } else if (canChoose) {
+                    daChoose.add(e);
+                }
             }
         }
-        m.put("kd", kd);
+        m.put("da", da);
+        m.put("daChoose", daChoose);
+        if (client.getPlayer() instanceof BlackDragon) {
+            m.put("daUsed", blackDragonChosen());
+            m.put("daMax", DragonAbilities.BLACK_DRAGON_LIMIT);
+        }
         List<Object> badges = new ArrayList<>();
         for (int i = 1; i <= lvl; i++) {
             Map<String, Object> b = new LinkedHashMap<>();

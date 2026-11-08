@@ -9,8 +9,10 @@
 // T opens the tree, Q casts the new abilities picked from it (client.js forwards both keys).
 // There are two trees: "dragon" (3 rings: 45, 25, 10 skills) and "titan" (the 5m tier: 1 ring of 3).
 //
-// King Dragons also always have Wing Slash (Z), Wingspan (X) and Shoot Meteor (C): action 4 with the
-// ability's index. Their effects are game objects of type 175 (o_kingDragonFx) that client.js hands to drawFx() below,
+// The dragons' milestone abilities are Wing Slash (Z), Wingspan (X) and Shoot Meteor (C): action 4 with
+// the ability's index. King Dragons have all three. Black Dragons get one slot at milestone I and one at
+// milestone II (2 at most) and choose what goes in it: action 5 with the index. On touch screens the
+// abilities also get big buttons on the right (#msMobile). Their effects are game objects of type 175 (o_kingDragonFx) that client.js hands to drawFx() below,
 // which plays the frames made by tools/kingdragon_fx/make_fx_frames.py.
 (function () {
     'use strict';
@@ -21,7 +23,9 @@
     var requested = {};
     var selected = -1;    // skill id shown in the details box
     var qReady = {};      // skill id -> time (ms) it can be cast again
-    var kdReady = [0, 0, 0]; // King Dragon Z/X/C -> time (ms) usable again
+    var kdReady = [0, 0, 0]; // dragon abilities Z/X/C -> time (ms) usable again
+    var mobile;              // big touch buttons on the right
+    var TOUCH = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
 
     // frame folders and counts: must match FRAMES in make_fx_frames.py
     var FX = [['wingslash', 8], ['wingspan', 10], ['meteor', 6], ['impact', 10]];
@@ -47,11 +51,11 @@
 
     function send(action, id) {
         if (typeof MsgWriter !== 'function' || typeof wsSendMsg !== 'function') return;
-        var m = new MsgWriter(action === 2 ? 4 : action === 4 ? 3 : 2);
+        var m = new MsgWriter(action === 2 ? 4 : action >= 4 ? 3 : 2);
         m.writeUInt8(MSG);
         m.writeUInt8(action);
         if (action === 2) m.writeUInt16(id);
-        if (action === 4) m.writeUInt8(id);
+        if (action >= 4) m.writeUInt8(id);
         wsSendMsg(m);
     }
 
@@ -80,10 +84,21 @@
         ctx.restore();
     }
 
+    function hasAbility(i) {
+        return !!state && (state.da || []).some(function (a) { return a.i === i; });
+    }
+
+    // Wing Slash (0), Wingspan (1), Shoot Meteor (2), for dragons that have it
     function castKD(i) {
-        if (!state || !state.kd || !state.kd.length || i == null) return;
+        if (i == null || !hasAbility(i)) return;
         if ((kdReady[i] || 0) > Date.now()) return;
         send(4, i);
+    }
+
+    // Black Dragon: put ability i in an open slot
+    function chooseAbility(i) {
+        if (!state || !(state.daChoose || []).some(function (a) { return a.i === i; })) return;
+        send(5, i);
     }
 
     function fmtXP(xp) {
@@ -155,6 +170,12 @@
         toast.id = 'msToast';
         document.body.appendChild(toast);
 
+        mobile = document.createElement('div');
+        mobile.id = 'msMobile';
+        mobile.style.display = 'none';
+        document.body.appendChild(mobile);
+        if (TOUCH) document.body.classList.add('ms-touch');
+
         document.addEventListener('keydown', function (e) {
             if (e.keyCode === 27 && isOpen()) {
                 e.preventDefault();
@@ -181,6 +202,7 @@
         build();
         if (!state || !state.animal || !alive()) {
             hud.style.display = 'none';
+            mobile.style.display = 'none';
             close();
             return;
         }
@@ -208,18 +230,35 @@
                 h += '<kbd class="ms-q-key">Q</kbd></div>';
             }
         }
-        if (state.kd && state.kd.length) {
-            preloadFx();
+        var da = state.da || [], daChoose = state.daChoose || [];
+        if (da.length || daChoose.length) preloadFx();
+        if (da.length) {
             h += '<div class="ms-q ms-kd">';
-            state.kd.forEach(function (k) {
+            da.forEach(function (k) {
                 h += '<button class="ms-q-btn ms-kd-btn" data-kd="' + k.i + '" title="' + esc(k.name) + ' (' + k.key + ')">' +
                     '<img src="' + KD_ICON[k.icon] + '" alt=""><span class="ms-q-cd"></span><kbd>' + k.key + '</kbd></button>';
+            });
+            h += '</div>';
+        }
+        if (daChoose.length) {
+            // Black Dragon: a milestone opened an ability slot
+            h += '<div class="ms-choose"><div class="ms-choose-title">Choose a milestone ability (' +
+                (state.daUsed || 0) + '/' + (state.daMax || 2) + ')</div>';
+            daChoose.forEach(function (k) {
+                h += '<button class="ms-choose-btn" data-choose="' + k.i + '"><img src="' + KD_ICON[k.icon] + '" alt="">' +
+                    '<span>' + esc(k.name) + '<small>key ' + k.key + '</small></span></button>';
             });
             h += '</div>';
         }
         hud.innerHTML = h;
         var kds = hud.querySelectorAll('.ms-kd-btn');
         for (var kk = 0; kk < kds.length; kk++) kds[kk].onclick = function () { castKD(+this.getAttribute('data-kd')); };
+        var chs = hud.querySelectorAll('.ms-choose-btn');
+        for (var ch = 0; ch < chs.length; ch++) chs[ch].onclick = function () {
+            this.disabled = true;
+            chooseAbility(+this.getAttribute('data-choose'));
+        };
+        renderMobile();
         var btn = document.getElementById('msTreeBtn');
         if (btn) btn.onclick = function () { toggle(); };
         var qs = hud.querySelectorAll('.ms-q-btn:not(.ms-kd-btn)');
@@ -227,10 +266,44 @@
         renderQ();
     }
 
+    // big touch buttons on the right for the dragon abilities and the Q abilities
+    function renderMobile() {
+        if (!TOUCH) return;
+        var da = state.da || [], q = state.q || [];
+        if (!da.length && !q.length) {
+            mobile.style.display = 'none';
+            return;
+        }
+        mobile.style.display = '';
+        var h = '';
+        da.forEach(function (k) {
+            h += '<button class="ms-q-btn ms-kd-btn ms-big" data-kd="' + k.i + '" aria-label="' + esc(k.name) + '">' +
+                '<img src="' + KD_ICON[k.icon] + '" alt=""><span class="ms-q-cd"></span><span class="ms-big-name">' + esc(k.name) + '</span></button>';
+        });
+        if (q.length) {
+            h += '<button class="ms-q-btn ms-big ms-big-q" data-id="' + q[0].id + '" aria-label="Q abilities">' +
+                '<svg viewBox="-12 -12 24 24"><g fill="#fff">' + (GLYPH[q[0].icon] || GLYPH.nova) + '</g></svg>' +
+                '<span class="ms-q-cd"></span><span class="ms-big-name">Q</span></button>';
+        }
+        mobile.innerHTML = h;
+        var bs = mobile.querySelectorAll('button');
+        for (var i = 0; i < bs.length; i++) {
+            var tap = function (e) {
+                // keep the touch away from the joystick and the game canvas
+                e.preventDefault();
+                e.stopPropagation();
+                var kd = this.getAttribute('data-kd');
+                if (kd != null) castKD(+kd); else cast();
+            };
+            bs[i].addEventListener('touchstart', tap, { passive: false });
+            bs[i].addEventListener('click', tap);
+        }
+    }
+
     function renderQ() {
         if (!hud || !state || !state.q) return;
         var now = Date.now();
-        var qs = hud.querySelectorAll('.ms-q-btn');
+        var qs = document.querySelectorAll('#msHud .ms-q-btn, #msMobile .ms-q-btn');
         for (var i = 0; i < qs.length; i++) {
             var id = qs[i].getAttribute('data-id');
             var kd = qs[i].getAttribute('data-kd');
@@ -451,7 +524,7 @@
             qReady = {};
             (state.q || []).forEach(function (q) { qReady[q.id] = now + q.left; });
             kdReady = [0, 0, 0];
-            (state.kd || []).forEach(function (k) { kdReady[k.i] = now + k.left; });
+            (state.da || []).forEach(function (k) { kdReady[k.i] = now + k.left; });
             if (state.tree && !tree && !requested[state.track]) {
                 requested[state.track] = true;
                 send(1);
@@ -469,7 +542,7 @@
 
     // hide everything when the player dies or leaves
     setInterval(function () {
-        if (hud && hud.style.display !== 'none' && !alive()) {
+        if (hud && (hud.style.display !== 'none' || mobile.style.display !== 'none') && !alive()) {
             state = null;
             renderHud();
         }

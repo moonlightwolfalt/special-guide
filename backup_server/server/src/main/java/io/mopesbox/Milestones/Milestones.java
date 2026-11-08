@@ -86,6 +86,7 @@ public final class Milestones {
     public static List<String> lines(String key, int level) {
         List<String> l = new ArrayList<>();
         if ("blackdragon".equals(key)) {
+            if (level <= 2) l.add("Ability slot " + level + " of 2: choose Wing Slash, Wingspan or Shoot Meteor");
             if (level == 1) l.add("Fire volley: +1 fireball");
             if (level == 2) l.add("Fire volley recharges 20% faster");
             if (level == 3) {
