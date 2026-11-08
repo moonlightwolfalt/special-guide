@@ -233,6 +233,11 @@ public class MilestoneState {
 
     // ------------------------------------------------------------------ dragon milestone abilities
 
+    /** The current animal's milestone level (0 when it has no milestones). */
+    public int level() {
+        return curLevel();
+    }
+
     public boolean blackDragonHas(int i) {
         return i >= 0 && i < 3 && blackDragonAbilities[i];
     }
@@ -497,22 +502,39 @@ public class MilestoneState {
         DragonAbilities abil = dragonAbilities();
         if (abil != null) {
             boolean canChoose = client.getPlayer() instanceof BlackDragon && blackDragonChosen() < blackDragonSlots();
-            for (int i = 0; i < 3; i++) {
+            for (int i = 0; i < DragonAbilities.COUNT; i++) {
                 Map<String, Object> e = new LinkedHashMap<>();
                 e.put("i", i);
                 e.put("name", DragonAbilities.NAMES[i]);
                 e.put("key", DragonAbilities.KEYS[i]);
                 e.put("icon", DragonAbilities.ICONS[i]);
+                e.put("offense", DragonAbilities.UNLOCK[i] > 0);
                 if (abil.has(i)) {
                     e.put("left", abil.left(i));
                     da.add(e);
-                } else if (canChoose) {
+                } else if (canChoose && i < 3) {
                     daChoose.add(e);
                 }
             }
         }
         m.put("da", da);
         m.put("daChoose", daChoose);
+        // King Dragon defensive passives: all three, with whether each is unlocked yet
+        List<Object> passives = new ArrayList<>();
+        if (abil != null && client.getPlayer() instanceof KingDragon) {
+            for (int p = 0; p < 3; p++) {
+                Map<String, Object> e = new LinkedHashMap<>();
+                e.put("name", DragonAbilities.PASSIVE_NAMES[p]);
+                e.put("icon", DragonAbilities.PASSIVE_ICONS[p]);
+                e.put("text", DragonAbilities.PASSIVE_TEXT[p]);
+                e.put("on", abil.hasPassive(p));
+                e.put("level", p + 1);
+                e.put("left", abil.passiveLeft(p));
+                e.put("every", p == 0 ? DragonAbilities.INFERNO_EVERY_MS : p == 2 ? DragonAbilities.PHOENIX_EVERY_MS : 0);
+                passives.add(e);
+            }
+        }
+        m.put("passives", passives);
         if (client.getPlayer() instanceof BlackDragon) {
             m.put("daUsed", blackDragonChosen());
             m.put("daMax", DragonAbilities.BLACK_DRAGON_LIMIT);

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Draws the animation frames for the King Dragon's Wing Slash, Wingspan and Shoot Meteor.
+"""Draws the animation frames for the dragons' milestone abilities.
 
 Each effect is a numbered sequence of transparent PNGs that the client plays over the game
 (web/skilltree.js has the frame counts in FX; client.js draws object type 175, o_kingDragonFx):
@@ -8,6 +8,10 @@ Each effect is a numbered sequence of transparent PNGs that the client plays ove
   web/img/kingdragon/wingspan/0..9.png    both wings unfolding with a shockwave ring
   web/img/kingdragon/meteor/0..5.png      the flying meteor (loops)
   web/img/kingdragon/impact/0..9.png      the meteor's explosion
+  web/img/kingdragon/infernoring/0..9.png Inferno Ring: a ring of flame tongues bursting outward
+  web/img/kingdragon/dive/0..7.png        Dragon Dive: a burning streak along the charge
+  web/img/kingdragon/eruption/0..11.png   Volcanic Eruption: cracks, lava spray and a fire ring
+  web/img/kingdragon/phoenix/0..9.png     Phoenix Heart: golden flames rising around the dragon
 
 Every frame faces right (+x), with the dragon (or the meteor's centre) in the middle of the
 image; the game rotates it to the dragon's facing. Drawn at 2x and scaled down for smooth edges.
@@ -23,7 +27,8 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFilter
 
-FRAMES = {'wingslash': 8, 'wingspan': 10, 'meteor': 6, 'impact': 10}
+FRAMES = {'wingslash': 8, 'wingspan': 10, 'meteor': 6, 'impact': 10,
+          'infernoring': 10, 'dive': 8, 'eruption': 12, 'phoenix': 10}
 
 SS = 2  # supersampling
 W = 512 * SS
@@ -267,6 +272,149 @@ def impact(t):
     return glow(img, W * 0.012, '#ff7a1a', 0.5)
 
 
+# ------------------------------------------------------------------ Inferno Ring
+def flame_tongue(d, ang, r0, length, width, col, a):
+    """A flame licking outward from radius r0 at angle ang (degrees)."""
+    base_l, base_r = polar(r0, ang - width), polar(r0, ang + width)
+    tip = polar(r0 + length, ang)
+    mid_l = polar(r0 + length * 0.55, ang - width * 0.7)
+    mid_r = polar(r0 + length * 0.55, ang + width * 0.7)
+    d.polygon([base_l, mid_l, tip, mid_r, base_r], fill=rgba(col, a))
+
+
+def infernoring(t):
+    """A ring of fire bursting out from the dragon and fading."""
+    img = layer()
+    r = R * (0.35 + 0.55 * ease_out(t))
+    fade = 1 if t < 0.55 else max(0, 1 - (t - 0.55) / 0.45)
+    thick = R * (0.12 - 0.06 * t)
+    img = over(img, lambda d: d.ellipse([C - r - thick, C - r - thick, C + r + thick, C + r + thick],
+                                        outline=rgba('#ff4a10', 210 * fade), width=int(thick * 2)))
+    img = over(img, lambda d: d.ellipse([C - r - thick * 0.4, C - r - thick * 0.4, C + r + thick * 0.4, C + r + thick * 0.4],
+                                        outline=rgba('#ffcf6a', 240 * fade), width=int(thick * 0.8)))
+    rnd = random.Random(21)
+    n = 28
+
+    def tongues(col, scale, a):
+        def paint(d):
+            for k in range(n):
+                ang = k * 360 / n + rnd.uniform(-4, 4) + t * 20
+                length = R * (0.10 + 0.10 * rnd.random()) * scale * (1 - 0.4 * t)
+                flame_tongue(d, ang, r, length, 360 / n * 0.45, col, a * fade)
+        return paint
+    img = over(img, tongues('#ff6a1a', 1.0, 220))
+    rnd = random.Random(21)
+    img = over(img, tongues('#ffe08a', 0.55, 240))
+    return glow(img, W * 0.012, '#ff7a1a', 0.6)
+
+
+# ------------------------------------------------------------------ Dragon Dive
+def dive(t):
+    """A burning streak along the charge (facing right), brightest at the front."""
+    img = layer()
+    head = -R * 0.9 + R * 1.8 * ease_out(min(1, t * 1.6))
+    tail = max(-R * 0.95, head - R * 1.3)
+    fade = 1 if t < 0.6 else max(0, 1 - (t - 0.6) / 0.4)
+    steps = 40
+    for col, half, amax in (('#ff4a10', R * 0.30, 190), ('#ffb52e', R * 0.18, 220), ('#fff6d0', R * 0.07, 255)):
+        def paint(d, col=col, half=half, amax=amax):
+            for k in range(steps):
+                f0, f1 = k / steps, (k + 1) / steps
+                x0, x1 = tail + (head - tail) * f0, tail + (head - tail) * f1
+                h = half * (0.25 + 0.75 * f1)
+                d.polygon([(C + x0, C - h), (C + x1, C - h), (C + x1, C + h), (C + x0, C + h)],
+                          fill=rgba(col, amax * (f1 ** 1.6) * fade))
+        img = over(img, paint)
+    # sparks behind the charge
+    rnd = random.Random(31)
+    d = ImageDraw.Draw(img)
+    for k in range(18):
+        x = C + tail + (head - tail) * rnd.random()
+        y = C + rnd.uniform(-R * 0.3, R * 0.3)
+        s = W * rnd.uniform(0.004, 0.008)
+        d.ellipse([x - s, y - s, x + s, y + s], fill=rgba('#ffe9a8', 220 * fade))
+    return glow(img, W * 0.015, '#ff5a14', 0.6)
+
+
+# ------------------------------------------------------------------ Volcanic Eruption
+def eruption(t):
+    """Ground cracks, a lava fountain bursting outward and a ring of fire."""
+    img = layer()
+    fade = 1 if t < 0.6 else max(0, 1 - (t - 0.6) / 0.4)
+    # scorched ground and glowing cracks
+    gr = R * 0.55 * min(1, t * 4)
+    # kept see-through: the effect is drawn over the dragon
+    img = over(img, lambda d: d.ellipse([C - gr, C - gr, C + gr, C + gr], fill=rgba('#2a1610', 90 * fade)))
+    rnd = random.Random(41)
+
+    def cracks(d):
+        for k in range(9):
+            ang = k * 40 + rnd.uniform(-12, 12)
+            pts = [(C, C)]
+            r = 0
+            while r < gr * 1.1:
+                r += R * 0.08
+                pts.append(polar(r, ang + rnd.uniform(-14, 14)))
+            d.line(pts, fill=rgba('#ff8a2a', 240 * fade), width=int(W * 0.012))
+    img = over(img, cracks)
+    # lava blobs thrown outward
+    rk = random.Random(43)
+
+    def blobs(d):
+        for k in range(30):
+            ang = rk.uniform(0, 360)
+            dist = R * (0.1 + 0.85 * ease_out(t)) * rk.uniform(0.5, 1.0)
+            x, y = polar(dist, ang)
+            s = R * rk.uniform(0.03, 0.06) * (1 - 0.5 * t)
+            d.ellipse([x - s, y - s, x + s, y + s], fill=rgba('#ff5a14', 240 * fade))
+            d.ellipse([x - s * 0.5, y - s * 0.5, x + s * 0.5, y + s * 0.5], fill=rgba('#ffe08a', 255 * fade))
+    img = over(img, blobs)
+    # fire ring at the edge
+    ring = R * (0.3 + 0.65 * ease_out(t))
+    img = over(img, lambda d: d.ellipse([C - ring, C - ring, C + ring, C + ring],
+                                        outline=rgba('#ffb52e', 230 * (1 - t)), width=int(R * 0.05)))
+    # central burst early on
+    if t < 0.5:
+        cb = R * 0.3 * ease_out(t * 2)
+        img = over(img, lambda d: d.ellipse([C - cb, C - cb, C + cb, C + cb], fill=rgba('#fff1a8', 255 * (1 - t * 2))))
+    return glow(img, W * 0.012, '#ff6a1a', 0.55)
+
+
+# ------------------------------------------------------------------ Phoenix Heart
+def phoenix(t):
+    """Golden flames rising in a circle around the dragon, with a bright healing halo."""
+    img = layer()
+    fade = min(1, t * 4) * (1 if t < 0.6 else max(0, 1 - (t - 0.6) / 0.4))
+    halo = R * (0.45 + 0.2 * t)
+    img = over(img, lambda d: d.ellipse([C - halo, C - halo, C + halo, C + halo], fill=rgba('#ffd84a', 70 * fade)))
+    img = over(img, lambda d: d.ellipse([C - halo, C - halo, C + halo, C + halo],
+                                        outline=rgba('#fff3b0', 230 * fade), width=int(R * 0.03)))
+    rnd = random.Random(51)
+
+    def flames(d):
+        for k in range(12):
+            ang = k * 30 + t * 40
+            x, y = polar(halo, ang)
+            h = R * (0.16 + 0.10 * rnd.random()) * (0.6 + 0.6 * math.sin(t * math.pi))
+            w = h * 0.5
+            # flames always lick upward (towards -y in the image)
+            d.polygon([(x - w / 2, y), (x - w * 0.3, y - h * 0.5), (x, y - h), (x + w * 0.3, y - h * 0.5), (x + w / 2, y)],
+                      fill=rgba('#ffb52e', 230 * fade))
+            d.polygon([(x - w / 4, y), (x, y - h * 0.6), (x + w / 4, y)], fill=rgba('#fff6d0', 240 * fade))
+    img = over(img, flames)
+    # rising sparks
+    rs = random.Random(53)
+
+    def sparks(d):
+        for k in range(24):
+            x = C + rs.uniform(-halo, halo)
+            y = C + halo * 0.8 - (rs.uniform(0, 1) + t) % 1 * halo * 1.8
+            s = W * rs.uniform(0.004, 0.008)
+            d.ellipse([x - s, y - s, x + s, y + s], fill=rgba('#fff3b0', 230 * fade))
+    img = over(img, sparks)
+    return glow(img, W * 0.014, '#ffcf3f', 0.6)
+
+
 def main():
     out = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(__file__).resolve().parents[2] / 'web' / 'img' / 'kingdragon'
     size = int(sys.argv[2]) if len(sys.argv) > 2 else 512
@@ -275,6 +423,10 @@ def main():
         'wingspan': lambda i, n: wingspan(i / (n - 1)),
         'meteor': meteor,
         'impact': lambda i, n: impact(i / (n - 1)),
+        'infernoring': lambda i, n: infernoring(i / (n - 1)),
+        'dive': lambda i, n: dive(i / (n - 1)),
+        'eruption': lambda i, n: eruption(i / (n - 1)),
+        'phoenix': lambda i, n: phoenix(i / (n - 1)),
     }
     total = 0
     for name, n in FRAMES.items():

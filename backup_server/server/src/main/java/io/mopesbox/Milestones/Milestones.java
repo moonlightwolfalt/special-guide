@@ -94,6 +94,10 @@ public final class Milestones {
                 l.add("Bigger fireballs that fly 20% further");
             }
         } else if ("kingdragon".equals(key)) {
+            l.add("Defensive: " + io.mopesbox.Animals.Tier17.DragonAbilities.PASSIVE_NAMES[level - 1] + " ("
+                    + io.mopesbox.Animals.Tier17.DragonAbilities.PASSIVE_TEXT[level - 1] + ")");
+            l.add("Offensive: " + io.mopesbox.Animals.Tier17.DragonAbilities.NAMES[level + 2] + " (key "
+                    + io.mopesbox.Animals.Tier17.DragonAbilities.KEYS[level + 2] + ")");
             if (level == 1) {
                 l.add("Fire stream lasts 30% longer");
                 l.add("Tail slap recharges in 11s (was 15s)");

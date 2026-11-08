@@ -234,7 +234,7 @@ Milestones count from the most XP you've had this life, so losing XP doesn't tak
 | Animal | Milestone XP | What it gives |
 |--------|--------------|---------------|
 | Black Dragon | 12.5m / 17.5m / 25m | An ability slot at each of the first two (choose 2 of Wing Slash, Wingspan, Shoot Meteor). Fire volley: +1 fireball; then 20% faster recharge; then half lava cost, bigger fireballs, 20% more range. Each opens the next skill-tree ring. |
-| King Dragon | 12.5m / 17.5m / 25m | Fire stream 30% longer and tail slap 11 s (was 15 s); then stream recharge 5 s (was 7 s) and tail slap +25% damage; then half lava cost, bigger fireballs, tail slap 30% bigger and 8 s. Each opens the next skill-tree ring. |
+| King Dragon | 12.5m / 17.5m / 25m | A defensive passive and an offensive ability at each (see below). Fire stream 30% longer and tail slap 11 s (was 15 s); then stream recharge 5 s (was 7 s) and tail slap +25% damage; then half lava cost, bigger fireballs, tail slap 30% bigger and 8 s. Each opens the next skill-tree ring. |
 | Dino Monster, Land Monster, Sea Monster, Giant Scorpion, Ice Monster (the 5m tier) | 7.25m | "Titan": ability recharges 25% faster, +50 max health, +10 bite damage, and a pick of 1 of 3 Titan skills |
 
 **Skill tree** (dragons, press **T**). The tree has three circular rings. You pick one skill from each ring, so the choices narrow from 45 to 10:
@@ -257,7 +257,7 @@ Reworks (orange) are always on. They change the dragon's fire ability (extra fir
 node tools/milestones/make-milestone-images.js [OUT_DIR] [SIZE]
 ```
 
-## Dragon milestone abilities: Wing Slash, Wingspan, Shoot Meteor
+## Dragon milestone abilities
 
 Three extra abilities on keys **Z**, **X** and **C**:
 
@@ -272,9 +272,19 @@ They also appear as buttons in that box, with their cooldowns. On phones and tab
 | X | Wingspan | Both wings snap open (3.2x the dragon's size). Every animal around takes 35 damage, is pushed away and stunned for 1 s | 14 s |
 | C | Shoot Meteor | A meteor flies about 650 px ahead and explodes. Up to 140 damage within 230 px, less at the edge, plus a 5 s burn and knockback. Costs 20% lava | 20 s |
 
+**King Dragon milestones** also give one defensive passive and one offensive ability each. Passives work on their own, and the box at the bottom left shows them under "Defensive", with a countdown for the Inferno Ring and Phoenix Heart.
+
+| Milestone | Defensive (automatic) | Offensive (key) |
+|-----------|-----------------------|-----------------|
+| I: 12.5m | **Inferno Ring**: every 5 s, fire bursts around the dragon (2.6x its size). 30 damage, 3 s burn, push | **Dragon Dive** (V): charges about 400 px forward. Everything in the path takes 60 damage and a 3 s burn and is knocked aside. 8 s |
+| II: 17.5m | **Dragonscale**: takes 25% less damage | **Firestorm** (B): a 60-degree burst of 12 fireballs, with the skill tree's fireball bonuses. 12 s |
+| III: 25m | **Phoenix Heart**: below 30% health, heals 40% and is immune for 2 s. Once every 45 s | **Volcanic Eruption** (N): the ground bursts around the dragon (3.4x its size). 90 damage, 6 s burn, push and a ring of 10 fires. Costs 30% lava. 25 s |
+
+On phones the offensive abilities join the big buttons on the right (gold rim), in two columns when there are more than four.
+
 - Server: `Animals/Tier17/DragonAbilities.java`, shared by both dragons, and `Objects/ETC/KingDragonFx.java`, the effect the client draws (object type 175; 160 to 162 are outer space). The Black Dragon's choice is kept in `MilestoneState`. The client casts with message type 120, action 4, and a Black Dragon chooses with action 5.
 - Client: `web/skilltree.js` (`drawFx`, `castKD`, the Z/X/C buttons, the Black Dragon's choice and the touch buttons in `#msMobile`), with the keys in `web/client.js`.
-- Animation frames: `web/img/kingdragon/{wingslash,wingspan,meteor,impact}/<n>.png` (8, 10, 6 and 10 frames). The meteor loops; the others play once over the effect's life. They're drawn by a Python script (needs Pillow):
+- Animation frames: `web/img/kingdragon/<effect>/<n>.png` for wingslash (8), wingspan (10), meteor (6, loops), impact (10), infernoring (10), dive (8), eruption (12) and phoenix (10). All but the meteor play once over the effect's life. `skilltree.js` preloads them through the game's image cache so a one-off effect shows the first time. They're drawn by a Python script (needs Pillow):
 
 ```
 python3 tools/kingdragon_fx/make_fx_frames.py [OUT_DIR] [SIZE]
@@ -336,6 +346,6 @@ A player's XP goes up to 4,294,967,295, the most the client's XP field can hold.
 
 ## Turning speed
 
-Animals turn on the game server, at most a set number of degrees per tick (`calculateAngle` in `Animal.java`). `turnSpeedPerTier` in `backup_server/server/config.txt` sets the limit for tiers 1 to 17, as degrees per tick (the server runs 20 ticks a second). It's 360 for every tier, so every animal turns instantly: no turn is over 180°. Lower a tier's number to make it turn more slowly. The client then eases its drawn angle toward the server's the same way v1.mope.io does: 10% of the gap per 1/120 s, at any frame rate.
+Animals turn on the game server, at most a set number of degrees per tick (`calculateAngle` in `Animal.java`). `turnSpeedPerTier` in `backup_server/server/config.txt` sets the limit for tiers 1 to 17, as degrees per tick (the server runs 20 ticks a second). The defaults are what the old formula gave, which is close to instant: 1,190° per tick for a mouse, down to 28° for tier 17. The client then eases its drawn angle toward the server's the same way v1.mope.io does: 10% of the gap per 1/120 s, at any frame rate.
 
 To match v1's server turning speed, measure it with `tools/measure-v1-turn-speed.js`. The steps are at the top of that file: paste it into the browser console on v1.mope.io, play, and it prints how many degrees per update the server turns each animal.

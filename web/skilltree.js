@@ -23,13 +23,19 @@
     var requested = {};
     var selected = -1;    // skill id shown in the details box
     var qReady = {};      // skill id -> time (ms) it can be cast again
-    var kdReady = [0, 0, 0]; // dragon abilities Z/X/C -> time (ms) usable again
+    var kdReady = [0, 0, 0, 0, 0, 0]; // dragon abilities Z X C V B N -> time (ms) usable again
+    var passiveNext = [];    // King Dragon defensive passives: [time of next trigger, repeat ms]
     var mobile;              // big touch buttons on the right
     var TOUCH = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
 
     // frame folders and counts: must match FRAMES in make_fx_frames.py
-    var FX = [['wingslash', 8], ['wingspan', 10], ['meteor', 6], ['impact', 10]];
-    var KD_ICON = { wingslash: 'img/kingdragon/wingslash/4.png', wingspan: 'img/kingdragon/wingspan/6.png', meteor: 'img/kingdragon/meteor/0.png' };
+    var FX = [['wingslash', 8], ['wingspan', 10], ['meteor', 6], ['impact', 10],
+        ['infernoring', 10], ['dive', 8], ['eruption', 12], ['phoenix', 10]];
+    var KD_ICON = {
+        wingslash: 'img/kingdragon/wingslash/4.png', wingspan: 'img/kingdragon/wingspan/6.png', meteor: 'img/kingdragon/meteor/0.png',
+        dive: 'img/kingdragon/dive/4.png', firestorm: 'img/kingdragon/impact/3.png', eruption: 'img/kingdragon/eruption/5.png',
+        infernoring: 'img/kingdragon/infernoring/4.png', phoenix: 'img/kingdragon/phoenix/5.png'
+    };
     var fxPreloaded = false;
     var hud, panel, toast, toastTimer;
     var SVGNS = 'http://www.w3.org/2000/svg';
@@ -63,8 +69,11 @@
     function preloadFx() {
         if (fxPreloaded) return;
         fxPreloaded = true;
+        // through client.js's own image cache (it adds a version to each URL), so a one-off effect
+        // like the eruption has its frames ready the first time it plays
+        var load = typeof _0x2f22f9 === 'function' ? _0x2f22f9 : function (src) { new Image().src = src; };
         FX.forEach(function (f) {
-            for (var i = 0; i < f[1]; i++) new Image().src = 'img/kingdragon/' + f[0] + '/' + i + '.png';
+            for (var i = 0; i < f[1]; i++) load('img/kingdragon/' + f[0] + '/' + i + '.png');
         });
     }
 
@@ -235,8 +244,22 @@
         if (da.length) {
             h += '<div class="ms-q ms-kd">';
             da.forEach(function (k) {
-                h += '<button class="ms-q-btn ms-kd-btn" data-kd="' + k.i + '" title="' + esc(k.name) + ' (' + k.key + ')">' +
+                h += '<button class="ms-q-btn ms-kd-btn' + (k.offense ? ' offense' : '') + '" data-kd="' + k.i + '" title="' +
+                    esc(k.name) + ' (' + k.key + ')">' +
                     '<img src="' + KD_ICON[k.icon] + '" alt=""><span class="ms-q-cd"></span><kbd>' + k.key + '</kbd></button>';
+            });
+            h += '</div>';
+        }
+        var passives = state.passives || [];
+        if (passives.length) {
+            // King Dragon defensive milestones: automatic, so shown but not pressed
+            h += '<div class="ms-passives"><span class="ms-passives-title">Defensive</span>';
+            passives.forEach(function (p, idx) {
+                var icon = KD_ICON[p.icon]
+                    ? '<img src="' + KD_ICON[p.icon] + '" alt="">'
+                    : '<svg viewBox="-12 -12 24 24"><g fill="#fff">' + GLYPH.shield + '</g></svg>';
+                h += '<span class="ms-passive' + (p.on ? ' on' : '') + '" data-p="' + idx + '" title="' + esc(p.name) + ': ' + esc(p.text) +
+                    (p.on ? '' : ' (milestone ' + p.level + ')') + '">' + icon + '<span class="ms-q-cd"></span></span>';
             });
             h += '</div>';
         }
@@ -277,7 +300,7 @@
         mobile.style.display = '';
         var h = '';
         da.forEach(function (k) {
-            h += '<button class="ms-q-btn ms-kd-btn ms-big" data-kd="' + k.i + '" aria-label="' + esc(k.name) + '">' +
+            h += '<button class="ms-q-btn ms-kd-btn ms-big' + (k.offense ? ' offense' : '') + '" data-kd="' + k.i + '" aria-label="' + esc(k.name) + '">' +
                 '<img src="' + KD_ICON[k.icon] + '" alt=""><span class="ms-q-cd"></span><span class="ms-big-name">' + esc(k.name) + '</span></button>';
         });
         if (q.length) {
@@ -311,6 +334,18 @@
             var cd = qs[i].querySelector('.ms-q-cd');
             cd.textContent = left > 0 ? Math.ceil(left / 1000) : '';
             qs[i].classList.toggle('cooling', left > 0);
+        }
+        // passives: Inferno Ring counts down to its next burst, Phoenix Heart to when it can save you again
+        var ps = document.querySelectorAll('#msHud .ms-passive.on');
+        for (var j = 0; j < ps.length; j++) {
+            var pn = passiveNext[+ps[j].getAttribute('data-p')];
+            if (!pn) continue;
+            var pl = pn[0] - now;
+            if (pl <= 0 && pn[2]) { // the Inferno Ring repeats on its own
+                pn[0] += Math.ceil(-pl / pn[1] + 0.0001) * pn[1];
+                pl = pn[0] - now;
+            }
+            ps[j].querySelector('.ms-q-cd').textContent = pl > 0 && pn[1] ? Math.ceil(pl / 1000) : '';
         }
     }
 
@@ -523,8 +558,11 @@
             var now = Date.now();
             qReady = {};
             (state.q || []).forEach(function (q) { qReady[q.id] = now + q.left; });
-            kdReady = [0, 0, 0];
+            kdReady = [0, 0, 0, 0, 0, 0];
             (state.da || []).forEach(function (k) { kdReady[k.i] = now + k.left; });
+            passiveNext = (state.passives || []).map(function (p, idx) {
+                return [now + p.left, p.every, idx === 0]; // [next time, repeat ms, repeats by itself]
+            });
             if (state.tree && !tree && !requested[state.track]) {
                 requested[state.track] = true;
                 send(1);
