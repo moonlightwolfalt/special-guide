@@ -46,6 +46,12 @@ public final class Milestones {
         return "blackdragon".equals(key) || "kingdragon".equals(key);
     }
 
+    /** Which skill tree the animal uses, or null when it has none. */
+    public static String track(String key) {
+        if (key == null) return null;
+        return isDragon(key) ? SkillTree.DRAGON : SkillTree.TITAN;
+    }
+
     public static long[] thresholds(String key) {
         if (key == null) return new long[0];
         return isDragon(key) ? DRAGON_XP : TITAN_XP;
@@ -105,6 +111,8 @@ public final class Milestones {
         }
         if (isDragon(key))
             l.add("Skill tree " + SkillTree.RING_NAMES[level - 1] + " opens: pick 1 of " + SkillTree.RING_SIZES[level - 1] + " (press T)");
+        else
+            l.add("Pick 1 of " + SkillTree.TITAN_SIZE + " Titan skills (press T)");
         return l;
     }
 

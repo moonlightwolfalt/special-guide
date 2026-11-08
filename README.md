@@ -235,7 +235,7 @@ Milestones count from the most XP you've had this life, so losing XP doesn't tak
 |--------|--------------|---------------|
 | Black Dragon | 12.5m / 17.5m / 25m | Fire volley: +1 fireball; then 20% faster recharge; then half lava cost, bigger fireballs, 20% more range. Each opens the next skill-tree ring. |
 | King Dragon | 12.5m / 17.5m / 25m | Fire stream 30% longer and tail slap 11 s (was 15 s); then stream recharge 5 s (was 7 s) and tail slap +25% damage; then half lava cost, bigger fireballs, tail slap 30% bigger and 8 s. Each opens the next skill-tree ring. |
-| Dino Monster, Land Monster, Sea Monster, Giant Scorpion, Ice Monster (the 5m tier) | 7.25m | "Titan": ability recharges 25% faster, +50 max health, +10 bite damage |
+| Dino Monster, Land Monster, Sea Monster, Giant Scorpion, Ice Monster (the 5m tier) | 7.25m | "Titan": ability recharges 25% faster, +50 max health, +10 bite damage, and a pick of 1 of 3 Titan skills |
 
 **Skill tree** (dragons, press **T**). The tree has three circular rings. You pick one skill from each ring, so the choices narrow from 45 to 10:
 
@@ -245,9 +245,11 @@ Milestones count from the most XP you've had this life, so losing XP doesn't tak
 | II: Inferno (middle) | 17.5m | 25 | 13 | 12 |
 | III: Cataclysm (inner) | 25m | 10 | 5 | 5 |
 
+**Titan skills** (the 5m tier, press **T**). At 7.25m they pick 1 of only 3 skills, which work for every 5m-tier animal: **Relentless** (ability recharges 20% faster), **Titan Hide** (+80 max health, heal 2 per second) or **Titan Roar** (a Q shockwave that pushes and stuns animals within 500, 18 s cooldown). If a 5m-tier animal becomes a dragon, the Titan pick stops counting and the dragon tree takes over.
+
 Reworks (orange) are always on. They change the dragon's fire ability (extra fireballs, spread, size, range, burn time, recharge, lava cost) or its body (health, bite, regeneration). New abilities (blue) are cast with **Q**, each on its own cooldown. They include fireball novas, rear volleys, rings of fire, wing gusts that push and stun, dashes, immunity shields, heals and lava refills. Both dragons share the tree.
 
-- Server: `backup_server/server/src/main/java/io/mopesbox/Milestones/`. `Milestones.java` holds the XP and rewards, `SkillTree.java` all 80 skills, and `MilestoneState.java` each player's picks and the Q abilities. The game talks to the client with message type 120.
+- Server: `backup_server/server/src/main/java/io/mopesbox/Milestones/`. `Milestones.java` holds the XP and rewards, `SkillTree.java` all 80 dragon skills and the 3 Titan skills, and `MilestoneState.java` each player's picks and the Q abilities. The game talks to the client with message type 120.
 - Client: `web/skilltree.js` (the HUD, the tree and the milestone popup), with styles at the end of `web/modern.css`.
 - Badge images: `web/img/milestones/<animal>_<level>.png`, drawn by a Node script (needs Playwright):
 

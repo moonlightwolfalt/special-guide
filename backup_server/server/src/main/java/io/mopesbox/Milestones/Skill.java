@@ -15,6 +15,7 @@ public class Skill {
     public enum Kind { REWORK, NEW }
 
     public final int id;
+    public final String track; // "dragon" (Black/King Dragon) or "titan" (the 5m tier)
     public final int ring; // 1 = outer (45 skills), 2 = middle (25), 3 = inner (10)
     public final Kind kind;
     public final String name;
@@ -43,8 +44,9 @@ public class Skill {
     int heal;            // % of max health healed
     int lavaFill;        // % of lava refilled
 
-    Skill(int id, int ring, Kind kind, String name) {
+    Skill(int id, String track, int ring, Kind kind, String name) {
         this.id = id;
+        this.track = track;
         this.ring = ring;
         this.kind = kind;
         this.name = name;
@@ -93,7 +95,7 @@ public class Skill {
         if (nova != 0) l.add("Bursts " + nova + " fireballs in a full circle");
         if (rear != 0) l.add("Fires " + rear + " fireballs behind you");
         if (field != 0) l.add("Sets " + field + " fires in a ring around you");
-        if (gust != 0) l.add("Wing gust pushes and stuns animals within " + gust);
+        if (gust != 0) l.add("Shockwave pushes and stuns animals within " + gust);
         if (dash != 0) l.add("Dashes forward (" + new String[] { "", "short", "medium", "long" }[Math.min(3, dash)] + ")");
         if (shield != 0) l.add("Immune to damage for " + shield + "s");
         if (heal != 0) l.add("Heals " + heal + "% of max health");

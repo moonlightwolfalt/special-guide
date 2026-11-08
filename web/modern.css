@@ -1292,3 +1292,5 @@ div#mopeshop-popup #msg.pumpkin #closeMsg {
 	font-size: 13px;
 	color: var(--muted);
 }
+
+.st-node-name { font: 700 26px var(--ui-font); fill: #fff; text-anchor: middle; }

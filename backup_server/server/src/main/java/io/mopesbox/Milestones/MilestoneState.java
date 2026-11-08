@@ -44,7 +44,9 @@ public class MilestoneState {
 
     private long peakXP = 0;
     private final Set<String> announced = new HashSet<>();
-    private final int[] picks = { -1, -1, -1 };
+    // picks per tree: the dragon tree has 3 rings, the titan tree 1
+    private final int[] dragonPicks = { -1, -1, -1 };
+    private final int[] titanPicks = { -1 };
     private final Map<Integer, Long> readyAt = new HashMap<>();
 
     private String lastKey = null;
@@ -100,7 +102,8 @@ public class MilestoneState {
     private void reset() {
         peakXP = 0;
         announced.clear();
-        picks[0] = picks[1] = picks[2] = -1;
+        dragonPicks[0] = dragonPicks[1] = dragonPicks[2] = -1;
+        titanPicks[0] = -1;
         readyAt.clear();
         lastKey = null;
         lastLevel = -1;
@@ -129,13 +132,24 @@ public class MilestoneState {
         return Milestones.isDragon(curKey());
     }
 
+    private String curTrack() {
+        return Milestones.track(curKey());
+    }
+
+    /** The current animal's tree picks (empty when it has no tree). */
+    private int[] picks() {
+        String t = curTrack();
+        if (SkillTree.DRAGON.equals(t)) return dragonPicks;
+        if (SkillTree.TITAN.equals(t)) return titanPicks;
+        return new int[0];
+    }
+
     // ------------------------------------------------------------------ stats
 
-    /** Total of one stat over the rework skills picked. Only dragons have skill picks. */
+    /** Total of one stat over the rework skills picked in the current animal's tree. */
     private double sum(ToDoubleFunction<Skill> f) {
-        if (!curIsDragon()) return 0;
         double t = 0;
-        for (int id : picks) {
+        for (int id : picks()) {
             Skill s = SkillTree.byId(id);
             if (s != null && s.kind == Skill.Kind.REWORK) t += f.applyAsDouble(s);
         }
@@ -265,10 +279,10 @@ public class MilestoneState {
 
     public void cast() {
         Animal p = client.getPlayer();
-        if (p == null || !curIsDragon() || p.inArena || p.health <= 0) return;
+        if (p == null || curTrack() == null || p.inArena || p.health <= 0) return;
         long now = System.currentTimeMillis();
         boolean any = false;
-        for (int id : picks) {
+        for (int id : picks()) {
             Skill s = SkillTree.byId(id);
             if (s == null || s.kind != Skill.Kind.NEW) continue;
             Long r = readyAt.get(s.id);
@@ -334,13 +348,14 @@ public class MilestoneState {
 
     private void pick(int id) {
         Skill s = SkillTree.byId(id);
-        if (s == null || !curIsDragon()) return;
+        if (s == null || !s.track.equals(curTrack())) return;
         int ring = s.ring;
         if (curLevel() < ring) {
-            client.send(Networking.popup("Reach " + format(Milestones.DRAGON_XP[ring - 1]) + " XP to open "
-                    + SkillTree.RING_NAMES[ring - 1] + ".", "error", 4));
+            long xp = Milestones.thresholds(curKey())[ring - 1];
+            client.send(Networking.popup("Reach " + format(xp) + " XP to pick this skill.", "error", 4));
             return;
         }
+        int[] picks = picks();
         if (picks[ring - 1] != -1) return;
         picks[ring - 1] = id;
         bodyDirty = true;
@@ -359,7 +374,7 @@ public class MilestoneState {
         int action = reader.readUInt8();
         switch (action) {
             case 1:
-                send(1, SkillTree.toJson());
+                if (curTrack() != null) send(1, SkillTree.toJson(curTrack()));
                 sendState();
                 break;
             case 2:
@@ -397,14 +412,17 @@ public class MilestoneState {
         m.put("maxLevel", th.length);
         m.put("thresholds", th);
         m.put("next", lvl < th.length ? th[lvl] : 0);
-        m.put("tree", Milestones.isDragon(key));
+        String track = Milestones.track(key);
+        int[] picks = picks();
+        m.put("tree", track != null);
+        m.put("track", track == null ? "" : track);
         m.put("picks", picks.clone());
         int points = 0;
-        if (Milestones.isDragon(key))
-            for (int r = 0; r < Math.min(3, lvl); r++) if (picks[r] == -1) points++;
+        if (track != null)
+            for (int r = 0; r < SkillTree.ringsOpen(track, lvl); r++) if (picks[r] == -1) points++;
         m.put("points", points);
         List<Object> q = new ArrayList<>();
-        if (Milestones.isDragon(key)) {
+        if (track != null) {
             long now = System.currentTimeMillis();
             for (int id : picks) {
                 Skill s = SkillTree.byId(id);

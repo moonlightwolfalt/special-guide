@@ -2,6 +2,7 @@ package io.mopesbox.Milestones;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,24 +20,48 @@ import io.mopesbox.Milestones.Skill.Kind;
  *
  * The player picks one skill from each ring, so the choice narrows from 45 to 10.
  * Black Dragon and King Dragon share the tree; reworks change whichever fire ability the dragon has.
+ *
+ * The 5m tier (Dino/Land/Sea Monster, Giant Scorpion, Ice Monster) has its own small tree: one ring
+ * of 3 skills that opens at their 7.25m milestone, and they pick 1.
  */
 public final class SkillTree {
+    public static final String DRAGON = "dragon";
+    public static final String TITAN = "titan";
+
     public static final int[] RING_SIZES = { 45, 25, 10 };
     public static final String[] RING_NAMES = { "Ring I: Ember", "Ring II: Inferno", "Ring III: Cataclysm" };
+    public static final int TITAN_SIZE = 3;
+    public static final String TITAN_RING_NAME = "Titan";
 
     private static final List<Skill> ALL = new ArrayList<>();
-    private static String json;
+    private static final Map<String, String> json = new HashMap<>();
 
     private static Skill rework(int ring, String name) {
-        Skill s = new Skill(ALL.size(), ring, Kind.REWORK, name);
+        Skill s = new Skill(ALL.size(), DRAGON, ring, Kind.REWORK, name);
         ALL.add(s);
         return s;
     }
 
     private static Skill ability(int ring, String name) {
-        Skill s = new Skill(ALL.size(), ring, Kind.NEW, name);
+        Skill s = new Skill(ALL.size(), DRAGON, ring, Kind.NEW, name);
         ALL.add(s);
         return s;
+    }
+
+    private static Skill titan(Kind kind, String name) {
+        Skill s = new Skill(ALL.size(), TITAN, 1, kind, name);
+        ALL.add(s);
+        return s;
+    }
+
+    /** How many rings a track's tree has. */
+    public static int rings(String track) {
+        return TITAN.equals(track) ? 1 : 3;
+    }
+
+    /** How many picks the player has opened at this milestone level. */
+    public static int ringsOpen(String track, int level) {
+        return Math.min(rings(track), level);
     }
 
     static {
@@ -132,12 +157,21 @@ public final class SkillTree {
         ability(3, "Volcano Heart").lavaFill(100).field(18).cd(40);
         ability(3, "Dragon's Wrath").rear(10).nova(16).cd(24);
 
+        // ---------------- the 5m tier: 3 skills at 7.25m, pick 1 ----------------
+        // These work for every 5m-tier animal, whatever its own ability does.
+        titan(Kind.REWORK, "Relentless").recharge(-0.2);
+        titan(Kind.REWORK, "Titan Hide").hp(80).regen(2);
+        titan(Kind.NEW, "Titan Roar").gust(500).cd(18);
+
         for (int r = 1; r <= 3; r++) {
             int n = 0;
-            for (Skill s : ALL) if (s.ring == r) n++;
+            for (Skill s : ALL) if (DRAGON.equals(s.track) && s.ring == r) n++;
             if (n != RING_SIZES[r - 1])
                 throw new IllegalStateException("Skill tree ring " + r + " has " + n + " skills, expected " + RING_SIZES[r - 1]);
         }
+        int t = 0;
+        for (Skill s : ALL) if (TITAN.equals(s.track)) t++;
+        if (t != TITAN_SIZE) throw new IllegalStateException("Titan tree has " + t + " skills, expected " + TITAN_SIZE);
     }
 
     private SkillTree() {}
@@ -150,25 +184,27 @@ public final class SkillTree {
         return id >= 0 && id < ALL.size() ? ALL.get(id) : null;
     }
 
-    /** The whole tree as JSON, built once. */
-    public static synchronized String toJson() {
-        if (json == null) {
+    /** One track's tree as JSON, built once. */
+    public static synchronized String toJson(String track) {
+        return json.computeIfAbsent(track, t -> {
+            boolean titan = TITAN.equals(t);
             Map<String, Object> m = new LinkedHashMap<>();
+            m.put("track", t);
+            m.put("title", titan ? "Titan Skills" : "Dragon Skill Tree");
             List<Object> skills = new ArrayList<>();
-            for (Skill s : ALL) skills.add(s.toJson());
+            for (Skill s : ALL) if (t.equals(s.track)) skills.add(s.toJson());
             List<Object> rings = new ArrayList<>();
-            for (int i = 0; i < 3; i++) {
+            for (int i = 0; i < rings(t); i++) {
                 Map<String, Object> r = new LinkedHashMap<>();
                 r.put("ring", i + 1);
-                r.put("name", RING_NAMES[i]);
-                r.put("size", RING_SIZES[i]);
-                r.put("xp", Milestones.DRAGON_XP[i]);
+                r.put("name", titan ? TITAN_RING_NAME : RING_NAMES[i]);
+                r.put("size", titan ? TITAN_SIZE : RING_SIZES[i]);
+                r.put("xp", titan ? Milestones.TITAN_XP[0] : Milestones.DRAGON_XP[i]);
                 rings.add(r);
             }
             m.put("rings", rings);
             m.put("skills", skills);
-            json = new Gson().toJson(m);
-        }
-        return json;
+            return new Gson().toJson(m);
+        });
     }
 }

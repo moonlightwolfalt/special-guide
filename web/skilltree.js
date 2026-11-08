@@ -7,12 +7,14 @@
 // and reads type 120 back: 1 = send tree and state, 2 = pick (uint16 skill id), 3 = cast Q abilities.
 //
 // T opens the tree, Q casts the new abilities picked from it (client.js forwards both keys).
+// There are two trees: "dragon" (3 rings: 45, 25, 10 skills) and "titan" (the 5m tier: 1 ring of 3).
 (function () {
     'use strict';
     var MSG = 120;
-    var tree = null;      // sub 1
+    var trees = {};       // sub 1, by track
+    var tree = null;      // the current animal's tree
     var state = null;     // sub 2
-    var requested = false;
+    var requested = {};
     var selected = -1;    // skill id shown in the details box
     var qReady = {};      // skill id -> time (ms) it can be cast again
     var hud, panel, toast, toastTimer;
@@ -21,6 +23,17 @@
     // ring geometry in the 1000x1000 tree drawing: outer ring 1 (45), middle 2 (25), inner 3 (10)
     var RING_R = { 1: 432, 2: 298, 3: 168 };
     var NODE_R = { 1: 24, 2: 29, 3: 36 };
+    // the titan tree is one ring of 3 big nodes
+    var TITAN_R = 280, TITAN_NODE = 82;
+
+    function ringR(r) { return tree.rings.length === 1 ? TITAN_R : RING_R[r]; }
+    function nodeR(r) { return tree.rings.length === 1 ? TITAN_NODE : NODE_R[r]; }
+
+    function skillById(id) {
+        if (!tree) return null;
+        for (var i = 0; i < tree.skills.length; i++) if (tree.skills[i].id === id) return tree.skills[i];
+        return null;
+    }
 
     function send(action, id) {
         if (typeof MsgWriter !== 'function' || typeof wsSendMsg !== 'function') return;
@@ -81,7 +94,7 @@
         panel.style.display = 'none';
         panel.innerHTML =
             '<div class="st-card" role="dialog" aria-label="Skill tree">' +
-            '<div class="st-head"><div><div class="st-title">Dragon Skill Tree</div>' +
+            '<div class="st-head"><div><div class="st-title" id="stTitle">Skill Tree</div>' +
             '<div class="st-sub" id="stSub"></div></div>' +
             '<button class="st-close" id="stClose" aria-label="Close">&times;</button></div>' +
             '<div class="st-body"><div class="st-wheel" id="stWheel"></div>' +
@@ -140,7 +153,7 @@
         h += '<div class="ms-text"><b>' + esc(state.name) + '</b><br>' +
             (state.next ? 'Next milestone: ' + fmtXP(state.next) + ' XP' : 'All milestones reached') + '</div></div>';
         if (state.tree) {
-            h += '<button class="ms-tree-btn" id="msTreeBtn">Skill tree <kbd>T</kbd>' +
+            h += '<button class="ms-tree-btn" id="msTreeBtn">' + (state.track === 'titan' ? 'Titan skills' : 'Skill tree') + ' <kbd>T</kbd>' +
                 (state.points > 0 ? '<span class="ms-points">' + state.points + '</span>' : '') + '</button>';
             if (state.q.length) {
                 h += '<div class="ms-q" id="msQ">';
@@ -189,9 +202,13 @@
             return;
         }
         var lvl = state.level;
+        var nRings = tree.rings.length;
+        var rings = [];
+        for (var ri = 1; ri <= nRings; ri++) rings.push(ri);
+        document.getElementById('stTitle').textContent = tree.title || 'Skill Tree';
         sub.innerHTML = esc(state.name) + ' &middot; ' +
             (state.points > 0 ? '<b class="st-pts">' + state.points + ' pick' + (state.points > 1 ? 's' : '') + ' ready</b>'
-                : (lvl < 3 ? 'Next ring opens at ' + fmtXP(tree.rings[lvl].xp) + ' XP' : 'Tree complete'));
+                : (lvl < nRings ? (nRings > 1 ? 'Next ring opens' : 'Opens') + ' at ' + fmtXP(tree.rings[lvl].xp) + ' XP' : 'Tree complete'));
 
         wheel.innerHTML = '';
         var svg = el('svg', { viewBox: '0 0 1000 1000', class: 'st-svg' }, wheel);
@@ -204,40 +221,40 @@
         var g = el('g', { transform: 'translate(500 500)' }, svg);
 
         // ring bands: left half rework (orange), right half new ability (blue)
-        [1, 2, 3].forEach(function (r) {
+        rings.forEach(function (r) {
             var open = lvl >= r;
-            var R = RING_R[r], w = NODE_R[r] * 2 + 20;
+            var R = ringR(r), w = nodeR(r) * 2 + 20;
             el('circle', { r: R, fill: 'none', stroke: open ? 'rgba(255,255,255,.10)' : 'rgba(255,255,255,.04)', 'stroke-width': w }, g);
             el('circle', { r: R + w / 2, fill: 'none', stroke: 'rgba(255,255,255,.08)', 'stroke-width': 2 }, g);
         });
         // spokes between the halves
-        el('line', { x1: 0, y1: -500, x2: 0, y2: 500, stroke: 'rgba(255,255,255,.10)', 'stroke-width': 2, 'stroke-dasharray': '6 8' }, g);
+        if (nRings > 1) el('line', { x1: 0, y1: -500, x2: 0, y2: 500, stroke: 'rgba(255,255,255,.10)', 'stroke-width': 2, 'stroke-dasharray': '6 8' }, g);
 
         // links from each pick to the next ring's pick
         var pickPos = [];
-        [1, 2, 3].forEach(function (r) {
+        rings.forEach(function (r) {
             var skills = ringSkills(r);
             skills.forEach(function (s, i) {
                 if (state.picks[r - 1] === s.id) {
                     var a = nodeAngle(s, i, skills.length) * Math.PI / 180;
-                    pickPos.push([Math.cos(a) * RING_R[r], Math.sin(a) * RING_R[r]]);
+                    pickPos.push([Math.cos(a) * ringR(r), Math.sin(a) * ringR(r)]);
                 }
             });
         });
         for (var p = 1; p < pickPos.length; p++)
             el('line', { x1: pickPos[p - 1][0], y1: pickPos[p - 1][1], x2: pickPos[p][0], y2: pickPos[p][1], stroke: '#ffd23f', 'stroke-width': 5, 'stroke-linecap': 'round', opacity: 0.8 }, g);
 
-        [1, 2, 3].forEach(function (r) {
+        rings.forEach(function (r) {
             var skills = ringSkills(r);
             var open = lvl >= r;
             var picked = state.picks[r - 1];
             skills.forEach(function (s, i) {
                 var a = nodeAngle(s, i, skills.length) * Math.PI / 180;
-                var x = Math.cos(a) * RING_R[r], y = Math.sin(a) * RING_R[r];
+                var x = Math.cos(a) * ringR(r), y = Math.sin(a) * ringR(r);
                 var st = picked === s.id ? 'picked' : picked !== -1 ? 'passed' : open ? 'open' : 'locked';
                 var node = el('g', { transform: 'translate(' + x.toFixed(1) + ' ' + y.toFixed(1) + ')', class: 'st-node ' + s.kind + ' ' + st + (selected === s.id ? ' sel' : ''), tabindex: 0 }, g);
-                el('circle', { r: NODE_R[r], class: 'st-node-bg', filter: st === 'open' || st === 'picked' ? 'url(#stGlow)' : '' }, node);
-                var sc = NODE_R[r] / 13;
+                el('circle', { r: nodeR(r), class: 'st-node-bg', filter: st === 'open' || st === 'picked' ? 'url(#stGlow)' : '' }, node);
+                var sc = nodeR(r) / 13;
                 var gl = el('g', { transform: 'scale(' + sc.toFixed(2) + ')', fill: '#fff' }, node);
                 gl.innerHTML = GLYPH[s.icon] || GLYPH.flame;
                 var t = el('title', {}, node);
@@ -247,8 +264,17 @@
                     if (e.keyCode === 13 || e.keyCode === 32) { e.preventDefault(); select(s.id); }
                 });
             });
+            if (nRings === 1) {
+                // few big nodes: write each skill's name under it
+                skills.forEach(function (s, i) {
+                    var a = nodeAngle(s, i, skills.length) * Math.PI / 180;
+                    var t = el('text', { x: (Math.cos(a) * ringR(r)).toFixed(1), y: (Math.sin(a) * ringR(r) + nodeR(r) + 36).toFixed(1), class: 'st-node-name' }, g);
+                    t.textContent = s.name;
+                });
+                return;
+            }
             // ring label at the top
-            var lab = el('text', { x: 0, y: -RING_R[r] - NODE_R[r] - 16, class: 'st-ring-label' + (open ? ' open' : '') }, g);
+            var lab = el('text', { x: 0, y: -ringR(r) - nodeR(r) - 16, class: 'st-ring-label' + (open ? ' open' : '') }, g);
             lab.textContent = tree.rings[r - 1].name.replace('Ring ', '') + (open ? '' : ' · ' + fmtXP(tree.rings[r - 1].xp));
         });
 
@@ -257,7 +283,7 @@
         var c1 = el('text', { y: -8, class: 'st-center-big' }, g);
         c1.textContent = state.points > 0 ? state.points : '✓';
         var c2 = el('text', { y: 30, class: 'st-center-small' }, g);
-        c2.textContent = state.points > 0 ? (state.points > 1 ? 'picks ready' : 'pick ready') : (lvl < 3 ? 'all picked' : 'complete');
+        c2.textContent = state.points > 0 ? (state.points > 1 ? 'picks ready' : 'pick ready') : (lvl < nRings ? 'all picked' : 'complete');
 
         renderInfo();
         renderBadges();
@@ -281,9 +307,11 @@
 
     function renderInfo() {
         var box = document.getElementById('stInfo');
-        var s = tree && selected >= 0 ? tree.skills[selected] : null;
+        var s = selected >= 0 ? skillById(selected) : null;
         if (!s) {
-            box.innerHTML = '<p class="st-hint">Pick one skill from each ring. Ring I opens at your first milestone, ' +
+            box.innerHTML = tree.rings.length === 1
+                ? '<p class="st-hint">Pick one of these 3 skills at your 7.25m milestone. Your pick lasts until you die.</p>'
+                : '<p class="st-hint">Pick one skill from each ring. Ring I opens at your first milestone, ' +
                 'and each milestone after opens the next ring. Your picks last until you die.</p>';
             return;
         }
@@ -293,7 +321,7 @@
         s.lines.forEach(function (l) { h += '<li>' + esc(l) + '</li>'; });
         h += '</ul>';
         if (picked === s.id) h += '<div class="st-status ok">Learned</div>';
-        else if (picked !== -1) h += '<div class="st-status">You already picked ' + esc(tree.skills[picked].name) + ' from this ring</div>';
+        else if (picked !== -1) h += '<div class="st-status">You already picked ' + esc((skillById(picked) || {}).name || '') + (tree.rings.length > 1 ? ' from this ring' : '') + '</div>';
         else if (lvl < r) h += '<div class="st-status">Opens at ' + fmtXP(tree.rings[r - 1].xp) + ' XP</div>';
         else h += '<button class="st-learn" id="stLearn">Learn ' + esc(s.name) + '</button>';
         box.innerHTML = h;
@@ -326,6 +354,7 @@
         }
         panel.style.display = '';
         if (!tree) send(1);
+        selected = -1;
         renderTree();
     }
 
@@ -358,14 +387,17 @@
             return;
         }
         if (sub === 1) {
-            tree = data;
+            trees[data.track] = data;
+            if (state && state.track === data.track) tree = data;
         } else if (sub === 2) {
+            if (!state || state.track !== data.track) selected = -1;
             state = data;
+            tree = trees[state.track] || null;
             var now = Date.now();
             qReady = {};
             (state.q || []).forEach(function (q) { qReady[q.id] = now + q.left; });
-            if (state.tree && !tree && !requested) {
-                requested = true;
+            if (state.tree && !tree && !requested[state.track]) {
+                requested[state.track] = true;
                 send(1);
             }
             if (!state.animal) selected = -1;
